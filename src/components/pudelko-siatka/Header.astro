@@ -1,0 +1,393 @@
+---
+// The header never hides: the page is short and the visitor jumps between sections often.
+import Logo from '../Logo.astro';
+
+export interface NavLink {
+  id: string;
+  n: number;
+  label: string;
+  long: string;
+}
+
+interface Props {
+  links: NavLink[];
+}
+
+const { links } = Astro.props;
+---
+
+<header class="hdr" data-hdr>
+  <div class="hdr-frame">
+    <div class="hdr-in">
+      <a class="logo" href="#top" aria-label="Huber, początek strony">
+        <Logo ink="var(--ink)" paper="var(--bg)" height={24} />
+      </a>
+      <nav class="nav" aria-label="Sekcje strony" data-nav>
+        {
+          links.map((l) => (
+            <a href={`#${l.id}`} data-spy={l.id}>
+              {l.label}
+            </a>
+          ))
+        }
+        <span class="nav-ind" aria-hidden="true" data-ind></span>
+      </nav>
+      <button class="sq menu-btn" type="button" aria-expanded="false" aria-controls="ps-menu" data-menu-btn>
+        <span class="bars" aria-hidden="true"></span>
+        <span class="menu-txt">Menu</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="menu" id="ps-menu" data-menu>
+  <div class="menu-frame">
+    <nav aria-label="Menu">
+      <ol class="menu-list" role="list">
+        {
+          links.map((l, i) => (
+            <li style={`--k: ${i}`}>
+              <a href={`#${l.id}`} data-spy={l.id}>
+                <span class="menu-mark" aria-hidden="true"></span>
+                <span>{l.long}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<style>
+  .hdr {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in oklab, var(--bg) 94%, transparent);
+  }
+
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .hdr {
+      background: color-mix(in oklab, var(--bg) 92%, transparent);
+      -webkit-backdrop-filter: blur(16px) saturate(1.4);
+      backdrop-filter: blur(16px) saturate(1.4);
+    }
+  }
+
+  .hdr::before,
+  .hdr::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    width: 9px;
+    height: 9px;
+    background: var(--plus-mark);
+    pointer-events: none;
+  }
+
+  .hdr::before {
+    left: calc((100% - var(--frame)) / 2 - 4px);
+  }
+
+  .hdr::after {
+    right: calc((100% - var(--frame)) / 2 - 4px);
+  }
+
+  /* The frame lines pass under the blurred background, so the header draws them again. */
+  .hdr-frame,
+  .menu-frame {
+    width: var(--frame);
+    margin-inline: auto;
+    border-inline: 1px solid var(--line);
+  }
+
+  .hdr-in {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: var(--hdr);
+    padding-inline: var(--pad);
+  }
+
+  .logo {
+    display: block;
+    margin-right: auto;
+  }
+
+  .nav {
+    position: relative;
+    display: none;
+    gap: 26px;
+    margin-right: 28px;
+  }
+
+  .nav a {
+    padding: 8px 0;
+    font-size: 14px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 160ms ease;
+  }
+
+  .nav a[aria-current='true'] {
+    color: var(--ink);
+  }
+
+  .nav-ind {
+    position: absolute;
+    left: 0;
+    bottom: 2px;
+    width: 1px;
+    height: 1px;
+    background: var(--ink);
+    transform-origin: left;
+    opacity: 0;
+    transition:
+      transform 280ms var(--ease),
+      opacity 200ms ease;
+  }
+
+  .nav-ind[data-on] {
+    opacity: 1;
+  }
+
+  .sq {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    border: 1px solid var(--line-2);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ink);
+    transition:
+      transform 160ms var(--ease),
+      border-color 160ms ease;
+  }
+
+  .menu-btn {
+    gap: 10px;
+    padding: 0 14px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .sq:active {
+    transform: scale(0.97);
+  }
+
+  .bars {
+    position: relative;
+    width: 14px;
+    height: 8px;
+  }
+
+  .bars::before,
+  .bars::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 14px;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform 220ms var(--ease);
+  }
+
+  .bars::before {
+    top: 0;
+  }
+
+  .bars::after {
+    bottom: 0;
+  }
+
+  .menu-btn[aria-expanded='true'] .bars::before {
+    transform: translateY(3.25px) rotate(45deg);
+  }
+
+  .menu-btn[aria-expanded='true'] .bars::after {
+    transform: translateY(-3.25px) rotate(-45deg);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .nav a:hover {
+      color: var(--ink);
+    }
+
+    .sq:hover {
+      border-color: var(--ink);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .nav {
+      display: flex;
+    }
+
+    .menu-btn {
+      display: none;
+    }
+  }
+
+  .menu {
+    position: fixed;
+    z-index: 49;
+    top: var(--menu-top, var(--hdr));
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--bg);
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition:
+      opacity 160ms var(--ease),
+      transform 160ms var(--ease),
+      visibility 0s linear 160ms;
+  }
+
+  .menu[data-open] {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 240ms var(--ease),
+      transform 240ms var(--ease),
+      visibility 0s;
+  }
+
+  .menu-frame {
+    min-height: 100%;
+    padding: 4px var(--pad) 40px;
+  }
+
+  .menu-list li {
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 240ms var(--ease),
+      transform 240ms var(--ease);
+  }
+
+  .menu[data-open] .menu-list li {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(var(--k) * 35ms + 40ms);
+  }
+
+  .menu-list a {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .menu-mark {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    align-self: center;
+    border-radius: 50%;
+    background: transparent;
+    transition: background-color 160ms ease;
+  }
+
+  .menu-list a[aria-current='true'] .menu-mark {
+    background: var(--ink);
+  }
+
+
+  @media (min-width: 900px) {
+    .menu {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-hdr]')!;
+  const menu = document.querySelector<HTMLElement>('[data-menu]')!;
+  const btn = document.querySelector<HTMLButtonElement>('[data-menu-btn]')!;
+  const label = btn.querySelector('.menu-txt')!;
+  const nav = header.querySelector<HTMLElement>('[data-nav]')!;
+  const ind = header.querySelector<HTMLElement>('[data-ind]')!;
+  const wide = matchMedia('(min-width: 900px)');
+  // While the menu is open, the page behind it is inert, so Tab stays in the header and the menu.
+  const outside = () => Array.from(document.querySelectorAll<HTMLElement>('main, footer, .variant-nav'));
+
+  function setMenu(open: boolean, returnFocus = false) {
+    if (open) menu.style.setProperty('--menu-top', `${Math.max(0, header.getBoundingClientRect().bottom)}px`);
+    menu.toggleAttribute('data-open', open);
+    btn.setAttribute('aria-expanded', String(open));
+    label.textContent = open ? 'Zamknij' : 'Menu';
+    document.documentElement.classList.toggle('ps-lock', open);
+    outside().forEach((el) => (el.inert = open));
+    if (open) menu.querySelector<HTMLElement>('a')?.focus({ preventScroll: true });
+    else if (returnFocus) btn.focus();
+  }
+
+  btn.addEventListener('click', () => setMenu(btn.getAttribute('aria-expanded') !== 'true'));
+  menu.addEventListener('click', (ev) => {
+    if ((ev.target as Element).closest('a')) setMenu(false);
+  });
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape' && menu.hasAttribute('data-open')) setMenu(false, true);
+  });
+  wide.addEventListener('change', () => {
+    if (wide.matches && menu.hasAttribute('data-open')) setMenu(false);
+  });
+
+  // Active section: the one that crosses a thin band just above the middle of the viewport.
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-spy]'));
+  const ids = [...new Set(links.map((a) => a.dataset.spy!))];
+  const sections = ids.map((id) => document.getElementById(id)).filter((el): el is HTMLElement => !!el);
+  const crossing = new Set<string>();
+
+  function moveIndicator(link: HTMLAnchorElement | undefined) {
+    if (!link) {
+      ind.removeAttribute('data-on');
+      return;
+    }
+    const transform = `translateX(${link.offsetLeft}px) scaleX(${link.offsetWidth})`;
+    if (!ind.hasAttribute('data-on')) {
+      // Appear in place instead of sliding in from the left edge.
+      ind.style.transition = 'none';
+      ind.style.transform = transform;
+      void ind.offsetWidth;
+      ind.style.transition = '';
+      ind.setAttribute('data-on', '');
+      return;
+    }
+    ind.style.transform = transform;
+  }
+
+  function markActive() {
+    const active = ids.find((id) => crossing.has(id));
+    links.forEach((a) => {
+      if (a.dataset.spy === active) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+    moveIndicator(Array.from(nav.querySelectorAll<HTMLAnchorElement>('a')).find((a) => a.dataset.spy === active));
+  }
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => (e.isIntersecting ? crossing.add(e.target.id) : crossing.delete(e.target.id)));
+      markActive();
+    },
+    { rootMargin: '-40% 0px -55% 0px' },
+  );
+  sections.forEach((s) => io.observe(s));
+  document.fonts?.ready.then(markActive);
+</script>

@@ -1,0 +1,500 @@
+---
+import '../../styles/archivo-subset.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import { Image } from 'astro:assets';
+import { circuitRange, getProduct, products } from '../../data/products';
+import halftone from '../../assets/halftone/rw-ezmptr.png';
+import grain from '../../assets/textures/kraft-grain.png';
+import XrayLayer from './XrayLayer.astro';
+import {
+  VB,
+  front,
+  photoSizes,
+  photoStyle,
+  photoWidths,
+  pts,
+  side,
+  silhouette,
+  tapeSide,
+  tapeTop,
+  top,
+  topAt,
+} from './geometry';
+
+const product = getProduct('rw-ezmptr');
+const row = product.rows.find((r) => r.circuits === 5)!;
+const [index] = row.indexes;
+const range = circuitRange(products);
+
+// Decorative barcode derived from the index digits.
+const bars: { x: number; w: number }[] = [];
+let bx = 0;
+for (const ch of `${index}${row.L}${row.H}`.repeat(2)) {
+  const code = ch.charCodeAt(0);
+  for (const w of [1 + (code % 3), 2 + (code % 2), 1 + ((code >> 2) % 3)]) {
+    bars.push({ x: bx, w: w * 1.6 });
+    bx += w * 1.6 + 2.4;
+  }
+}
+const barScale = 220 / bx;
+
+// Cursor lenses, largest first. Each one holds its own copy of the X-ray, moved only with transforms.
+const lenses = [15, 11.5, 8.5, 6];
+const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 'zawór ESBE VTA322', '2 termometry', '2 uchwyty montażowe'];
+---
+
+<div class="stage-wrap" data-stage-wrap>
+  <figure class="stage" data-stage>
+    <svg class="art" viewBox={`0 0 ${VB.w} ${VB.h}`} aria-hidden="true">
+      <defs>
+        <pattern id="box-grain" width="320" height="320" patternUnits="userSpaceOnUse">
+          <image href={grain.src} width="320" height="320"></image>
+        </pattern>
+        <filter id="soft-shadow" x="-10%" y="-200%" width="120%" height="500%">
+          <feGaussianBlur stdDeviation="14"></feGaussianBlur>
+        </filter>
+        <linearGradient id="front-light" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity="0.1"></stop>
+          <stop offset="1" stop-color="#000" stop-opacity="0.08"></stop>
+        </linearGradient>
+      </defs>
+
+      <ellipse cx="610" cy="742" rx="560" ry="16" fill="#2a1f14" opacity="0.32" filter="url(#soft-shadow)"></ellipse>
+      <polygon points={pts(front)} fill="#c69c6d"></polygon>
+      <polygon points={pts(front)} fill="url(#front-light)"></polygon>
+      <polygon points={pts(top)} fill="#d7b386"></polygon>
+      <polygon points={pts(side)} fill="#a67c50"></polygon>
+      <polygon points={pts(silhouette)} fill="url(#box-grain)"></polygon>
+
+      <line x1={topAt(0, 0.5)[0]} y1={topAt(0, 0.5)[1]} x2={topAt(1, 0.5)[0]} y2={topAt(1, 0.5)[1]} stroke="#8a6440" stroke-width="1.5"></line>
+      <polygon points={pts(tapeTop)} fill="#e3cba6" opacity="0.72"></polygon>
+      <polygon points={pts(tapeSide)} fill="#cdb08a" opacity="0.72"></polygon>
+      <polyline points={pts([front[3], front[0], front[1], top[2]])} fill="none" stroke="#f3dcb9" stroke-opacity="0.5" stroke-width="1.5"></polyline>
+      <line x1={front[1][0]} y1={front[1][1]} x2={front[2][0]} y2={front[2][1]} stroke="#7d5a37" stroke-opacity="0.6" stroke-width="1.5"></line>
+
+      <g transform="translate(104 188) rotate(-10)" class="stamp">
+        <circle r="84" fill="#f26a21"></circle>
+        <circle r="75" fill="none" stroke="#161412" stroke-width="1.4" stroke-dasharray="2 3"></circle>
+        <text y="4" text-anchor="middle" class="stamp-num">{products.length}</text>
+        <text y="30" text-anchor="middle" class="stamp-label">KONFIGURACJI</text>
+        <text y="50" text-anchor="middle" class="stamp-label small">{range.min}–{range.max} OBWODÓW</text>
+      </g>
+
+      <g class="ink">
+        <g transform="translate(818 170)" fill="none" stroke="#231a12" stroke-width="2.4" stroke-linecap="square">
+          <path d="M0 30h26M7 26V6M2 11l5-6 5 6M19 26V6M14 11l5-6 5 6"></path>
+          <path d="M44 14a12 12 0 0 1 24 0zM56 14v10a3 3 0 0 0 6 0"></path>
+          <path d="M84 2h16l-1.5 11a6.5 6.5 0 0 1-13 0zM92 19v10M86 29h12"></path>
+        </g>
+        <rect x="810" y="215" width="250" height="3" fill="#231a12"></rect>
+        <g transform={`translate(820 618) scale(${barScale} 1)`} fill="#231a12">
+          {bars.map((b) => <rect x={b.x} y="0" width={b.w} height="56" />)}
+        </g>
+        <text x="820" y="696" class="svg-mono svg-small" fill="#231a12">{index} · WYPRODUKOWANO W POLSCE</text>
+      </g>
+    </svg>
+
+    <Image
+      src={halftone}
+      alt=""
+      class="print-img"
+      style={photoStyle}
+      widths={photoWidths}
+      sizes={photoSizes}
+      layout="none"
+      loading="eager"
+      fetchpriority="high"
+    />
+
+    <div class="print" aria-hidden="true">
+      <p class="print-brand" data-brand data-brand-fit>TWOJA MARKA</p>
+      <p class="print-sub">Rozdzielacz do podłogówki z układem mieszającym</p>
+      <dl class="print-spec">
+        <div><dt>Model</dt><dd>{product.code}</dd></div>
+        <div><dt>Obwody</dt><dd>{row.circuits}</dd></div>
+        <div><dt>Indeks</dt><dd>{index}</dd></div>
+      </dl>
+    </div>
+
+    <div class="xray-full" data-xray-full>
+      <XrayLayer id="xray-full" withList />
+    </div>
+
+    {
+      lenses.map((r, i) => (
+        <div class="lens" data-lens style={`--r: ${r}cqw`}>
+          <div class="lens-inner">
+            <XrayLayer id={`xray-lens-${i}`} />
+          </div>
+        </div>
+      ))
+    }
+
+    {/* A real button over the whole box: the print text stays decoration, the button has its own name. */}
+    <button type="button" class="stage-btn" data-stage-btn aria-pressed="false">
+      <span class="visually-hidden">Zajrzyj do środka pudełka z rozdzielaczem {product.code}</span>
+    </button>
+  </figure>
+
+  <ul class="contents-below" role="list">
+    {contents.map((c) => <li>{c}</li>)}
+    <li>Indeks {index}</li>
+  </ul>
+</div>
+
+<script>
+  // One loop owns the lenses. Its target comes from the cursor while the visitor points at the box,
+  // and from a slow automatic path while nobody does, so the box always shows that it hides something.
+  const wrap = document.querySelector<HTMLElement>('[data-stage-wrap]');
+  const stage = wrap?.querySelector<HTMLElement>('[data-stage]');
+  const button = stage?.querySelector<HTMLButtonElement>('[data-stage-btn]');
+
+  if (wrap && stage && button) {
+    stage.setAttribute('data-js', '');
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
+    // Over the printed label column (from 62% of the width) the lenses close, so the brand stays readable.
+    const LABEL_ZONE = 0.62;
+    const AUTO_RESUME_MS = 1800;
+    const FOLLOW = [0.3, 0.22, 0.18, 0.15];
+
+    const lenses = [...stage.querySelectorAll<HTMLElement>('[data-lens]')].map((el, i) => ({
+      el,
+      inner: el.firstElementChild as HTMLElement,
+      r: 0,
+      x: 0,
+      y: 0,
+      s: 0,
+      follow: FOLLOW[i] ?? 0.15,
+    }));
+
+    let w = 0;
+    let h = 0;
+    const measure = () => {
+      w = stage.clientWidth;
+      h = stage.clientHeight;
+      lenses.forEach((lens) => (lens.r = lens.el.offsetWidth / 2));
+    };
+
+    const target = { x: 0, y: 0, open: 0 };
+    let pointerInside = false;
+    let lastPointer = 0;
+    let isOpen = false;
+    let inView = false;
+    let frame = 0;
+    const start = performance.now();
+
+    const autoPoint = (t: number) => ({
+      x: w * (0.31 + 0.2 * Math.sin(t * 0.00042) + 0.05 * Math.sin(t * 0.0011)),
+      y: h * (0.47 + 0.15 * Math.sin(t * 0.00061 + 1.2)),
+    });
+
+    const place = (lens: (typeof lenses)[number]) => {
+      const s = Math.max(lens.s, 0.001);
+      lens.el.style.opacity = lens.s < 0.02 ? '0' : '1';
+      lens.el.style.transform = `translate3d(${lens.x}px, ${lens.y}px, 0) scale(${s}) translate3d(${-lens.r}px, ${-lens.r}px, 0)`;
+      lens.inner.style.transform = `translate3d(${lens.r}px, ${lens.r}px, 0) scale(${1 / s}) translate3d(${-lens.x}px, ${-lens.y}px, 0)`;
+    };
+
+    const tick = (now: number) => {
+      frame = 0;
+      const auto = !pointerInside && now - lastPointer > AUTO_RESUME_MS;
+      if (auto) {
+        const p = autoPoint(now - start);
+        target.x = p.x;
+        target.y = p.y;
+      }
+      const inLabel = target.x > w * LABEL_ZONE;
+      const want = isOpen || inLabel ? 0 : auto ? 0.85 : pointerInside ? 1 : 0;
+
+      let moving = false;
+      lenses.forEach((lens, i) => {
+        const lead = i === 0 ? target : lenses[i - 1]!;
+        lens.x += (lead.x - lens.x) * lens.follow;
+        lens.y += (lead.y - lens.y) * lens.follow;
+        lens.s += (want - lens.s) * 0.12;
+        if (Math.abs(lead.x - lens.x) > 0.3 || Math.abs(lead.y - lens.y) > 0.3 || Math.abs(want - lens.s) > 0.004) moving = true;
+        place(lens);
+      });
+      const idle = !pointerInside && !isOpen;
+      if (inView && !document.hidden && (moving || idle)) frame = requestAnimationFrame(tick);
+    };
+    const wake = () => {
+      if (!frame && inView) frame = requestAnimationFrame(tick);
+    };
+
+    const jumpLenses = (x: number, y: number) => {
+      lenses.forEach((lens) => {
+        lens.x = x;
+        lens.y = y;
+      });
+    };
+
+    const setOpen = (next: boolean) => {
+      isOpen = next;
+      button.setAttribute('aria-pressed', String(next));
+      wrap.toggleAttribute('data-open', next);
+      wake();
+    };
+    button.addEventListener('click', () => {
+      lastPointer = performance.now();
+      setOpen(!isOpen);
+    });
+
+    measure();
+    window.addEventListener('resize', measure);
+
+    if (reduceMotion) {
+      // No moving lenses: the button opens and closes the whole box.
+      lenses.forEach((lens) => lens.el.remove());
+    } else {
+      const local = (e: PointerEvent) => {
+        const rect = stage.getBoundingClientRect();
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      };
+      if (finePointer) {
+        stage.addEventListener('pointerenter', (e) => {
+          pointerInside = true;
+          const p = local(e);
+          if (lenses[0]!.s < 0.05) jumpLenses(p.x, p.y);
+          target.x = p.x;
+          target.y = p.y;
+          wake();
+        });
+        stage.addEventListener('pointermove', (e) => {
+          const p = local(e);
+          target.x = p.x;
+          target.y = p.y;
+          lastPointer = performance.now();
+          wake();
+        });
+        stage.addEventListener('pointerleave', () => {
+          pointerInside = false;
+          lastPointer = performance.now();
+          wake();
+        });
+      }
+
+      const p0 = autoPoint(0);
+      jumpLenses(p0.x, p0.y);
+      new IntersectionObserver((entries) => {
+        inView = entries.some((e) => e.isIntersecting);
+        wake();
+      }).observe(stage);
+      document.addEventListener('visibilitychange', wake);
+    }
+  }
+</script>
+
+<style>
+  .stage {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 1200 / 760;
+    container-type: inline-size;
+  }
+
+  .art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .stage :global(.print-img) {
+    position: absolute;
+    max-width: none;
+    height: auto;
+    pointer-events: none;
+  }
+
+  .svg-mono {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .svg-small {
+    font-size: 12.5px;
+  }
+
+  .stamp {
+    transition: opacity 240ms ease;
+  }
+
+  .stamp text {
+    fill: #161412;
+  }
+
+  .stamp-num {
+    font-family: 'Archivo Subset', sans-serif;
+    font-stretch: 72%;
+    font-size: 60px;
+    font-weight: 800;
+  }
+
+  .stamp-label {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .stamp-label.small {
+    font-size: 14px;
+  }
+
+  /* The sticker is on the outside of the carton, so the X-ray view does not show it. */
+  .stage-wrap[data-open] .stamp {
+    opacity: 0;
+  }
+
+  .print {
+    position: absolute;
+    left: 67.2%;
+    top: 30%;
+    bottom: 22%;
+    width: 21.7%;
+    display: flex;
+    flex-direction: column;
+    color: #231a12;
+  }
+
+  .print-brand {
+    font-family: 'Archivo Subset', sans-serif;
+    font-stretch: 72%;
+    font-weight: 800;
+    font-size: calc(6.4cqw * var(--fit, 1));
+    line-height: 0.92;
+    letter-spacing: -0.01em;
+    overflow: hidden;
+  }
+
+  .print-sub {
+    margin-top: 1.4cqw;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 1.35cqw;
+    font-weight: 600;
+    line-height: 1.35;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .print-spec {
+    margin-top: auto;
+    border-top: 0.2cqw solid currentColor;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 1.3cqw;
+  }
+
+  .print-spec div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1cqw;
+    padding-block: 0.55cqw;
+    border-bottom: 0.1cqw solid currentColor;
+  }
+
+  .print-spec dt {
+    text-transform: uppercase;
+  }
+
+  .print-spec dd {
+    font-weight: 600;
+  }
+
+  /* Open box: the full X-ray wipes in as a circle. Without JavaScript, hover shows it. */
+  .xray-full {
+    position: absolute;
+    inset: 0;
+    clip-path: circle(0% at 40% 55%);
+    transition: clip-path 800ms cubic-bezier(0.77, 0, 0.175, 1);
+  }
+
+  .stage-wrap[data-open] .xray-full {
+    clip-path: circle(90% at 40% 55%);
+  }
+
+  .stage-wrap[data-open] .xray-full :global(.xray-print) {
+    opacity: 1;
+  }
+
+  .xray-full :global(.xray-print) {
+    opacity: 0;
+    transition: opacity 240ms ease;
+  }
+
+  .stage:not([data-js]):hover .xray-full {
+    clip-path: circle(90% at 40% 55%);
+  }
+
+  .lens {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    width: calc(var(--r) * 2);
+    height: calc(var(--r) * 2);
+    overflow: hidden;
+    border-radius: 50%;
+    opacity: 0;
+    transform-origin: 0 0;
+    will-change: transform;
+    pointer-events: none;
+  }
+
+  .lens-inner {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100cqw;
+    aspect-ratio: 1200 / 760;
+    transform-origin: 0 0;
+    will-change: transform;
+  }
+
+  .stage-btn {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .stage-btn:focus-visible {
+    outline: 2px solid var(--stage-focus, var(--orange, #f26a21));
+    outline-offset: 8px;
+    border-radius: 6px;
+  }
+
+  .contents-below {
+    display: none;
+  }
+
+  /* On narrow screens the X-ray list would be a few pixels tall, so it moves below the box. */
+  @media (max-width: 600px) {
+    .stage-wrap[data-open] .contents-below {
+      display: grid;
+      gap: 4px;
+      margin-top: 16px;
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+      font-size: 0.875rem;
+    }
+
+    .contents-below li::before {
+      content: '+ ';
+      color: #b5400c;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .xray-full {
+      transition: none;
+    }
+  }
+</style>

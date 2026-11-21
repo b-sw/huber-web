@@ -1,0 +1,230 @@
+---
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import { variants } from '../data/variants';
+import { withBase } from '../data/paths';
+
+const audiences = [
+  {
+    name: 'Hurtownie instalacyjne',
+    note: 'Główny klient. Kupują w ilościach, cenią stałe dostawy i wsparcie techniczne.',
+  },
+  {
+    name: 'Instalatorzy',
+    note: 'Wybierają rozdzielacz na budowie lub przy ladzie w hurtowni. Szukają indeksu i wymiarów, często na telefonie.',
+  },
+  {
+    name: 'Inwestorzy i właściciele domów',
+    note: 'Nie kupują bezpośrednio, ale szukają w Google i proszą instalatora o konkretną markę.',
+  },
+  {
+    name: 'Marki OEM i dystrybutorzy z zagranicy',
+    note: 'Zamawiają konfiguracje pod własną marką. Potrzebują jasnego procesu i kontaktu handlowego.',
+  },
+];
+---
+
+<Base
+  title="Huber – propozycje nowej strony"
+  description="Pięć wariantów strony głównej huber.info.pl do porównania."
+  path="/"
+  noindex
+>
+  <main class="page">
+    <header class="head">
+      <Logo height={26} />
+      <h1>Nowa strona huber.info.pl. Propozycje strony głównej.</h1>
+      <p>
+        Dwa warianty z kartonowym pudełkiem w nagłówku: asortyment i nowa oferta OEM na pierwszym planie, informacje o
+        firmie w tle. Przycisk „Kolory” w lewym dolnym rogu wariantu zmienia paletę barw. Każdy wariant używa prawdziwych
+        danych i zdjęć z obecnej strony.
+      </p>
+    </header>
+
+    <section aria-labelledby="who">
+      <h2 id="who">Kto odwiedza stronę</h2>
+      <ul class="audiences" role="list">
+        {
+          audiences.map((a) => (
+            <li>
+              <strong>{a.name}</strong>
+              <span>{a.note}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section aria-labelledby="variants">
+      <h2 id="variants">Warianty</h2>
+      <ol class="variants" role="list">
+        {
+          variants.map((v, i) => (
+            <li>
+              <a href={withBase(`/warianty/${v.slug}/`)} class="card">
+                <span class="swatches" aria-hidden="true">
+                  {v.palette.map((c) => (
+                    <span style={`background:${c}`} />
+                  ))}
+                </span>
+                <span class="num">Wariant {i + 1}</span>
+                <span class="name">{v.name}</span>
+                <span class="for">Dla: {v.audience}</span>
+                <span class="idea">{v.idea}</span>
+                <span class="fonts">Fonty: {v.fonts}</span>
+                <span class="open">Otwórz wariant →</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <p class="note">Podgląd roboczy. Wyszukiwarki nie indeksują tych stron.</p>
+  </main>
+</Base>
+
+<style>
+  :global(body) {
+    background: #f4f4f2;
+    color: #18181b;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .page {
+    width: min(1120px, 100% - 2.5rem);
+    margin-inline: auto;
+    padding-block: 56px 72px;
+    display: grid;
+    gap: 56px;
+  }
+
+  .head {
+    display: grid;
+    gap: 20px;
+    max-width: 760px;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .head p {
+    font-size: 1.125rem;
+    color: #52525b;
+  }
+
+  h2 {
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #71717a;
+    margin-bottom: 16px;
+  }
+
+  .audiences {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 12px;
+  }
+
+  .audiences li {
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    padding: 18px;
+    background: #fff;
+    border: 1px solid #e4e4e7;
+    border-radius: 12px;
+  }
+
+  .audiences span {
+    color: #52525b;
+    font-size: 0.9375rem;
+  }
+
+  .variants {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    display: grid;
+    gap: 8px;
+    height: 100%;
+    padding: 24px;
+    background: #fff;
+    border: 1px solid #e4e4e7;
+    border-radius: 16px;
+    text-decoration: none;
+    transition:
+      transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
+      border-color 200ms ease;
+  }
+
+  .card:active {
+    transform: scale(0.99);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: #a1a1aa;
+    }
+  }
+
+  .swatches {
+    display: flex;
+    margin-bottom: 8px;
+  }
+
+  .swatches span {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #e4e4e7;
+  }
+
+  .swatches span + span {
+    margin-left: -8px;
+  }
+
+  .num {
+    font-size: 0.8125rem;
+    color: #71717a;
+  }
+
+  .name {
+    font-size: 1.5rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+
+  .for {
+    font-weight: 550;
+  }
+
+  .idea {
+    color: #52525b;
+  }
+
+  .fonts {
+    font-size: 0.8125rem;
+    color: #71717a;
+  }
+
+  .open {
+    margin-top: 8px;
+    font-weight: 600;
+  }
+
+  .note {
+    font-size: 0.875rem;
+    color: #71717a;
+  }
+</style>

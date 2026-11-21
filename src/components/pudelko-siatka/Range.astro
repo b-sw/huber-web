@@ -1,0 +1,800 @@
+---
+// Each cell owns a full-width index table that opens under the cell's row (grid-auto-flow: dense).
+import { Image } from 'astro:assets';
+import Icon from '../Icon.astro';
+import {
+  byMaterial,
+  circuitRange,
+  featureList,
+  materials,
+  productImage,
+  productUrl,
+  type Material,
+} from '../../data/products';
+import { focusX } from './focus';
+
+const plural = (n: number) => {
+  if (n === 1) return 'konfiguracja';
+  const d = n % 10;
+  const t = n % 100;
+  return d >= 2 && d <= 4 && (t < 12 || t > 14) ? 'konfiguracje' : 'konfiguracji';
+};
+
+const NBSP = ' ';
+const shortVersion = (v: string) => v.replace(/^Rotametry do /, '').replace(/^Zawór ESBE /, '');
+const bindLast = (text: string) => text.replace(/ (?=\S+$)/, NBSP);
+const noBreakCount = (item: string) => item.replace(/ – (\d+) szt\./, `${NBSP}–${NBSP}$1${NBSP}szt.`);
+
+let n = 0;
+const groups = (['mosiadz', 'inox'] as Material[]).map((m) => {
+  const list = byMaterial(m);
+  return { m, range: circuitRange(list), list: list.map((p) => ({ p, n: ++n })) };
+});
+const pad = (x: number) => String(x).padStart(2, '0');
+---
+
+<div class="range" data-range>
+  {
+    groups.map((g) => (
+      <div class="group" role="group" aria-labelledby={`g-${g.m}`}>
+        <div class="g-head" data-reveal>
+          <h3 class="g-title" id={`g-${g.m}`}>
+            {materials[g.m].name}
+          </h3>
+          <p class="g-meta">
+            {g.list.length} {plural(g.list.length)} · {g.range.min}–{g.range.max} obwodów · {bindLast(materials[g.m].bar)}
+          </p>
+        </div>
+
+        <div class="grid">
+          {g.list.map(({ p, n }, i) => {
+            const r = circuitRange([p]);
+            const firstRow = p.rows[0]!;
+            const lastRow = p.rows[p.rows.length - 1]!;
+            const versions = p.variants.length > 0 ? p.variants : [''];
+            const ranges = versions.map((v, j) => ({
+              name: v ? shortVersion(v) : 'Indeksy',
+              range: `${firstRow.indexes[j]}–${lastRow.indexes[j]}`,
+            }));
+            return (
+              <Fragment>
+                <article class="cell" aria-labelledby={`c-${p.slug}`} data-cell data-reveal style={`--d: ${(i % 4) * 70}`}>
+                  <p class="c-top">
+                    <span>{pad(n)}</span>
+                    <span>
+                      {r.min}–{r.max} obw.
+                    </span>
+                  </p>
+                  <div class="c-img">
+                    <Image
+                      src={productImage(p.slug)}
+                      alt={`Rozdzielacz ${p.code}`}
+                      widths={[240, 320, 480, 640]}
+                      sizes="(min-width: 1100px) 280px, (min-width: 560px) 45vw, 112px"
+                      style={`object-position: ${focusX(p.slug)}% 50%`}
+                    />
+                  </div>
+                  <h4 class="c-code" id={`c-${p.slug}`}>
+                    {p.code}
+                  </h4>
+                  <p class="c-feat">{featureList(p).join(`${NBSP}· `)}</p>
+                  <dl class="c-meta">
+                    {ranges.map((x) => (
+                      <div>
+                        <dt>{x.name}</dt>
+                        <dd>{x.range}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <div class="c-act">
+                    <button class="c-toggle" type="button" aria-expanded="false" aria-controls={`t-${p.slug}`} data-toggle>
+                      <span class="face">
+                        Indeksy i wymiary
+                        <span class="visually-hidden"> {p.code}</span>
+                        <span class="plus-minus" aria-hidden="true" />
+                      </span>
+                    </button>
+                    <a class="c-link" href={productUrl(p.slug)}>
+                      Karta<span class="visually-hidden"> produktu {p.code}</span>
+                      <Icon name="arrow-up-right" size={14} strokeWidth={2} />
+                    </a>
+                  </div>
+                </article>
+
+                <div class="panel" id={`t-${p.slug}`} hidden="until-found" data-panel>
+                  <div class="p-in">
+                    <div class="p-head">
+                      <p class="p-kicker">Tabela indeksów</p>
+                      <p class="p-code" tabindex="-1">
+                        {p.code}
+                      </p>
+                      <p class="p-title">{p.title}</p>
+                    </div>
+                    <div class="p-inc">
+                      <p class="p-kicker">W zestawie</p>
+                      <ul class="p-list" role="list">
+                        {p.includes.map((item) => (
+                          <li>{noBreakCount(item)}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div class="p-main">
+                      <div class="p-scroll" tabindex="0" role="region" aria-label={`Indeksy i wymiary ${p.code}`}>
+                        <table>
+                          <caption class="visually-hidden">
+                            {p.code}: wymiary w milimetrach i indeksy dla każdej liczby obwodów
+                          </caption>
+                          <thead>
+                            <tr>
+                              <th scope="col">Obwody</th>
+                              <th scope="col">L</th>
+                              <th scope="col">H</th>
+                              <th scope="col">G</th>
+                              {versions.map((v) => (
+                                <th scope="col" class="idx-h">
+                                  Indeks
+                                  {v && <span>{shortVersion(v)}</span>}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {p.rows.map((row, k) => (
+                              <tr style={`--r: ${k}`}>
+                                <th scope="row">{row.circuits}</th>
+                                <td>{row.L}</td>
+                                <td>{row.H}</td>
+                                <td>{row.G}</td>
+                                {row.indexes.map((x) => (
+                                  <td>
+                                    <button class="idx" type="button" data-copy={x} aria-label={`Kopiuj indeks ${x}`}>
+                                      {x}
+                                    </button>
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      <div class="p-foot">
+                        <p class="p-note">Wymiary L, H, G w mm. Kliknij indeks, żeby go skopiować.</p>
+                        <div class="p-actions">
+                          <a class="c-link" href={productUrl(p.slug)}>
+                            Karta produktu
+                            <Icon name="arrow-up-right" size={14} strokeWidth={2} />
+                          </a>
+                          <button class="p-close" type="button" data-close>
+                            Zwiń tabelę
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Fragment>
+            );
+          })}
+        </div>
+      </div>
+    ))
+  }
+  <p class="visually-hidden" aria-live="polite" data-copy-status></p>
+</div>
+
+<style>
+  .g-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px 24px;
+    padding: 20px var(--pad);
+    box-shadow: inset 0 1px 0 var(--line);
+  }
+
+  .g-title {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .g-meta {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-flow: row dense;
+  }
+
+  .cell {
+    position: relative;
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    grid-template-areas:
+      'img top'
+      'img code'
+      'img feat'
+      'meta meta'
+      'act act';
+    grid-template-rows: auto auto 1fr auto auto;
+    column-gap: 16px;
+    padding: 20px var(--pad);
+    box-shadow:
+      inset -1px 0 0 var(--line),
+      inset 0 1px 0 var(--line);
+    scroll-margin-top: calc(var(--hdr) + 12px);
+  }
+
+  .cell::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 260ms var(--ease);
+    pointer-events: none;
+  }
+
+  .cell[data-open]::after {
+    transform: none;
+  }
+
+  .c-top {
+    grid-area: top;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--soft);
+  }
+
+  .c-img {
+    grid-area: img;
+    align-self: start;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+  }
+
+  .c-img img {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 300ms var(--ease);
+  }
+
+  .c-code {
+    grid-area: code;
+    margin-top: 4px;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+  }
+
+  .c-feat {
+    grid-area: feat;
+    margin-top: 6px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+
+  .c-meta {
+    grid-area: meta;
+    display: grid;
+    gap: 4px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .c-meta div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .c-meta dt {
+    color: var(--soft);
+  }
+
+  .c-meta dd {
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .c-act {
+    grid-area: act;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    margin-top: 14px;
+  }
+
+  /* The toggle's hit area covers the whole cell. Its visible box is the inner .face. */
+  .c-toggle {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+  }
+
+  .c-toggle::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .c-toggle:focus-visible {
+    outline: none;
+  }
+
+  .c-toggle:focus-visible .face {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  .face {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--line-2);
+    border-radius: 6px;
+    font-size: 13.5px;
+    font-weight: 500;
+    transition:
+      transform 160ms var(--ease),
+      border-color 160ms ease,
+      background-color 160ms ease,
+      color 160ms ease;
+  }
+
+  .c-toggle:active .face {
+    transform: scale(0.97);
+  }
+
+  .c-toggle[aria-expanded='true'] .face {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--bg);
+  }
+
+  .plus-minus {
+    position: relative;
+    width: 10px;
+    height: 10px;
+  }
+
+  .plus-minus::before,
+  .plus-minus::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 4.25px;
+    width: 10px;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform 200ms var(--ease);
+  }
+
+  .plus-minus::after {
+    transform: rotate(90deg);
+  }
+
+  .c-toggle[aria-expanded='true'] .plus-minus::after {
+    transform: rotate(0deg);
+  }
+
+  .c-link {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 36px;
+    font-size: 13.5px;
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cell:hover {
+      background: color-mix(in oklab, var(--ink) 2.5%, transparent);
+    }
+
+    .cell:hover .c-img img {
+      transform: scale(1.04);
+    }
+
+    .cell:hover .c-toggle:not([aria-expanded='true']) .face {
+      border-color: var(--ink);
+    }
+
+    .c-link:hover {
+      color: var(--ink);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+
+  .panel {
+    grid-column: 1 / -1;
+    box-shadow:
+      inset 0 1px 0 var(--line),
+      inset -1px 0 0 var(--line);
+    scroll-margin-top: calc(var(--hdr) + 12px);
+  }
+
+  .p-in {
+    display: grid;
+    grid-template-areas:
+      'head'
+      'main'
+      'inc';
+    gap: 28px;
+    padding: 28px var(--pad) 32px;
+  }
+
+  .p-head {
+    grid-area: head;
+  }
+
+  .p-inc {
+    grid-area: inc;
+  }
+
+  .panel:not([hidden]) .p-in {
+    animation: panel-in 260ms var(--ease);
+  }
+
+  .panel:not([hidden]) tbody tr {
+    animation: row-in 280ms var(--ease) both;
+    animation-delay: calc(var(--r) * 16ms + 60ms);
+  }
+
+  @keyframes panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  @keyframes row-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+
+  .p-kicker {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--soft);
+  }
+
+  .p-code {
+    margin-top: 6px;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+
+  .p-code:focus {
+    outline: none;
+  }
+
+  .p-title {
+    margin-top: 8px;
+    max-width: 44ch;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  .p-list {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+
+  .p-list li {
+    position: relative;
+    padding: 7px 0 7px 18px;
+    border-top: 1px solid var(--line);
+  }
+
+  .p-list li::before {
+    content: '+';
+    position: absolute;
+    left: 0;
+    font-family: var(--mono);
+    color: var(--soft);
+  }
+
+  .p-main {
+    grid-area: main;
+    min-width: 0;
+  }
+
+  .p-scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  .p-scroll:focus-visible {
+    outline-offset: 2px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  th,
+  td {
+    padding: 7px 14px 7px 0;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  th:last-child,
+  td:last-child {
+    padding-right: 0;
+  }
+
+  thead th {
+    vertical-align: bottom;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--soft);
+    border-bottom-color: var(--line-2);
+  }
+
+  .idx-h span {
+    display: block;
+    color: var(--ink-2);
+  }
+
+  tbody th {
+    font-weight: 600;
+  }
+
+  tbody td {
+    color: var(--ink-2);
+  }
+
+  .idx {
+    position: relative;
+    margin: -3px -6px;
+    padding: 3px 6px;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-weight: 500;
+    color: var(--ink);
+    transition: background-color 150ms ease;
+  }
+
+  .idx:focus-visible {
+    outline-offset: 0;
+  }
+
+  .idx:active {
+    transform: scale(0.97);
+  }
+
+  .idx[data-copied]::after {
+    content: 'skopiowano';
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    tbody tr:hover {
+      background: color-mix(in oklab, var(--ink) 3%, transparent);
+    }
+
+    .idx:hover {
+      background: color-mix(in oklab, var(--ink) 8%, transparent);
+    }
+  }
+
+  /* After the hover rule, so a copied index stays dark under the cursor. */
+  .idx[data-copied] {
+    background: var(--ink);
+    color: var(--bg);
+  }
+
+  .p-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    margin-top: 14px;
+  }
+
+  .p-note {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--soft);
+  }
+
+  .p-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .p-close {
+    height: 36px;
+    padding: 0 14px;
+    border: 1px solid var(--line-2);
+    border-radius: 6px;
+    background: transparent;
+    font-size: 13.5px;
+    font-weight: 500;
+    transition:
+      transform 160ms var(--ease),
+      border-color 160ms ease;
+  }
+
+  .p-close:active {
+    transform: scale(0.97);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .p-close:hover {
+      border-color: var(--ink);
+    }
+  }
+
+  @media (min-width: 560px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cell {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        'top'
+        'img'
+        'code'
+        'feat'
+        'meta'
+        'act';
+      grid-template-rows: auto auto auto 1fr auto auto;
+      padding: 20px 24px 22px;
+    }
+
+    .c-img {
+      margin: 12px 0 18px;
+    }
+
+    .c-code {
+      margin-top: 0;
+      font-size: 22px;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .p-in {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+      grid-template-rows: auto 1fr;
+      grid-template-areas:
+        'head main'
+        'inc main';
+      gap: 24px 56px;
+      padding: 36px var(--pad) 40px;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-range]');
+
+  if (root) {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+    const status = root.querySelector<HTMLElement>('[data-copy-status]');
+    const toggleFor = (panel: HTMLElement) => root.querySelector<HTMLButtonElement>(`[aria-controls="${panel.id}"]`);
+
+    const setOpen = (panel: HTMLElement, open: boolean) => {
+      const btn = toggleFor(panel);
+      if (open) panel.removeAttribute('hidden');
+      else panel.setAttribute('hidden', 'until-found');
+      btn?.setAttribute('aria-expanded', String(open));
+      btn?.closest('[data-cell]')?.toggleAttribute('data-open', open);
+    };
+
+    const openAlone = (panel: HTMLElement) => {
+      const top = toggleFor(panel)?.closest('[data-cell]')?.getBoundingClientRect().top;
+      root.querySelectorAll<HTMLElement>('[data-panel]:not([hidden])').forEach((other) => {
+        const otherTop = toggleFor(other)?.closest('[data-cell]')?.getBoundingClientRect().top;
+        if (other !== panel && otherTop === top) setOpen(other, false);
+      });
+      setOpen(panel, true);
+      const rect = panel.getBoundingClientRect();
+      if (rect.bottom > window.innerHeight) {
+        panel.scrollIntoView({ block: rect.height > window.innerHeight * 0.8 ? 'start' : 'nearest', behavior: reduce.matches ? 'auto' : 'smooth' });
+      }
+    };
+
+    root.querySelectorAll<HTMLButtonElement>('[data-toggle]').forEach((btn) => {
+      const panel = document.getElementById(btn.getAttribute('aria-controls') ?? '');
+      if (!panel) return;
+      btn.addEventListener('click', () => (panel.hasAttribute('hidden') ? openAlone(panel) : setOpen(panel, false)));
+    });
+
+    root.querySelectorAll<HTMLElement>('[data-panel]').forEach((panel) => {
+      // Find in page opens a hidden="until-found" panel by itself. Keep the button in sync.
+      panel.addEventListener('beforematch', () => setOpen(panel, true));
+      panel.querySelector('[data-close]')?.addEventListener('click', () => {
+        setOpen(panel, false);
+        toggleFor(panel)?.focus();
+      });
+    });
+
+    root.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const at = e.target as Element;
+      const panel =
+        at.closest<HTMLElement>('[data-panel]') ??
+        document.getElementById(at.closest('[data-cell]')?.querySelector('[data-toggle]')?.getAttribute('aria-controls') ?? '');
+      if (!panel || panel.hasAttribute('hidden')) return;
+      setOpen(panel, false);
+      toggleFor(panel)?.focus();
+    });
+
+    root.addEventListener('click', (e) => {
+      const copy = (e.target as Element).closest<HTMLButtonElement>('[data-copy]');
+      if (!copy) return;
+      const value = copy.dataset.copy!;
+      navigator.clipboard?.writeText(value).then(
+        () => {
+          root.querySelectorAll('[data-copied]').forEach((el) => el.removeAttribute('data-copied'));
+          copy.setAttribute('data-copied', '');
+          if (status) status.textContent = `Skopiowano indeks ${value}`;
+          setTimeout(() => copy.removeAttribute('data-copied'), 1400);
+        },
+        () => {
+          if (status) status.textContent = `Indeks ${value}`;
+        },
+      );
+    });
+  }
+</script>

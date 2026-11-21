@@ -1,0 +1,58 @@
+---
+interface Props {
+  n: number;
+  total: number;
+  text: string;
+}
+
+const { n, total, text } = Astro.props;
+const pad = (x: number) => String(x).padStart(2, '0');
+---
+
+<p class="lbl" data-reveal>
+  <span class="n">{pad(n)}</span>
+  <span class="t" aria-hidden="true">/ {pad(total)}</span>
+  <span class="x">{text}</span>
+</p>
+
+<style>
+  .lbl {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .n,
+  .t {
+    flex: none;
+  }
+
+  .t {
+    color: var(--soft);
+  }
+
+  .x {
+    min-width: 0;
+    margin-left: 4px;
+    line-height: 1.4;
+  }
+
+  .lbl::after {
+    content: '';
+    flex: 1;
+    min-width: 16px;
+    height: 1px;
+    margin-left: 8px;
+    background: var(--line-2);
+    transform-origin: left;
+    transition: transform 1100ms var(--ease) 180ms;
+  }
+
+  :global(.reveal-live) .lbl:not([data-shown])::after {
+    transform: scaleX(0);
+  }
+</style>

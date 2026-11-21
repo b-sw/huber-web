@@ -1,0 +1,163 @@
+---
+// The inside of the box: a dark technical drawing with the real manifold photo.
+// BoxStage renders one full copy for the open box and one copy inside each cursor lens.
+import { Image } from 'astro:assets';
+import { getProduct, productImage } from '../../data/products';
+import { VB, back, front, photoSizes, photoStyle, photoWidths, productBox, pts, side, sticker, top, topAt } from './geometry';
+
+interface Props {
+  id: string;
+  withList?: boolean;
+}
+
+const { id, withList = false } = Astro.props;
+const product = getProduct('rw-ezmptr');
+const row = product.rows.find((r) => r.circuits === 5)!;
+const [index] = row.indexes;
+const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 'zawór ESBE VTA322', '2 termometry', '2 uchwyty montażowe'];
+const grid = `${id}-grid`;
+---
+
+<div class="xray-art" aria-hidden="true">
+  <svg class="art" viewBox={`0 0 ${VB.w} ${VB.h}`}>
+    <defs>
+      <pattern id={grid} width="20" height="20" patternUnits="userSpaceOnUse">
+        <path d="M20 0H0V20" fill="none" stroke="#1b2733" stroke-width="1"></path>
+      </pattern>
+    </defs>
+    <polygon points={pts(front)} fill="#0b1016"></polygon>
+    <polygon points={pts(front)} fill={`url(#${grid})`}></polygon>
+    <polygon points={pts(top)} fill="#121b25"></polygon>
+    <polygon points={pts(side)} fill="#0e141b"></polygon>
+    <g fill="none" stroke="#5f88ad" stroke-width="1.2" stroke-dasharray="6 6" opacity="0.7">
+      <path d={`M${back.x} ${back.y}V${back.y + back.h}H${back.x + back.w}M${back.x} ${back.y + back.h}L${front[3][0]} ${front[3][1]}`}></path>
+      <line x1={topAt(0, 0.5)[0]} y1={topAt(0, 0.5)[1]} x2={topAt(1, 0.5)[0]} y2={topAt(1, 0.5)[1]}></line>
+    </g>
+    <g fill="none" stroke="#8fb8de" stroke-width="1.6">
+      <polygon points={pts(front)}></polygon>
+      <polygon points={pts(top)}></polygon>
+      <polygon points={pts(side)}></polygon>
+    </g>
+  </svg>
+  <Image
+    src={productImage('rw-ezmptr')}
+    alt=""
+    class="xray-photo"
+    style={photoStyle}
+    widths={photoWidths}
+    sizes={photoSizes}
+    layout="none"
+    loading="eager"
+    fetchpriority="low"
+  />
+  <svg class="art" viewBox={`0 0 ${VB.w} ${VB.h}`}>
+    <rect x={sticker.x} y={sticker.y} width={sticker.w} height={sticker.h} rx="2" fill="#f7f7f5"></rect>
+    <text
+      x={sticker.x + sticker.w / 2}
+      y={sticker.y + sticker.h * 0.68}
+      text-anchor="middle"
+      class="svg-sticker"
+      data-brand
+      data-brand-fit-svg={sticker.w - 8}>TWOJA MARKA</text>
+    <g stroke="#8fb8de" stroke-width="1.2" fill="#cfe3f5">
+      <path d={`M${productBox.x1} 722v14M${productBox.x2} 722v14M${productBox.x1} 729H${productBox.x2}`} fill="none"></path>
+      <text x={(productBox.x1 + productBox.x2) / 2} y="722" text-anchor="middle" class="svg-mono" stroke="none">L {row.L} mm</text>
+      <path d={`M44 ${productBox.y1}h14M44 ${productBox.y2}h14M51 ${productBox.y1}V${productBox.y2}`} fill="none"></path>
+    </g>
+  </svg>
+  {
+    withList && (
+      <div class="xray-print">
+        <p class="xray-label">Zawartość</p>
+        <ul role="list">
+          {contents.map((c) => (
+            <li>{c}</li>
+          ))}
+        </ul>
+        <p class="xray-index">
+          Indeks <strong>{index}</strong>
+        </p>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .xray-art {
+    position: absolute;
+    inset: 0;
+    container-type: inline-size;
+  }
+
+  .art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .xray-art :global(.xray-photo) {
+    position: absolute;
+    max-width: none;
+    height: auto;
+  }
+
+  .svg-mono {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .svg-sticker {
+    font-family: 'Archivo Subset', sans-serif;
+    font-stretch: 72%;
+    font-size: 12px;
+    font-weight: 800;
+    fill: #161412;
+  }
+
+  .xray-print {
+    position: absolute;
+    left: 67.2%;
+    top: 30%;
+    width: 21.7%;
+    color: #cfe3f5;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 1.4cqw;
+    line-height: 1.5;
+  }
+
+  .xray-label {
+    margin-bottom: 1cqw;
+    padding-bottom: 0.6cqw;
+    border-bottom: 0.1cqw solid #5f88ad;
+    color: #8fb8de;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .xray-print li::before {
+    content: '+ ';
+    color: #f26a21;
+  }
+
+  .xray-index {
+    margin-top: 1.4cqw;
+    color: #8fb8de;
+  }
+
+  .xray-index strong {
+    display: block;
+    font-size: 3.2cqw;
+    color: #fff;
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 600px) {
+    .xray-print {
+      display: none;
+    }
+  }
+</style>

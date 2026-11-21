@@ -1,0 +1,1217 @@
+---
+import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
+import '../../styles/archivo-subset.css';
+import '../../styles/reveal.css';
+import { Image, getImage } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import Logo from '../../components/Logo.astro';
+import VariantNav from '../../components/VariantNav.astro';
+import BoxStage from '../../components/pudelko/BoxStage.astro';
+import OemStack from '../../components/oem/OemStack.astro';
+import HeatLoops from '../../components/heat/HeatLoops.astro';
+import Header, { type NavLink } from '../../components/pudelko-siatka/Header.astro';
+import Label from '../../components/pudelko-siatka/Label.astro';
+import Range from '../../components/pudelko-siatka/Range.astro';
+import Whose from '../../components/pudelko-siatka/Whose.astro';
+import { company } from '../../data/company';
+import { byMaterial, circuitRange, getProduct, materials, productImage, productUrl, products } from '../../data/products';
+import factory from '../../assets/photos/factory.jpg';
+
+const TOTAL = 6;
+const all = circuitRange(products);
+const brass = circuitRange(byMaterial('mosiadz'));
+const inox = circuitRange(byMaterial('inox'));
+const boxed = getProduct('rw-ezmptr');
+
+const links: NavLink[] = [
+  { id: 'asortyment', n: 2, label: 'Asortyment', long: 'Asortyment' },
+  { id: 'oem', n: 3, label: 'OEM', long: 'Pod Twoją marką (OEM)' },
+  { id: 'jak-to-dziala', n: 4, label: 'Jak to działa', long: 'Jak to działa' },
+  { id: 'o-firmie', n: 5, label: 'O firmie', long: 'O firmie' },
+];
+
+const steps = [
+  {
+    title: 'Konfiguracja',
+    text: `Wybierasz zestaw z katalogu albo opisujesz własny. Mosiądz albo inox, od ${all.min} do ${all.max} obwodów.`,
+  },
+  { title: 'Oznaczenie', text: 'Na belce rozdzielacza umieszczamy oznaczenie Twojej marki zamiast naszego.' },
+  { title: 'Produkcja', text: 'Składamy rozdzielacze w naszym zakładzie w Nowej Wsi pod Włocławkiem.' },
+  {
+    title: 'Opakowanie i dostawa',
+    text: 'Pakujemy je w Twoje opakowanie i dostarczamy terminowo. Trafiają do sprzedaży pod Twoją marką.',
+  },
+];
+
+const facts = [
+  { k: 'Założona', v: String(company.foundingYear) },
+  { k: 'Siedziba', v: company.address.village },
+  { k: 'Produkcja', v: 'Rozdzielacze z mosiądzu i ze stali nierdzewnej' },
+  { k: 'Odbiorcy', v: 'Hurtownie w Polsce i za granicą' },
+];
+
+const barPhoto = await getImage({ src: productImage('rw-pt'), width: 1600, format: 'webp' });
+
+const itemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Rozdzielacze do ogrzewania podłogowego Huber',
+  itemListElement: products.map((p, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'Product',
+      name: `Rozdzielacz ${p.code}`,
+      description: p.title,
+      sku: p.code,
+      brand: { '@type': 'Brand', name: company.name },
+      material: materials[p.material].label,
+      url: productUrl(p.slug),
+    },
+  })),
+};
+
+const year = new Date().getFullYear();
+---
+
+<Base
+  title="Rozdzielacze do podłogówki od producenta. OEM pod Twoją marką | Huber"
+  description={`Producent rozdzielaczy do ogrzewania podłogowego od ${company.foundingYear} roku. ${products.length} konfiguracji z mosiądzu i inoxu, ${all.min}–${all.max} obwodów, tabele indeksów. Nowość: produkcja OEM pod Twoją marką.`}
+  themeColor="#f9f9f7"
+  ogImage={productImage('rw-ezmptr')}
+  jsonLd={[itemList]}
+>
+  <script is:inline slot="head">document.documentElement.classList.add('reveal-on');</script>
+  <VariantNav slug="pudelko-siatka" />
+
+  <div class="ps" id="top">
+    <div class="ps-frame" aria-hidden="true"></div>
+
+    <Header links={links} />
+
+    <main>
+      <section class="hero" aria-labelledby="hero-h">
+        <div class="ps-wrap hero-head">
+          <Label n={1} total={TOTAL} text={`Producent rozdzielaczy od ${company.foundingYear}`} />
+          <div class="hero-row">
+            <h1 class="ps-h1" id="hero-h" data-reveal="words">
+              <span>Rozdzielacze do podłogówki.</span>{' '}
+              <span class="ps-tone">Pod Twoją marką.</span>
+            </h1>
+            <div class="hero-side" data-reveal style="--d: 260">
+              <div class="ps-btns">
+                <a class="ps-btn ps-btn--ink" href="#asortyment">
+                  Zobacz asortyment
+                  <Icon name="arrow-right" size={16} strokeWidth={2} />
+                </a>
+                <a class="ps-btn" href="#oem">Zapytaj o OEM</a>
+              </div>
+              <p class="hero-meta">
+                {products.length} konfiguracji · mosiądz i inox · <span class="nw">{all.min}–{all.max} obwodów</span><br />
+                Każdą wykonamy też pod Twoją marką.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="ps-rule"></div>
+
+        <div class="ps-wrap stage-cell">
+          <div class="hero-stage">
+            <BoxStage />
+          </div>
+          <p class="stage-cap">
+            <span>Na wierzchu: <span data-brand>TWOJA MARKA</span>.</span>
+            <span>
+              W środku: rozdzielacz {boxed.code}.{' '}
+              <span class="cap-fine">Kliknij pudełko, żeby zajrzeć do środka.</span>
+              <span class="cap-touch">Dotknij pudełka, żeby zajrzeć do środka.</span>
+              <span class="cap-open">Kliknij albo dotknij, żeby zamknąć pudełko.</span>
+            </span>
+          </p>
+        </div>
+      </section>
+
+      <section class="ps-sec" id="asortyment" aria-labelledby="asortyment-h">
+        <div class="ps-wrap">
+          <div class="ps-head">
+            <Label n={2} total={TOTAL} text="Asortyment" />
+            <div class="ps-split">
+              <h2 class="ps-h2" id="asortyment-h" data-reveal="words">
+                <span>{products.length} konfiguracji.</span>{' '}
+                <span class="ps-tone">Mosiądz i inox.</span>
+              </h2>
+              <p class="ps-lead" data-reveal style="--d: 150">
+                Mosiądz od {brass.min} do {brass.max} obwodów, inox od {inox.min} do {inox.max}. Kliknij zestaw, a pod jego
+                rzędem otworzy się tabela indeksów z wymiarami. Inną konfigurację wykonamy na zamówienie.
+              </p>
+            </div>
+          </div>
+          <Range />
+        </div>
+      </section>
+
+      <section class="ps-sec" id="oem" aria-labelledby="oem-h">
+        <div class="ps-wrap">
+          <div class="ps-head">
+            <Label n={3} total={TOTAL} text="OEM · Nowość" />
+            <div class="ps-split">
+              <h2 class="ps-h2" id="oem-h" data-reveal="words">
+                <span>Twoja marka na wierzchu.</span>{' '}
+                <span class="ps-tone">Nasza produkcja pod spodem.</span>
+              </h2>
+              <p class="ps-lead" data-reveal style="--d: 150">
+                Nowość w ofercie: produkujemy rozdzielacze pod marką klienta. Twoje oznaczenie trafia na belkę, a gotowy
+                zestaw do Twojego opakowania. Konfigurację wybierasz z katalogu albo zamawiasz własną.
+              </p>
+            </div>
+          </div>
+
+          <Whose />
+
+          <div class="stack-cell" data-reveal>
+            <OemStack />
+          </div>
+
+          <div class="proof">
+            <figure class="bar" data-reveal>
+              <div class="bar-crop">
+                <img
+                  src={barPhoto.src}
+                  alt="Zbliżenie belki rozdzielacza z miejscem na naklejkę marki"
+                  width="1600"
+                  height="900"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span class="bar-sticker"><span data-brand data-brand-fit>TWOJA MARKA</span></span>
+              </div>
+              <figcaption>Oznaczenie na belce. Tu pojawi się Twoja marka.</figcaption>
+            </figure>
+            <div class="ask">
+              <p class="ps-kicker" data-reveal>Zapytanie OEM</p>
+              <p class="ask-t" data-reveal style="--d: 80">Napisz, jakie zestawy i ilości Cię interesują.</p>
+              <p class="ask-p" data-reveal style="--d: 140">
+                Otworzy się e-mail z gotowym szablonem. Nazwa Twojej marki będzie w temacie wiadomości.
+              </p>
+              <div class="ask-cta" data-reveal style="--d: 200">
+                <a class="ps-btn ps-btn--ink" href={`mailto:${company.email}`} data-brand-mailto={company.email}>
+                  Napisz zapytanie OEM
+                  <Icon name="arrow-right" size={16} strokeWidth={2} />
+                </a>
+                <p class="ask-p">
+                  Albo zadzwoń: <a class="ask-tel" href={company.phoneHref}>{company.phone}</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps-sec" id="jak-to-dziala" aria-labelledby="jak-h">
+        <div class="ps-wrap">
+          <div class="ps-head">
+            <Label n={4} total={TOTAL} text="Jak to działa" />
+            <div class="ps-split">
+              <h2 class="ps-h2" id="jak-h" data-reveal="words">
+                <span>Od katalogu do Twojego pudełka.</span>{' '}
+                <span class="ps-tone">W czterech krokach.</span>
+              </h2>
+              <p class="ps-lead" data-reveal style="--d: 150">
+                Tak przebiega produkcja pod Twoją marką. Na każdym etapie rozmawiasz bezpośrednio z producentem.
+              </p>
+            </div>
+          </div>
+
+          <div class="steps-wrap" data-steps>
+            <span class="steps-line" aria-hidden="true"></span>
+            <ol class="steps" role="list">
+              {
+                steps.map((s, i) => (
+                  <li class="step" data-step data-reveal style={`--d: ${i * 90}`}>
+                    <span class="step-n">{String(i + 1).padStart(2, '0')}</span>
+                    <h3 class="step-t">{s.title}</h3>
+                    <p class="step-p">{s.text}</p>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps-sec" id="o-firmie" aria-labelledby="o-firmie-h">
+        <div class="ps-wrap">
+          <div class="ps-head">
+            <Label n={5} total={TOTAL} text="O firmie" />
+            <div class="ps-split">
+              <h2 class="ps-h2" id="o-firmie-h" data-reveal="words">
+                <span>Rodzinna firma.</span>{' '}
+                <span class="ps-tone">Od {company.foundingYear} roku.</span>
+              </h2>
+              <p class="ps-lead" data-reveal style="--d: 150">
+                Specjalizujemy się w rozdzielaczach do ogrzewania podłogowego. Obrabiamy metal i składamy rozdzielacze u siebie.
+                Współpracujemy z hurtowniami w całym kraju, a nasze wyroby trafiają też za granicę.
+              </p>
+            </div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-photo" data-reveal>
+              <Image
+                src={factory}
+                alt="Montaż mosiężnych belek rozdzielaczy w zakładzie Huber"
+                widths={[480, 720, 960, 1400]}
+                sizes="(min-width: 1000px) 660px, 100vw"
+              />
+            </div>
+            <dl class="facts">
+              {
+                facts.map((f, i) => (
+                  <div data-reveal style={`--d: ${i * 70}`}>
+                    <dt>{f.k}</dt>
+                    <dd>{f.v}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps-sec" id="kontakt" aria-labelledby="kontakt-h">
+        <div class="ps-wrap">
+          <div class="ps-head">
+            <Label n={6} total={TOTAL} text="Kontakt" />
+            <div class="ps-split">
+              <h2 class="ps-h2" id="kontakt-h" data-reveal="words">
+                <span>Zadzwoń albo napisz.</span>{' '}
+                <span class="ps-tone">Odpowiada producent.</span>
+              </h2>
+              <p class="ps-lead" data-reveal style="--d: 150">
+                Zapytaj o dostępność, indeksy, konfigurację na zamówienie albo produkcję pod Twoją marką.
+              </p>
+            </div>
+          </div>
+
+          <div class="contact">
+            <ul class="c-list" role="list">
+              <li data-reveal>
+                <a class="c-link" href={company.phoneHref}>
+                  <span class="c-k">Telefon</span>
+                  <span class="c-v">{company.phone}</span>
+                  <Icon name="arrow-up-right" size={22} strokeWidth={1.5} />
+                </a>
+              </li>
+              <li data-reveal style="--d: 70">
+                <a class="c-link" href={`mailto:${company.email}`}>
+                  <span class="c-k">E-mail</span>
+                  <span class="c-v">{company.email}</span>
+                  <Icon name="arrow-up-right" size={22} strokeWidth={1.5} />
+                </a>
+              </li>
+              <li data-reveal style="--d: 140">
+                <a class="c-link" href={`mailto:${company.email}`} data-brand-mailto={company.email}>
+                  <span class="c-k">Zapytanie OEM</span>
+                  <span class="c-v c-v--sm">E-mail z gotowym szablonem</span>
+                  <Icon name="arrow-up-right" size={22} strokeWidth={1.5} />
+                </a>
+              </li>
+              <li class="c-addr" data-reveal style="--d: 210">
+                <span class="c-k">Adres</span>
+                <address>
+                  {company.name}, {company.address.street}<br />
+                  {company.address.village}, {company.address.postalCode} {company.address.city}
+                </address>
+                <a class="ps-arrow" href={company.mapUrl}>
+                  Mapa dojazdu
+                  <Icon name="arrow-up-right" size={15} strokeWidth={2} />
+                </a>
+              </li>
+            </ul>
+            <div class="c-art">
+              <HeatLoops id="ps-loops" />
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="ps-sec foot">
+      <div class="ps-wrap foot-in">
+        <Logo ink="var(--ink)" paper="var(--bg)" height={20} />
+        <p>© {year} {company.name} · {company.tagline}</p>
+        <a href="#top">Do góry ↑</a>
+      </div>
+    </footer>
+  </div>
+</Base>
+
+<script>
+  import { initBrand } from '../../scripts/brand';
+  import { initReveal } from '../../scripts/reveal';
+
+  initBrand();
+  initReveal();
+
+  const wrap = document.querySelector<HTMLElement>('[data-steps]');
+  const steps = wrap ? [...wrap.querySelectorAll<HTMLElement>('[data-step]')] : [];
+  if (wrap && steps.length) {
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const set = (t: number) => {
+      wrap.style.setProperty('--t', t.toFixed(4));
+      const across = steps[0]!.offsetTop === steps[steps.length - 1]!.offsetTop;
+      steps.forEach((step) => {
+        const at = across ? (step.offsetLeft - steps[0]!.offsetLeft) / wrap.offsetWidth : step.offsetTop / wrap.offsetHeight;
+        step.toggleAttribute('data-lit', t > at + 0.01);
+      });
+    };
+    if (still) set(1);
+    else {
+      let queued = false;
+      const update = () => {
+        queued = false;
+        const rect = wrap.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const across = steps[0]!.offsetTop === steps[steps.length - 1]!.offsetTop;
+        const t = across ? (vh * 0.9 - rect.top) / (vh * 0.45) : (vh * 0.8 - rect.top) / rect.height;
+        set(Math.min(1, Math.max(0, t)));
+      };
+      const onScroll = () => {
+        if (!queued) {
+          queued = true;
+          requestAnimationFrame(update);
+        }
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      update();
+    }
+  }
+</script>
+
+<style is:global>
+  html {
+    background: var(--t-bg, #f9f9f7);
+  }
+
+  html.ps-lock {
+    overflow: hidden;
+  }
+
+  body {
+    background: var(--t-bg, #f9f9f7);
+    color: var(--t-ink, #18181b);
+  }
+
+  .ps {
+    --bg: var(--t-bg, #f9f9f7);
+    --raised: var(--t-raised, #ffffff);
+    --ink: var(--t-ink, #18181b);
+    --ink-2: var(--t-ink-2, #3f3f46);
+    --muted: var(--t-muted, #52525b);
+    --soft: var(--t-soft, #6b6b73);
+    --tone: var(--t-tone, #71717a);
+    --line: var(--t-line, #e4e4e7);
+    --line-2: var(--t-line-2, #d4d4d8);
+    --plus: var(--t-plus, #a1a1aa);
+    --kraft: var(--t-accent, #c69c6d);
+    --kraft-ink: var(--t-accent-ink, #7c5a34);
+    /* BoxStage draws its focus ring in --orange. */
+    --orange: var(--ink);
+    --plus-mark:
+      linear-gradient(var(--plus), var(--plus)) center / 9px 1px no-repeat,
+      linear-gradient(var(--plus), var(--plus)) center / 1px 9px no-repeat;
+    --gutter: 10px;
+    --pad: 16px;
+    --frame: min(1200px, 100% - 2 * var(--gutter));
+    --hdr: 56px;
+    --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+    --mono: 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
+    position: relative;
+    overflow-x: clip;
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--bg);
+  }
+
+  @media (min-width: 640px) {
+    .ps {
+      --gutter: 20px;
+      --pad: 24px;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .ps {
+      --hdr: 64px;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .ps {
+      --gutter: 32px;
+      --pad: 40px;
+    }
+  }
+
+  .ps :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  .ps ::selection {
+    background: var(--ink);
+    color: var(--bg);
+  }
+
+  .ps-frame {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    width: var(--frame);
+    margin-inline: auto;
+    border-inline: 1px solid var(--line);
+    pointer-events: none;
+  }
+
+  .ps-wrap {
+    width: var(--frame);
+    margin-inline: auto;
+  }
+
+  .ps-rule,
+  .ps-sec {
+    position: relative;
+    border-top: 1px solid var(--line);
+  }
+
+  .ps-rule::before,
+  .ps-rule::after,
+  .ps-sec::before,
+  .ps-sec::after {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    top: -5px;
+    width: 9px;
+    height: 9px;
+    background: var(--plus-mark);
+    pointer-events: none;
+  }
+
+  .ps-rule::before,
+  .ps-sec::before {
+    left: calc((100% - var(--frame)) / 2 - 4px);
+  }
+
+  .ps-rule::after,
+  .ps-sec::after {
+    right: calc((100% - var(--frame)) / 2 - 4px);
+  }
+
+  .ps-sec {
+    scroll-margin-top: var(--hdr);
+  }
+
+  .ps-head {
+    padding: 56px var(--pad) 40px;
+  }
+
+  .ps-split {
+    display: grid;
+    gap: 20px;
+    margin-top: 28px;
+  }
+
+  .ps-h1,
+  .ps-h2 {
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+
+  .ps-h1 {
+    font-size: clamp(2.25rem, 1.3rem + 3vw, 3.5rem);
+    line-height: 1.02;
+  }
+
+  .ps-h2 {
+    font-size: clamp(2rem, 1.3rem + 2.4vw, 3.25rem);
+    line-height: 1.04;
+  }
+
+  .ps-h1 > span,
+  .ps-h2 > span {
+    display: block;
+  }
+
+  .ps-tone {
+    color: var(--tone);
+  }
+
+  .ps-lead {
+    max-width: 46ch;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+
+  .ps-kicker {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--soft);
+  }
+
+  .ps-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .ps-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 48px;
+    padding: 0 20px;
+    border: 1px solid var(--ink);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      transform 160ms var(--ease),
+      background-color 160ms ease,
+      border-color 160ms ease;
+  }
+
+  .ps-btn--ink {
+    background: var(--ink);
+    color: var(--bg);
+  }
+
+  .ps-btn svg {
+    transition: transform 200ms var(--ease);
+  }
+
+  .ps-btn:active {
+    transform: scale(0.97);
+  }
+
+  @media (max-width: 639px) {
+    .ps-btns .ps-btn {
+      flex: 1 1 auto;
+    }
+  }
+
+  .ps-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .ps-arrow svg {
+    transition: transform 200ms var(--ease);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ps-btn:hover {
+      background: color-mix(in oklab, var(--ink) 5%, transparent);
+    }
+
+    .ps-btn--ink:hover {
+      background: var(--ink-2);
+      border-color: var(--ink-2);
+    }
+
+    .ps-btn:hover svg {
+      transform: translateX(2px);
+    }
+
+    .ps-arrow:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .ps-arrow:hover svg {
+      transform: translate(2px, -2px);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .ps-head {
+      padding: 88px var(--pad) 56px;
+    }
+
+    .ps-split {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+      align-items: end;
+      gap: 48px;
+      margin-top: 40px;
+    }
+  }
+</style>
+
+<style>
+  .hero-head {
+    padding: 36px var(--pad) 36px;
+  }
+
+  .hero-row {
+    display: grid;
+    gap: 24px;
+    margin-top: 28px;
+  }
+
+  .hero-side {
+    display: grid;
+    gap: 16px;
+    justify-items: start;
+  }
+
+  .hero-meta {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--soft);
+  }
+
+  .nw {
+    white-space: nowrap;
+  }
+
+  .stage-cell {
+    padding: 8px 6px 0;
+  }
+
+  .hero-stage {
+    width: min(100%, calc((100svh - var(--hdr) - 72px) * 1200 / 760));
+    margin-inline: auto;
+  }
+
+  .stage-cap {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 24px;
+    padding: 18px calc(var(--pad) - 6px) 22px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--soft);
+  }
+
+  .cap-touch,
+  .cap-open {
+    display: none;
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    .cap-fine {
+      display: none;
+    }
+
+    .cap-touch {
+      display: inline;
+    }
+  }
+
+  .stage-cell:has([data-open]) :is(.cap-fine, .cap-touch) {
+    display: none;
+  }
+
+  .stage-cell:has([data-open]) .cap-open {
+    display: inline;
+  }
+
+  @media (min-width: 640px) {
+    .stage-cell {
+      padding: 8px var(--pad) 0;
+    }
+
+    .stage-cap {
+      padding-inline: 0;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .hero-head {
+      padding-top: 48px;
+      padding-bottom: 48px;
+    }
+
+    .hero-row {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 48px;
+      margin-top: 36px;
+    }
+  }
+
+  .stack-cell {
+    --stack-ink: var(--ink);
+    --stack-muted: var(--soft);
+    --stack-line: var(--line-2);
+    --stack-line-strong: var(--plus);
+    --stack-plate: var(--raised);
+    --stack-plate-edge: var(--line);
+    --stack-accent: var(--kraft);
+    --stack-accent-ink: var(--kraft-ink);
+    --stack-shadow: color-mix(in oklab, var(--ink) 12%, transparent);
+    --stack-mono: 'Geist Mono Variable', ui-monospace, monospace;
+    --stack-display: 'Archivo Subset', sans-serif;
+    padding: 32px var(--pad) 40px;
+    box-shadow: inset 0 1px 0 var(--line);
+  }
+
+  .proof {
+    display: grid;
+    box-shadow: inset 0 1px 0 var(--line);
+  }
+
+  .bar {
+    margin: 0;
+    padding: 24px var(--pad) 20px;
+  }
+
+  .bar-crop {
+    position: relative;
+    aspect-ratio: 544 / 232;
+    overflow: hidden;
+    background: #f4efe6;
+  }
+
+  .bar-crop img {
+    position: absolute;
+    width: 294.12%;
+    max-width: none;
+    height: auto;
+    left: -111.4%;
+    top: -47.41%;
+  }
+
+  .bar-sticker {
+    position: absolute;
+    left: 28.13%;
+    top: 42.24%;
+    width: 16.36%;
+    height: 12.07%;
+    display: grid;
+    place-items: center;
+    padding-inline: 3%;
+    border-radius: 3px;
+    background: #f7f7f5;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
+    container-type: inline-size;
+  }
+
+  .bar-sticker span {
+    width: 100%;
+    text-align: center;
+    font-family: 'Archivo Subset', sans-serif;
+    font-stretch: 72%;
+    font-weight: 800;
+    font-size: calc(18cqw * var(--fit, 1));
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    color: #161412;
+  }
+
+  .bar figcaption {
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--soft);
+  }
+
+  .ask {
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: 14px;
+    padding: 28px var(--pad) 40px;
+    box-shadow: inset 0 1px 0 var(--line);
+  }
+
+  .ask-t {
+    max-width: 22ch;
+    font-size: clamp(1.375rem, 1.1rem + 0.9vw, 1.75rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+
+  .ask-p {
+    max-width: 40ch;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .ask-cta {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+    margin-top: 6px;
+  }
+
+  .ask-tel {
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    text-underline-offset: 3px;
+  }
+
+  @media (min-width: 1000px) {
+    .proof {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+
+    .bar {
+      padding: 32px var(--pad) 28px;
+    }
+
+    .ask {
+      padding: 40px var(--pad) 40px 40px;
+      box-shadow: inset 1px 0 0 var(--line);
+    }
+  }
+
+  .steps-wrap {
+    --t: 1;
+    position: relative;
+  }
+
+  .steps-line {
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    background: var(--ink);
+    transform: scaleY(var(--t));
+    transform-origin: top;
+    pointer-events: none;
+  }
+
+  .steps {
+    display: grid;
+  }
+
+  .step {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 10px;
+    padding: 28px var(--pad) 32px;
+    box-shadow:
+      inset 0 1px 0 var(--line),
+      inset -1px 0 0 var(--line);
+  }
+
+  /* A square sits where the step's hairlines meet. */
+  .step::before {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    top: 0;
+    width: 7px;
+    height: 7px;
+    border: 1px solid var(--plus);
+    background: var(--bg);
+    transform: translate(-50%, -50%);
+    transition:
+      background-color 220ms ease,
+      border-color 220ms ease;
+  }
+
+  .step[data-lit]::before {
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+
+  .step-n {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--soft);
+    transition: color 220ms ease;
+  }
+
+  .step[data-lit] .step-n {
+    color: var(--ink);
+  }
+
+  .step-t {
+    margin-top: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  .step-p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  @media (min-width: 700px) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .steps-line {
+      width: 100%;
+      height: 1px;
+      transform: scaleX(var(--t));
+      transform-origin: left;
+    }
+
+    .step {
+      padding: 36px 32px 40px;
+    }
+
+    .step:first-child {
+      padding-left: var(--pad);
+    }
+  }
+
+  .about-row {
+    display: grid;
+    box-shadow: inset 0 1px 0 var(--line);
+  }
+
+  .about-photo {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+  }
+
+  .about-photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    object-fit: cover;
+    transition:
+      clip-path 1100ms var(--ease),
+      transform 1400ms var(--ease);
+  }
+
+  /* The photo opens like a blind instead of the shared blur. */
+  :global(.reveal-on) .about-photo[data-reveal] {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  :global(.reveal-live) .about-photo:not([data-shown]) img {
+    clip-path: inset(0 0 100% 0);
+    transform: scale(1.06);
+  }
+
+  .facts {
+    padding: 12px var(--pad) 28px;
+  }
+
+  .facts div {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .facts div:last-child {
+    border-bottom: 0;
+  }
+
+  .facts dt {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--soft);
+  }
+
+  .facts dd {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  @media (min-width: 1000px) {
+    .about-row {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+
+    .about-photo {
+      aspect-ratio: auto;
+      min-height: 400px;
+    }
+
+    .facts {
+      align-self: center;
+      padding: 28px var(--pad) 28px 40px;
+    }
+
+    .about-row .facts {
+      box-shadow: inset 1px 0 0 var(--line);
+      align-self: stretch;
+      display: grid;
+      align-content: center;
+    }
+  }
+
+  .contact {
+    display: grid;
+    box-shadow: inset 0 1px 0 var(--line);
+  }
+
+  .c-list li {
+    box-shadow: inset 0 -1px 0 var(--line);
+  }
+
+  .c-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px 16px;
+    padding: 22px var(--pad);
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .c-k {
+    grid-column: 1 / -1;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--soft);
+  }
+
+  .c-v {
+    font-size: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+    transform-origin: left center;
+    transition: transform 160ms var(--ease);
+  }
+
+  .c-v--sm {
+    font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    letter-spacing: -0.03em;
+  }
+
+  .c-link svg {
+    color: var(--soft);
+    transition:
+      transform 220ms var(--ease),
+      color 160ms ease;
+  }
+
+  .c-link:active .c-v {
+    transform: scale(0.98);
+  }
+
+  .c-addr {
+    display: grid;
+    justify-items: start;
+    gap: 8px;
+    padding: 22px var(--pad) 28px;
+  }
+
+  .c-addr address {
+    font-style: normal;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-2);
+  }
+
+  .c-list li.c-addr {
+    box-shadow: none;
+  }
+
+  .c-art {
+    position: relative;
+    overflow: hidden;
+    min-height: 260px;
+    box-shadow: inset 0 1px 0 var(--line);
+    --loops-line: var(--line-2);
+    --loops-heat: #f26a21;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .c-link:hover svg {
+      color: var(--ink);
+      transform: translate(3px, -3px);
+    }
+
+    .c-link:hover .c-v {
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.16em;
+      text-decoration-color: var(--line-2);
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .contact {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+
+    .c-art {
+      min-height: 100%;
+      box-shadow: inset 1px 0 0 var(--line);
+    }
+  }
+
+  .foot-in {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    padding: 28px var(--pad) 32px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .foot-in a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .foot-in a:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+</style>

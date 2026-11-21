@@ -1,0 +1,77 @@
+---
+// The manifold, not the empty PNG canvas, fills the frame.
+import { Image } from 'astro:assets';
+import { productImage } from '../../data/products';
+
+type Box = [x0: number, y0: number, x1: number, y1: number];
+
+interface Props {
+  slug: string;
+  alt: string;
+  widths: number[];
+  sizes: string;
+  /** Frame width divided by frame height. */
+  aspect?: number;
+  /** Share of the frame that the manifold fills on its tighter side. */
+  fill?: number;
+  class?: string;
+}
+
+// Opaque area of each product PNG in source pixels. Measured with Pillow from the alpha channel.
+const opaque: Record<string, Box> = {
+  'rw-pt': [520, 5, 1226, 892],
+  'rw-ptr': [521, 32, 1225, 891],
+  'rw-ptpex': [517, 0, 1220, 882],
+  'rw-ezmpt': [115, 1, 1219, 876],
+  'rw-ezmptr': [113, 32, 1218, 879],
+  'rw-zz': [521, 1, 1229, 895],
+  'rw-zzr': [519, 131, 1230, 896],
+  'rw-zz0': [519, 135, 1080, 823],
+  'rwko-pt': [461, 0, 1285, 887],
+  'rwko-ptr': [464, 49, 1294, 880],
+  'rwko-ptpex': [458, 0, 1429, 887],
+  'rwko-ptrpex': [467, 49, 1296, 878],
+};
+
+const { slug, alt, widths, sizes, aspect = 1, fill = 0.8, class: className } = Astro.props;
+const src = productImage(slug);
+const [x0, y0, x1, y1] = opaque[slug] ?? [0, 0, src.width, src.height];
+const ratio = src.width / src.height;
+const scale = Math.min(fill / ((y1 - y0) / src.height), (fill * aspect) / (((x1 - x0) / src.width) * ratio));
+const cx = (x0 + x1) / 2 / src.width;
+const cy = (y0 + y1) / 2 / src.height;
+const pct = (n: number) => `${(n * 100).toFixed(2)}%`;
+const style = `--ar:${aspect};--h:${pct(scale)};--cx:${pct(cx)};--cy:${pct(cy)}`;
+---
+
+<div class:list={['shot', className]} style={style}>
+  <div class="shot-in">
+    <Image src={src} alt={alt} widths={widths} sizes={sizes} />
+  </div>
+</div>
+
+<style>
+  .shot {
+    position: relative;
+    aspect-ratio: var(--ar);
+    overflow: hidden;
+    background: var(--surface, #f2f2f2);
+    transition: background-color 200ms ease;
+  }
+
+  .shot-in {
+    position: absolute;
+    inset: 0;
+    transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .shot-in :global(img) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: auto;
+    max-width: none;
+    height: var(--h);
+    transform: translate(calc(var(--cx) * -1), calc(var(--cy) * -1));
+  }
+</style>

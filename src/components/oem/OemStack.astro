@@ -1,0 +1,591 @@
+---
+// Exploded view of an OEM manifold: Huber's layers at the bottom, the client's brand on top.
+// Every plate is drawn in its own flat coordinates (u, v) and projected with one isometric matrix.
+// Plates and labels move apart with the same gap, so a label always points at its plate.
+import { oemLayers } from '../../data/oem';
+
+const VB = { w: 1200, h: 650 };
+const W = 520;
+const H = 320;
+const BASE = { x: 330, y: 480 };
+// Plane turned by -30° and tilted by 60°: u runs up and to the right, v runs down and to the right.
+const M = [0.866, -0.25, 0.5, 0.433] as const;
+const matrix = `matrix(${M.join(' ')} ${BASE.x} ${BASE.y})`;
+const edge = `matrix(${M.join(' ')} ${BASE.x} ${BASE.y + 10})`;
+// Right corner of a plate (u = W/2, v = H/2) on screen, where the leader line starts.
+const corner = { x: BASE.x + M[0] * (W / 2) + M[2] * (H / 2), y: BASE.y + M[1] * (W / 2) + M[3] * (H / 2) };
+const LABEL_X = 700;
+
+const ports = Array.from({ length: 8 }, (_, k) => -175 + k * 50);
+
+// Decorative barcode for the carton plate.
+const bars: { x: number; w: number }[] = [];
+let bx = 0;
+for (const ch of 'R72505HUBEROEM') {
+  const code = ch.charCodeAt(0);
+  for (const w of [1 + (code % 3), 2 + (code % 2)]) {
+    bars.push({ x: bx, w: w * 1.5 });
+    bx += w * 1.5 + 2.5;
+  }
+}
+
+const layers = oemLayers.map((layer, i) => ({ ...layer, i, n: i + 1 }));
+const top = layers.length - 1;
+const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(3)}%`;
+---
+
+<div class="oem-stack" data-oem-stack data-active={top} style={`--p: 1; --vbh: ${VB.h}; --base-y: ${corner.y}`}>
+  <div class="stack-frame" data-stack-frame>
+    <svg class="stack-art" viewBox={`0 0 ${VB.w} ${VB.h}`} role="img" aria-label="Rozdzielacz OEM rozłożony na warstwy: belka, obwody, wyposażenie, oznaczenie i opakowanie">
+      <defs>
+        <linearGradient id="oem-brass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#e8cc8c"></stop>
+          <stop offset="0.55" stop-color="#c79a4b"></stop>
+          <stop offset="1" stop-color="#9c7432"></stop>
+        </linearGradient>
+        <filter id="oem-shadow" x="-20%" y="-20%" width="140%" height="160%">
+          <feGaussianBlur stdDeviation="10"></feGaussianBlur>
+        </filter>
+      </defs>
+
+      <ellipse cx={BASE.x} cy={BASE.y + 120} rx="300" ry="40" class="floor-shadow" filter="url(#oem-shadow)"></ellipse>
+
+      {
+        layers.map((layer) => (
+          <g class="layer" data-i={layer.i} data-side={layer.side} data-top={layer.i === top ? '' : undefined} style={`--i: ${layer.i}`}>
+            <rect x={-W / 2} y={-H / 2} width={W} height={H} rx="22" transform={edge} class="plate-edge" />
+            <rect x={-W / 2} y={-H / 2} width={W} height={H} rx="22" transform={matrix} class="plate" data-plate={layer.i} />
+            <g transform={matrix} class="plate-ink">
+              <text x={-W / 2 + 28} y={-H / 2 + 42} class="plate-caption">
+                {String(layer.n).padStart(2, '0')} · {layer.title.toUpperCase()}
+              </text>
+
+              {layer.id === 'belka' && (
+                <g>
+                  {[-58, 58].map((v) => (
+                    <g>
+                      <rect x="-215" y={v - 14} width="430" height="28" rx="14" fill="url(#oem-brass)" />
+                      {ports.map((u) => (
+                        <rect x={u - 9} y={v > 0 ? v - 30 : v + 14} width="18" height="16" rx="3" class="port" />
+                      ))}
+                    </g>
+                  ))}
+                </g>
+              )}
+
+              {layer.id === 'obwody' && (
+                <g>
+                  {ports.map((u, k) => (
+                    <g>
+                      <line x1={u} y1="-70" x2={u} y2="70" class="tick" />
+                      <circle cx={u} cy="0" r="17" class="tick-ring" />
+                      <text x={u} y="6" text-anchor="middle" class="tick-num">
+                        {k + 1}
+                      </text>
+                    </g>
+                  ))}
+                  <text x={W / 2 - 28} y={H / 2 - 28} text-anchor="end" class="plate-caption">
+                    {`NA RYSUNKU ${ports.length} · ${layer.short.toUpperCase()}`}
+                  </text>
+                </g>
+              )}
+
+              {layer.id === 'wyposazenie' && (
+                <g>
+                  {ports.map((u) => (
+                    <g>
+                      <circle cx={u} cy="-58" r="15" fill="#d8392b" />
+                      <circle cx={u} cy="-58" r="6" fill="#f3f1ec" />
+                      <circle cx={u} cy="58" r="15" fill="#2f62c8" />
+                      <circle cx={u} cy="58" r="6" fill="#f3f1ec" />
+                    </g>
+                  ))}
+                  <text x="-215" y="6" class="plate-small">PRZEPŁYWOMIERZE</text>
+                  <text x="215" y="6" text-anchor="end" class="plate-small">WKŁADKI TERMOSTATYCZNE</text>
+                </g>
+              )}
+
+              {layer.id === 'oznaczenie' && (
+                <g>
+                  <rect x="-150" y="-46" width="300" height="92" rx="6" class="sticker" />
+                  <text x="0" y="12" text-anchor="middle" class="sticker-brand" data-brand data-brand-fit-svg="270">
+                    TWOJA MARKA
+                  </text>
+                  <text x="0" y="34" text-anchor="middle" class="sticker-sub">
+                    ROZDZIELACZ DO PODŁOGÓWKI
+                  </text>
+                </g>
+              )}
+
+              {layer.id === 'opakowanie' && (
+                <g>
+                  <text x={-W / 2 + 28} y="10" class="carton-brand" data-brand data-brand-fit-svg="300">
+                    TWOJA MARKA
+                  </text>
+                  <text x={-W / 2 + 28} y="40" class="plate-small carton-ink">
+                    ROZDZIELACZ DO PODŁOGÓWKI
+                  </text>
+                  <g transform={`translate(${W / 2 - 160} ${H / 2 - 92}) scale(${130 / bx} 1)`} class="carton-bars">
+                    {bars.map((b) => (
+                      <rect x={b.x} y="0" width={b.w} height="46" />
+                    ))}
+                  </g>
+                </g>
+              )}
+            </g>
+            <g class="leader">
+              <line x1={corner.x + 10} y1={corner.y} x2={LABEL_X - 14} y2={corner.y} />
+              <circle cx={corner.x + 6} cy={corner.y} r="4" />
+            </g>
+          </g>
+        ))
+      }
+    </svg>
+
+    <ol class="stack-labels" role="list" style={`left: ${pct(LABEL_X, VB.w)}`}>
+      {
+        [...layers].reverse().map((layer) => (
+          <li class="stack-label" data-label={layer.i} data-side={layer.side} data-top={layer.i === top ? '' : undefined} style={`--i: ${layer.i}`}>
+            <button type="button" data-layer={layer.i} aria-pressed="false" aria-controls="oem-stack-detail">
+              <span class="label-n">{layer.n}</span>
+              <span class="label-title">{layer.title}</span>
+              <span class="label-short">{layer.short}</span>
+            </button>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  <div class="stack-detail" id="oem-stack-detail" aria-live="polite">
+    <p class="legend">
+      <span class="legend-item" data-side="huber">Produkcja Huber</span>
+      <span class="legend-item" data-side="brand">Twoja marka</span>
+    </p>
+    {
+      layers.map((layer) => (
+        <div class="detail" data-detail={layer.i} hidden={layer.i !== top}>
+          <p class="detail-head">
+            <span class="label-n">{layer.n}</span> {layer.title}
+          </p>
+          <p class="detail-text">{layer.detail}</p>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  const roots = document.querySelectorAll<HTMLElement>('[data-oem-stack]');
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  roots.forEach((root) => {
+    const frame = root.querySelector<HTMLElement>('[data-stack-frame]')!;
+    const top = root.dataset.active!;
+    const layers = [...root.querySelectorAll<SVGGElement>('.layer')];
+    const labels = [...root.querySelectorAll<HTMLElement>('[data-label]')];
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-layer]')];
+    const details = [...root.querySelectorAll<HTMLElement>('[data-detail]')];
+
+    // One owner of the highlighted layer: hover, focus and taps all go through select().
+    // The plates above the chosen one lift away, so the chosen plate is in view.
+    const select = (index: string | null) => {
+      root.toggleAttribute('data-focus', index !== null);
+      const shown = index ?? top;
+      const mark = (el: Element, i: number) => {
+        el.toggleAttribute('data-on', index !== null && i === Number(index));
+        el.toggleAttribute('data-above', index !== null && i > Number(index));
+      };
+      layers.forEach((el) => mark(el, Number(el.dataset.i)));
+      labels.forEach((el) => mark(el, Number(el.dataset.label)));
+      buttons.forEach((el) => el.setAttribute('aria-pressed', String(el.dataset.layer === index)));
+      details.forEach((el) => (el.hidden = el.dataset.detail !== shown));
+    };
+
+    buttons.forEach((button) => {
+      button.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && select(button.dataset.layer!));
+      button.addEventListener('focus', () => select(button.dataset.layer!));
+      button.addEventListener('click', () => select(button.getAttribute('aria-pressed') === 'true' ? null : button.dataset.layer!));
+    });
+    root.querySelectorAll<SVGRectElement>('[data-plate]').forEach((plate) => {
+      plate.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && select(plate.dataset.plate!));
+    });
+    frame.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && select(null));
+    root.addEventListener('focusout', (e) => {
+      if (!root.contains(e.relatedTarget as Node)) select(null);
+    });
+
+    if (still) return;
+
+    // The plates unfold while the stack scrolls into view: p goes from 0 (packed) to 1 (spread).
+    let queued = false;
+    let visible = false;
+    const update = () => {
+      queued = false;
+      const rect = root.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const raw = (vh - rect.top) / (vh * 0.7);
+      const t = Math.min(1, Math.max(0, raw));
+      const eased = 1 - Math.pow(1 - t, 3);
+      root.style.setProperty('--p', eased.toFixed(4));
+    };
+    const onScroll = () => {
+      if (visible && !queued) {
+        queued = true;
+        requestAnimationFrame(update);
+      }
+    };
+    new IntersectionObserver((entries) => {
+      visible = entries.some((e) => e.isIntersecting);
+      if (visible) onScroll();
+    }).observe(root);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', () => requestAnimationFrame(update), { passive: true });
+    update();
+  });
+</script>
+
+<style>
+  @property --oem-lift {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+  }
+
+  .oem-stack {
+    --gap: calc(14 + 50 * var(--p));
+    color: var(--stack-ink, #18181b);
+    container-type: inline-size;
+  }
+
+  .stack-frame {
+    position: relative;
+  }
+
+  .stack-art {
+    display: block;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    overflow: visible;
+  }
+
+  .floor-shadow {
+    fill: var(--stack-shadow, rgb(24 24 27 / 0.16));
+  }
+
+  .layer {
+    --lift: var(--oem-lift);
+    transform: translateY(calc((var(--i) * var(--gap) + var(--lift)) * -1px));
+    opacity: clamp(0, calc(var(--p) * 3.2 - var(--i) * 0.45), 1);
+    transition: --oem-lift 320ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  /* At rest the carton sits a little higher, so the brand on the bar below it stays in view. */
+  .oem-stack:not([data-focus]) [data-top] {
+    --oem-lift: 70;
+  }
+
+  .layer[data-on],
+  .stack-label[data-on] {
+    --oem-lift: 10;
+  }
+
+  .layer[data-above],
+  .stack-label[data-above] {
+    --oem-lift: 110;
+  }
+
+  .plate {
+    fill: var(--stack-plate, #ffffff);
+    stroke: var(--stack-line, rgb(24 24 27 / 0.14));
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .plate-edge {
+    fill: var(--stack-plate-edge, #e4e4e0);
+  }
+
+  .layer[data-i='4'] .plate {
+    fill: #c69c6d;
+    stroke: #a67c50;
+  }
+
+  .layer[data-i='4'] .plate-edge {
+    fill: #a67c50;
+  }
+
+  .plate-ink {
+    pointer-events: none;
+  }
+
+  .plate-caption {
+    font-family: var(--stack-mono, ui-monospace, monospace);
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    fill: var(--stack-muted, #6b6b70);
+  }
+
+  .plate-small {
+    font-family: var(--stack-mono, ui-monospace, monospace);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    fill: var(--stack-muted, #6b6b70);
+  }
+
+  .port {
+    fill: #b48a40;
+  }
+
+  .tick {
+    stroke: var(--stack-line, rgb(24 24 27 / 0.14));
+    stroke-dasharray: 4 5;
+  }
+
+  .tick-ring {
+    fill: var(--stack-plate, #ffffff);
+    stroke: var(--stack-ink, #18181b);
+    stroke-width: 1.5;
+  }
+
+  .tick-num {
+    font-family: var(--stack-mono, ui-monospace, monospace);
+    font-size: 15px;
+    font-weight: 600;
+    fill: var(--stack-ink, #18181b);
+  }
+
+  .sticker {
+    fill: #f7f7f5;
+    stroke: rgb(0 0 0 / 0.12);
+  }
+
+  .sticker-brand {
+    font-family: var(--stack-display, system-ui, sans-serif);
+    font-stretch: 75%;
+    font-size: 40px;
+    font-weight: 800;
+    fill: #161412;
+  }
+
+  .sticker-sub {
+    font-family: var(--stack-mono, ui-monospace, monospace);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    fill: #5f5850;
+  }
+
+  .carton-brand {
+    font-family: var(--stack-display, system-ui, sans-serif);
+    font-stretch: 75%;
+    font-size: 56px;
+    font-weight: 800;
+    fill: #231a12;
+  }
+
+  .carton-ink {
+    fill: #3b2a1a;
+  }
+
+  .carton-bars {
+    fill: #231a12;
+  }
+
+  .layer[data-i='4'] .plate-caption {
+    fill: #3b2a1a;
+  }
+
+  .leader {
+    stroke: var(--stack-line-strong, rgb(24 24 27 / 0.35));
+    fill: var(--stack-ink, #18181b);
+    opacity: clamp(0, calc(var(--p) * 2.5 - 1.4), 1);
+  }
+
+  .leader line {
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .layer[data-side='brand'] .leader circle {
+    fill: var(--stack-accent, #f26a21);
+  }
+
+  /* Labels sit on the leader lines: same base y and the same gap as the plates. */
+  .stack-labels {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    opacity: clamp(0, calc(var(--p) * 2.5 - 1.4), 1);
+  }
+
+  .stack-label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc((var(--base-y) - var(--i) * var(--gap) - var(--oem-lift)) / var(--vbh) * 100%);
+    transform: translateY(-50%);
+    transition: --oem-lift 320ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .stack-label button {
+    display: grid;
+    grid-template-columns: 1.6em minmax(7em, auto) 1fr;
+    align-items: baseline;
+    gap: 12px;
+    width: 100%;
+    padding: 6px 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: opacity 200ms ease;
+  }
+
+  .stack-label button:focus-visible {
+    outline: 2px solid var(--stack-accent, #f26a21);
+    outline-offset: 2px;
+  }
+
+  .label-n {
+    font-family: var(--stack-mono, ui-monospace, monospace);
+    font-size: 0.8125rem;
+    color: var(--stack-muted, #6b6b70);
+  }
+
+  .label-title {
+    font-weight: 600;
+  }
+
+  .label-short {
+    font-family: var(--stack-mono, ui-monospace, monospace);
+    font-size: 0.8125rem;
+    color: var(--stack-muted, #6b6b70);
+  }
+
+  .stack-label[data-side='brand'] .label-n {
+    color: var(--stack-accent-ink, #b5400c);
+  }
+
+  .oem-stack[data-focus] .stack-label:not([data-on]) .label-title {
+    color: var(--stack-muted, #6b6b70);
+    font-weight: 400;
+  }
+
+  .stack-label[data-on] .label-title {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+    text-decoration-color: var(--stack-accent, #f26a21);
+  }
+
+  .stack-detail {
+    display: grid;
+    gap: 10px;
+    margin-left: 58.333%;
+    min-height: 7.5em;
+  }
+
+  .legend {
+    display: flex;
+    gap: 18px;
+    font-family: var(--stack-mono, ui-monospace, monospace);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--stack-muted, #6b6b70);
+  }
+
+  .legend-item::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: var(--stack-ink, #18181b);
+  }
+
+  .legend-item[data-side='brand']::before {
+    background: var(--stack-accent, #f26a21);
+  }
+
+  .detail {
+    padding-top: 12px;
+    border-top: 1px solid var(--stack-line, rgb(24 24 27 / 0.14));
+  }
+
+  .detail-head {
+    font-weight: 600;
+  }
+
+  .detail-text {
+    margin-top: 6px;
+    max-width: 30em;
+    color: var(--stack-muted, #6b6b70);
+  }
+
+  /* Narrow screens: the plates fill the width and the labels become a list under them. */
+  @container (max-width: 760px) {
+    .stack-frame {
+      overflow: hidden;
+    }
+
+    .stack-art {
+      width: 176%;
+      margin-left: -2%;
+    }
+
+    .leader {
+      display: none;
+    }
+
+    .stack-labels {
+      position: static;
+      height: auto;
+      opacity: 1;
+      border-top: 1px solid var(--stack-line, rgb(24 24 27 / 0.14));
+    }
+
+    .stack-label {
+      position: static;
+      transform: none;
+      border-bottom: 1px solid var(--stack-line, rgb(24 24 27 / 0.14));
+    }
+
+    .stack-label button {
+      grid-template-columns: 1.6em 1fr auto;
+      padding: 12px 0;
+    }
+
+    .label-short {
+      grid-column: 2;
+    }
+
+    /* A plus that turns into a cross shows that a row opens its layer. */
+    .stack-label button::after {
+      content: '+';
+      grid-column: 3;
+      grid-row: 1;
+      font-family: var(--stack-mono, ui-monospace, monospace);
+      font-size: 1.25rem;
+      line-height: 1;
+      color: var(--stack-muted, #6b6b70);
+      transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .stack-label button[aria-pressed='true']::after {
+      transform: rotate(45deg);
+      color: var(--stack-accent-ink, #b5400c);
+    }
+
+    .stack-detail {
+      margin: 20px 0 0;
+    }
+  }
+</style>

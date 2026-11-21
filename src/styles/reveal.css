@@ -1,0 +1,50 @@
+/* Scroll reveal. Use data-reveal on a block, data-reveal="words" on a headline,
+   and style="--d: 120" for a delay in ms. See src/scripts/reveal.ts. */
+
+.reveal-on [data-reveal]:not([data-reveal='words']),
+.reveal-on [data-reveal='words'] .rw {
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(14px);
+  transition:
+    opacity 650ms cubic-bezier(0.23, 1, 0.32, 1),
+    filter 750ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 900ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.reveal-on [data-reveal]:not([data-reveal='words']) {
+  transition-delay: calc(var(--d, 0) * 1ms);
+}
+
+.reveal-on [data-reveal='words'] .rw {
+  display: inline-block;
+  transition-delay: calc((var(--d, 0) + var(--w, 0)) * 1ms);
+}
+
+.reveal-on [data-reveal][data-shown]:not([data-reveal='words']),
+.reveal-on [data-reveal='words'][data-shown] .rw {
+  opacity: 1;
+  filter: none;
+  transform: none;
+}
+
+/* If the reveal script never runs, show everything after a moment. */
+.reveal-on:not(.reveal-live) [data-reveal] {
+  animation: reveal-failsafe 0s 2.5s forwards;
+}
+
+@keyframes reveal-failsafe {
+  to {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on [data-reveal]:not([data-reveal='words']),
+  .reveal-on [data-reveal='words'] .rw {
+    filter: none;
+    transform: none;
+  }
+}

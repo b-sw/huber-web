@@ -1,0 +1,1091 @@
+---
+import '../../styles/archivo-subset.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import '../../styles/reveal.css';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import VariantNav from '../../components/VariantNav.astro';
+import Icon from '../../components/Icon.astro';
+import Logo from '../../components/Logo.astro';
+import BoxStage from '../../components/pudelko/BoxStage.astro';
+import OemStack from '../../components/oem/OemStack.astro';
+import HeatLoops from '../../components/heat/HeatLoops.astro';
+import Header from '../../components/pudelko-witryna/Header.astro';
+import Category from '../../components/pudelko-witryna/Category.astro';
+import { configurations, mailto, type NavLink } from '../../components/pudelko-witryna/text';
+import { company } from '../../data/company';
+import { byMaterial, circuitRange, materials, productImage, productUrl, products } from '../../data/products';
+import factory from '../../assets/photos/factory.jpg';
+
+const all = circuitRange(products);
+const brass = byMaterial('mosiadz');
+const inox = byMaterial('inox');
+const brassRange = circuitRange(brass);
+const inoxRange = circuitRange(inox);
+
+const links: NavLink[] = [
+  {
+    id: 'mosiadz',
+    label: 'Mosiądz',
+    meta: `${configurations(brass.length)} · ${brassRange.min}–${brassRange.max} obwodów`,
+    place: 'left',
+  },
+  {
+    id: 'inox',
+    label: 'Inox',
+    meta: `${configurations(inox.length)} · ${inoxRange.min}–${inoxRange.max} obwodów`,
+    place: 'left',
+  },
+  { id: 'oem', label: 'OEM', meta: 'Pod Twoją marką', place: 'right' },
+  { id: 'o-firmie', label: 'O firmie', meta: `Od ${company.foundingYear}`, place: 'right' },
+];
+
+const steps = [
+  { title: 'Konfiguracja', text: 'Wybierasz zestawy z katalogu albo opisujesz własne wyposażenie.' },
+  { title: 'Wycena', text: 'Przygotowujemy ofertę dla Twoich ilości i terminów.' },
+  { title: 'Produkcja', text: 'Wykonujemy rozdzielacze z Twoim oznaczeniem na belce i pakujemy je w Twoje opakowanie.' },
+  { title: 'Dostawa', text: 'Dostarczamy terminowo i pilnujemy ciągłości kolejnych dostaw.' },
+];
+
+const customMail = mailto(company.email, 'Rozdzielacz na zamówienie');
+
+const itemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Rozdzielacze do ogrzewania podłogowego Huber',
+  itemListElement: products.map((p, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'Product',
+      name: `Rozdzielacz ${p.code}`,
+      description: p.title,
+      sku: p.code,
+      brand: { '@type': 'Brand', name: company.name },
+      material: materials[p.material].label,
+      url: productUrl(p.slug),
+    },
+  })),
+};
+
+const year = new Date().getFullYear();
+---
+
+<Base
+  title="Rozdzielacze do podłogówki – producent i OEM pod Twoją marką | Huber"
+  description={`Producent rozdzielaczy do ogrzewania podłogowego od ${company.foundingYear} roku. ${products.length} konfiguracji z mosiądzu i inoxu, ${all.min}–${all.max} obwodów. Produkcja OEM pod Twoją marką dla hurtowni i dystrybutorów.`}
+  themeColor="#ffffff"
+  ogImage={productImage('rw-ezmptr')}
+  jsonLd={[itemList]}
+>
+  <script is:inline slot="head">document.documentElement.classList.add('reveal-on');</script>
+  <VariantNav slug="pudelko-witryna" />
+  <Header links={links} />
+
+  <main id="tresc">
+    <section class="hero" id="top" data-hero aria-labelledby="hero-h">
+      <h1 class="hero-title" id="hero-h">
+        Rozdzielacze do podłogówki <span class="tape">pod Twoją marką</span>
+      </h1>
+      <div class="hero-stage">
+        <BoxStage />
+      </div>
+      <p class="hero-hint" aria-hidden="true">
+        <span class="hint-closed">
+          <span class="on-fine">Kliknij pudełko, żeby zajrzeć do środka.</span>
+          <span class="on-touch">Dotknij pudełka, żeby zajrzeć do środka.</span>
+        </span>
+        <span class="hint-open">
+          <span class="on-fine">Kliknij pudełko, żeby je zamknąć.</span>
+          <span class="on-touch">Dotknij pudełka, żeby je zamknąć.</span>
+        </span>
+      </p>
+      <div class="hero-foot">
+        <p class="hero-lead">
+          {products.length} konfiguracji z mosiądzu i inoxu, od {all.min} do {all.max} obwodów. Każdą wykonamy też pod
+          Twoją marką.
+        </p>
+        <div class="hero-actions">
+          <a class="btn" href="#asortyment">
+            Zobacz asortyment
+            <Icon name="arrow-right" size={18} />
+          </a>
+          <a class="arrow-link" href="#oem">Jak działa OEM</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec range" id="asortyment" aria-labelledby="range-h">
+      <p class="kicker" data-reveal>Asortyment</p>
+      <div class="sec-intro">
+        <h2 class="statement" id="range-h" data-reveal="words">
+          {products.length} konfiguracji z mosiądzu i inoxu. <span class="muted">Od {all.min} do {all.max} obwodów.</span>
+        </h2>
+        <p class="sec-lead" data-reveal style="--d: 180">
+          Wybierz zestaw, żeby zobaczyć indeksy i wymiary dla każdej liczby obwodów.{' '}
+          <span class="on-fine">Indeks skopiujesz jednym kliknięciem.</span>
+          <span class="on-touch">Indeks skopiujesz jednym dotknięciem.</span>
+        </p>
+      </div>
+
+      <Category material="mosiadz" />
+      <Category material="inox" />
+
+      <aside class="custom" aria-label="Konfiguracje na zamówienie" data-reveal>
+        <p>Nie ma tu Twojej konfiguracji? Wykonamy ją na zamówienie.</p>
+        <a class="arrow-link" href={customMail}>
+          Opisz, czego potrzebujesz
+          <Icon name="arrow-right" size={18} />
+        </a>
+      </aside>
+      <p class="visually-hidden" aria-live="polite" data-copy-status></p>
+    </section>
+
+    <section class="sec oem" id="oem" aria-labelledby="oem-h">
+      <p class="kicker" data-reveal><span class="flag">Nowość</span> OEM</p>
+      <h2 class="mega rise" id="oem-h" data-reveal="rise"><span>Pod Twoją marką</span></h2>
+
+      <p class="statement oem-lead" data-reveal="words">
+        Każdy rozdzielacz z katalogu wykonamy z Twoim oznaczeniem i w Twoim opakowaniu. <span class="muted"
+          >Także konfigurację spoza katalogu.</span
+        >
+      </p>
+
+      <div class="oem-stack-wrap" data-reveal>
+        <div class="brand-field" data-reveal style="--d: 180">
+          <label class="brand-line">
+            <span class="brand-label">Twoja marka</span>
+            <input type="text" data-brand-input placeholder="wpisz nazwę" autocomplete="organization" spellcheck="false" />
+          </label>
+          <p class="note">Nazwa pojawi się na warstwach, na zdjęciu belki niżej i na pudełku u góry strony.</p>
+        </div>
+        <OemStack />
+      </div>
+
+      <div class="oem-proof">
+        <figure class="bar" data-reveal>
+          <div class="bar-crop">
+            <div class="bar-zoom">
+              <Image
+                src={productImage('rw-pt')}
+                alt="Zbliżenie belki rozdzielacza z naklejką oznaczenia"
+                widths={[900, 1200, 1600]}
+                sizes="(min-width: 960px) 1800px, 300vw"
+                class="bar-img"
+              />
+              <span class="bar-sticker"><span data-brand data-brand-fit>TWOJA MARKA</span></span>
+            </div>
+          </div>
+          <figcaption>Oznaczenie na belce. Tu będzie Twoja marka.</figcaption>
+        </figure>
+
+        <div class="oem-flow">
+          <p class="label">Jak to działa</p>
+          <ol class="steps" role="list">
+            {
+              steps.map((s, i) => (
+                <li data-reveal style={`--d: ${i * 90}`}>
+                  <span class="step-num">{String(i + 1).padStart(2, '0')}</span>
+                  <h3>{s.title}</h3>
+                  <p>{s.text}</p>
+                </li>
+              ))
+            }
+          </ol>
+          <div class="oem-cta" data-reveal style="--d: 200">
+            <a class="btn" href={`mailto:${company.email}`} data-brand-mailto={company.email}>
+              Napisz zapytanie OEM
+              <Icon name="arrow-right" size={18} />
+            </a>
+            <p>
+              Otworzy się e-mail z gotowym szablonem. Adres: <a href={`mailto:${company.email}`}>{company.email}</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec about" id="o-firmie" aria-labelledby="about-h">
+      <p class="kicker" data-reveal>O firmie</p>
+      <div class="about-grid">
+        <div class="about-text">
+          <h2 class="statement" id="about-h" data-reveal="words">
+            Rodzinna firma produkcyjna. <span class="muted">Od {company.foundingYear} roku w Nowej Wsi pod Włocławkiem.</span>
+          </h2>
+          <p data-reveal style="--d: 180">
+            Specjalizujemy się w rozdzielaczach do ogrzewania podłogowego. Opieramy się na wieloletnim doświadczeniu w
+            obróbce metali. Współpracujemy z hurtowniami w całym kraju, a nasze wyroby są doceniane także za granicą.
+          </p>
+        </div>
+        <figure class="about-photo" data-reveal style="--d: 120">
+          <Image
+            src={factory}
+            alt="Montaż belek rozdzielaczy w zakładzie Huber"
+            widths={[480, 720, 960, 1280]}
+            sizes="(min-width: 960px) 50vw, 100vw"
+          />
+        </figure>
+      </div>
+    </section>
+
+    <section class="sec contact" id="kontakt" aria-labelledby="contact-h">
+      <HeatLoops id="pw-loops" fade="left" />
+      <div class="contact-in">
+        <p class="kicker" data-reveal>Kontakt</p>
+        <h2 class="statement" id="contact-h" data-reveal="words">
+          Zapytaj o ofertę hurtową <span class="muted">albo o produkcję pod Twoją marką.</span>
+        </h2>
+        <a class="big-tel" href={company.phoneHref}>
+          <span class="rise" data-reveal="rise" style="--d: 120"><span>{company.phone}</span></span>
+        </a>
+        <a class="big-mail" href={`mailto:${company.email}`} data-reveal style="--d: 240">{company.email}</a>
+        <div class="contact-foot" data-reveal style="--d: 320">
+          <address>
+            {company.name}<br />
+            {company.address.street}<br />
+            {company.address.village}<br />
+            {`${company.address.postalCode} ${company.address.city}`}
+          </address>
+          <div class="contact-links">
+            <a class="arrow-link" href={`mailto:${company.email}`} data-brand-mailto={company.email}>
+              Zapytanie OEM z szablonem
+              <Icon name="arrow-right" size={18} />
+            </a>
+            <a class="arrow-link" href={company.mapUrl} rel="noopener">
+              Mapa dojazdu
+              <Icon name="arrow-up-right" size={18} />
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <Logo height={18} ink="var(--ink)" paper="var(--bg)" />
+    <p>© {year} {company.name}. {company.tagline} od {company.foundingYear} roku.</p>
+    <a href="#top">Do góry</a>
+  </footer>
+</Base>
+
+<script>
+  import { initBrand } from '../../scripts/brand';
+  import { initReveal } from '../../scripts/reveal';
+
+  initBrand();
+  initReveal();
+</script>
+
+<style is:global>
+  :root {
+    --bg: var(--t-bg, #fff);
+    --surface: var(--t-surface, #f2f2f2);
+    --surface-2: var(--t-surface-2, #ebebeb);
+    --ink: var(--t-ink, #111);
+    --ink-2: var(--t-ink-2, #555);
+    --muted: var(--t-muted, #6e6e6e);
+    --line: var(--t-line, #e5e5e5);
+    --kraft: var(--t-accent, #c69c6d);
+    --kraft-ink: var(--t-accent-ink, #7a5530);
+    --on-kraft: var(--t-on-accent, #111);
+    --pad: clamp(16px, 2.5vw, 36px);
+    --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --display: 'Archivo Subset', 'Arial Narrow', Arial, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    /* BoxStage draws its focus ring with this colour. */
+    --orange: var(--ink);
+  }
+
+  html {
+    background: var(--t-bg, #fff);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--display);
+    font-size: 16px;
+  }
+
+  main [id] {
+    scroll-margin-top: 96px;
+  }
+
+  .on-touch {
+    display: none;
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    .on-fine {
+      display: none;
+    }
+
+    .on-touch {
+      display: inline;
+    }
+  }
+
+  /* The padding and the matching negative margin keep ogonki and accents inside the clip. */
+  .rise {
+    display: block;
+    overflow: hidden;
+    padding: 0.06em 0 0.16em;
+    margin: -0.06em 0 -0.16em;
+  }
+
+  html.reveal-on .rise[data-reveal] {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  html.reveal-on .rise[data-reveal] > span {
+    display: block;
+    transform: translateY(calc(100% + 0.3em));
+    transition: transform 1100ms var(--ease) calc(var(--d, 0) * 1ms);
+  }
+
+  html.reveal-on .rise[data-reveal][data-shown] > span {
+    transform: none;
+  }
+
+  html.reveal-on:not(.reveal-live) .rise[data-reveal] > span {
+    animation: rise-failsafe 0s 2.5s forwards;
+  }
+
+  @keyframes rise-failsafe {
+    to {
+      transform: none;
+    }
+  }
+</style>
+
+<style>
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .kicker::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+    transform-origin: left;
+    transition: transform 1200ms var(--ease) 150ms;
+  }
+
+  :global(.reveal-live) .kicker[data-reveal]:not([data-shown])::after {
+    transform: scaleX(0);
+  }
+
+  .statement {
+    max-width: 24ch;
+    font-family: var(--display);
+    font-stretch: 100%;
+    font-size: clamp(26px, 2.8vw, 42px);
+    font-weight: 500;
+    line-height: 1.14;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  .muted {
+    color: var(--muted);
+  }
+
+  .sec-lead {
+    max-width: 38ch;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+
+  .label {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .mega {
+    font-family: var(--display);
+    font-stretch: 72%;
+    font-weight: 700;
+    font-size: clamp(56px, 11.4vw, 188px);
+    line-height: 0.82;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 52px;
+    padding: 0 22px;
+    border-radius: 6px;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: var(--display);
+    font-stretch: 85%;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition:
+      transform 160ms var(--ease),
+      background-color 200ms ease;
+  }
+
+  .btn :global(svg) {
+    transition: transform 200ms var(--ease);
+  }
+
+  .arrow-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 5px;
+    transition: transform 160ms var(--ease);
+  }
+
+  .arrow-link :global(svg) {
+    transition: transform 200ms var(--ease);
+  }
+
+  .btn:active,
+  .arrow-link:active,
+  .big-tel:active,
+  .big-mail:active,
+  .foot a:active {
+    transform: scale(0.97);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .btn:hover {
+      background: color-mix(in oklab, var(--ink) 82%, var(--bg));
+    }
+
+    .btn:hover :global(svg),
+    .arrow-link:hover :global(svg) {
+      transform: translateX(3px);
+    }
+  }
+
+  .sec {
+    margin-top: clamp(112px, 12vw, 176px);
+    padding-inline: var(--pad);
+  }
+
+  .kicker {
+    margin-bottom: clamp(28px, 3vw, 44px);
+  }
+
+  .hero {
+    padding: 26px var(--pad) 0;
+  }
+
+  .hero-title {
+    isolation: isolate;
+    font-family: var(--display);
+    font-stretch: 72%;
+    font-weight: 800;
+    font-size: clamp(36px, 4.1vw, 62px);
+    line-height: 1.02;
+    letter-spacing: -0.005em;
+    text-align: center;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .tape {
+    position: relative;
+    color: var(--on-kraft);
+    display: inline-block;
+    padding: 0 0.14em;
+    white-space: nowrap;
+  }
+
+  /* Only the tape animates. The headline text stays visible, so it never delays the first paint. */
+  .tape::before {
+    content: '';
+    position: absolute;
+    inset: 0.02em 0 -0.04em;
+    z-index: -1;
+    background: var(--kraft);
+    transform-origin: left;
+    animation: tape-draw 800ms var(--ease) 350ms both;
+  }
+
+  @keyframes tape-draw {
+    from {
+      transform: scaleX(0);
+    }
+  }
+
+  .hero-stage {
+    width: min(100%, calc((100svh - 330px) * 1.579));
+    min-width: min(100%, 600px);
+    margin: 4px auto 0;
+  }
+
+  /* The quiet line and the hint come in after the box. They are above the fold, so they do not wait for scroll. */
+  .hero-hint,
+  .hero-foot {
+    animation: hero-in 900ms var(--ease) both;
+  }
+
+  .hero-hint {
+    animation-delay: 600ms;
+  }
+
+  .hero-foot {
+    animation-delay: 450ms;
+  }
+
+  @keyframes hero-in {
+    from {
+      opacity: 0;
+      filter: blur(8px);
+      transform: translateY(10px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-hint,
+    .hero-foot,
+    .tape::before {
+      animation: none;
+    }
+  }
+
+  .hero-hint {
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    text-align: center;
+    color: var(--ink-2);
+  }
+
+  .hint-open {
+    display: none;
+  }
+
+  .hero:has(:global([data-stage-wrap][data-open])) .hint-closed {
+    display: none;
+  }
+
+  .hero:has(:global([data-stage-wrap][data-open])) .hint-open {
+    display: inline;
+  }
+
+  .hero-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 40px;
+    margin-top: 14px;
+    padding: 16px 0 8px;
+    border-top: 1px solid var(--line);
+  }
+
+  .hero-lead {
+    max-width: 44ch;
+    font-size: 17px;
+    line-height: 1.45;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 28px;
+  }
+
+  .sec-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
+    align-items: end;
+    gap: 24px 48px;
+    margin-bottom: clamp(56px, 7vw, 104px);
+  }
+
+  .custom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 32px;
+    margin-top: clamp(24px, 3vw, 40px);
+    padding: 20px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .custom p {
+    font-size: clamp(18px, 1.6vw, 22px);
+    line-height: 1.35;
+  }
+
+  .flag {
+    padding: 3px 7px 2px;
+    background: var(--kraft);
+    color: var(--on-kraft);
+    font-family: var(--display);
+    font-stretch: 80%;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .oem-lead {
+    max-width: 27ch;
+    margin-top: clamp(32px, 4vw, 56px);
+  }
+
+  .oem-stack-wrap {
+    position: relative;
+  }
+
+  .brand-field {
+    margin-bottom: 32px;
+  }
+
+  /* The field sits above the layer labels, where the drawing leaves the column empty. */
+  @media (min-width: 960px) {
+    .brand-field {
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      left: 58.333%;
+      right: 0;
+      margin: 0;
+    }
+  }
+
+  .brand-line {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    border-bottom: 2px solid var(--ink);
+    transition: border-color 200ms ease;
+  }
+
+  .brand-label {
+    flex: none;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .brand-line input {
+    flex: 1;
+    min-width: 0;
+    min-height: 56px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-family: var(--display);
+    font-stretch: 72%;
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  .brand-line input::placeholder {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--muted);
+  }
+
+  .brand-line input:focus-visible {
+    outline: none;
+  }
+
+  .brand-line:focus-within {
+    border-bottom-color: var(--kraft-ink);
+    box-shadow: 0 1px 0 var(--kraft-ink);
+  }
+
+  .note {
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+
+  .oem-stack-wrap {
+    --stack-ink: var(--ink);
+    --stack-muted: var(--ink-2);
+    --stack-line: color-mix(in oklab, var(--ink) 12%, transparent);
+    --stack-line-strong: color-mix(in oklab, var(--ink) 32%, transparent);
+    --stack-plate: var(--t-surface, #f4f4f4);
+    --stack-plate-edge: var(--t-line-2, #d9d9d9);
+    --stack-accent: var(--kraft);
+    --stack-accent-ink: var(--kraft-ink);
+    --stack-shadow: color-mix(in oklab, var(--ink) 12%, transparent);
+    --stack-mono: var(--mono);
+    --stack-display: 'Archivo Subset';
+    /* Room for the plates that lift away when a lower layer is chosen. */
+    margin-top: clamp(32px, 5vw, 72px);
+  }
+
+  /* The stack widens its drawing on narrow screens. The reset caps svg at 100%, so lift the cap here. */
+  .oem-stack-wrap :global(.stack-art) {
+    max-width: none;
+  }
+
+  /* The second column starts on the same line as the layer labels and the brand field above. */
+  .oem-proof {
+    --gap: clamp(32px, 5vw, 96px);
+    display: grid;
+    grid-template-columns: calc(58.333% - var(--gap)) minmax(0, 1fr);
+    gap: 40px var(--gap);
+    align-items: start;
+    margin-top: clamp(48px, 6vw, 88px);
+    padding-top: 40px;
+    border-top: 1px solid var(--line);
+  }
+
+  .bar {
+    margin: 0;
+  }
+
+  .bar-crop {
+    position: relative;
+    aspect-ratio: 544 / 232;
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .bar-zoom {
+    position: absolute;
+    inset: 0;
+  }
+
+  .bar-crop :global(.bar-img) {
+    position: absolute;
+    width: 294.12%;
+    max-width: none;
+    height: auto;
+    left: -111.4%;
+    top: -47.41%;
+  }
+
+  .bar-sticker {
+    position: absolute;
+    left: 28.13%;
+    top: 42.24%;
+    width: 16.36%;
+    height: 12.07%;
+    display: grid;
+    place-items: center;
+    padding-inline: 3%;
+    border-radius: 3px;
+    background: #f7f7f5;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
+    container-type: inline-size;
+  }
+
+  .bar-sticker span {
+    width: 100%;
+    text-align: center;
+    font-family: var(--display);
+    font-stretch: 72%;
+    font-weight: 800;
+    font-size: calc(18cqw * var(--fit, 1));
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    color: #161412;
+  }
+
+  .bar figcaption {
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+
+  .steps {
+    margin-top: 12px;
+    border-top: 1px solid var(--ink);
+  }
+
+  .steps li {
+    display: grid;
+    grid-template-columns: 3em minmax(0, 1fr);
+    gap: 4px 8px;
+    padding: 14px 0 16px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .step-num {
+    grid-row: span 2;
+    padding-top: 5px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+
+  .steps h3 {
+    font-family: var(--display);
+    font-stretch: 72%;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .steps p {
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+
+  .oem-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    margin-top: 28px;
+  }
+
+  .oem-cta p {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--ink-2);
+  }
+
+  .oem-cta p a {
+    color: var(--ink);
+    text-underline-offset: 3px;
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 32px clamp(32px, 5vw, 96px);
+    align-items: start;
+  }
+
+  .about-text {
+    display: grid;
+    gap: 24px;
+  }
+
+  .about-text > p {
+    max-width: 44ch;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink-2);
+  }
+
+  .about-photo {
+    overflow: hidden;
+  }
+
+  .about-photo :global(img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: 45% 40%;
+    transition: transform 1400ms var(--ease) 120ms;
+  }
+
+  :global(.reveal-live) .about-photo[data-reveal]:not([data-shown]) :global(img) {
+    transform: scale(1.08);
+  }
+
+  .contact {
+    position: relative;
+    overflow: hidden;
+    min-height: 640px;
+    padding-block: 8px clamp(72px, 9vw, 128px);
+    --loops-line: var(--t-line, #e6e6e6);
+    --loops-heat: #f26a21;
+  }
+
+  .contact-in {
+    position: relative;
+    z-index: 1;
+    max-width: min(760px, 58%);
+  }
+
+  .contact .statement {
+    max-width: 20ch;
+  }
+
+  .big-tel,
+  .big-mail {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    text-decoration: none;
+    transform-origin: left center;
+    transition: transform 160ms var(--ease);
+  }
+
+  .big-tel {
+    margin-top: clamp(32px, 4vw, 56px);
+    font-family: var(--display);
+    font-stretch: 72%;
+    font-weight: 700;
+    font-size: clamp(52px, 7.6vw, 112px);
+    line-height: 0.9;
+    letter-spacing: -0.005em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .big-mail {
+    margin-top: 14px;
+    font-size: clamp(22px, 2.8vw, 40px);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .big-tel:hover,
+    .big-mail:hover {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.12em;
+    }
+  }
+
+  .contact-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px 48px;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+
+  address {
+    font-style: normal;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .contact-links {
+    display: grid;
+    justify-items: start;
+  }
+
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    margin: 0 var(--pad);
+    padding: 20px 0 28px;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+
+  .foot p {
+    flex: 1;
+  }
+
+  .foot a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--ink);
+    text-underline-offset: 3px;
+    transition: transform 160ms var(--ease);
+  }
+
+  @media (max-width: 959px) {
+    .sec-intro,
+    .oem-proof,
+    .about-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .about-photo {
+      order: -1;
+    }
+
+    /* The text takes the full width, so the loops move to an empty band under it. */
+    .contact {
+      min-height: 0;
+      padding-bottom: 300px;
+    }
+
+    .contact-in {
+      max-width: none;
+    }
+
+    .contact.sec :global([data-loops]) {
+      mask-image: linear-gradient(to bottom, transparent calc(100% - 340px), #000 calc(100% - 210px));
+    }
+  }
+
+  @media (max-width: 600px) {
+    .hero {
+      padding-top: 26px;
+    }
+
+    .hero-stage {
+      min-width: 0;
+    }
+
+    .hero-foot {
+      margin-top: 14px;
+    }
+
+    .hero-actions {
+      width: 100%;
+    }
+
+    .brand-line input {
+      font-size: 28px;
+    }
+
+    /* On a phone the plate would be a few pixels tall, so the photo zooms in on it. */
+    .bar-zoom {
+      transform: scale(1.7);
+      transform-origin: 36.3% 48.3%;
+    }
+  }
+</style>

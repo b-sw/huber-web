@@ -1,0 +1,485 @@
+---
+import Logo from '../Logo.astro';
+import type { NavLink } from './text';
+
+interface Props {
+  links: NavLink[];
+}
+
+const { links } = Astro.props;
+const left = links.filter((l) => l.place === 'left');
+const right = links.filter((l) => l.place === 'right');
+---
+
+<a class="skip" href="#tresc">Przejdź do treści</a>
+
+<header class="hdr" data-hdr>
+  <span class="hdr-bg" aria-hidden="true"></span>
+  <nav class="bar" aria-label="Główna">
+    <button
+      class="menu-btn"
+      type="button"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+      aria-controls="pw-menu"
+      data-menu-open
+    >
+      <span class="burger" aria-hidden="true"></span>
+      <span>Menu</span>
+    </button>
+
+    <ul class="links links-left" role="list">
+      {
+        left.map((l) => (
+          <li>
+            <a href={`#${l.id}`} data-nav={l.id}>
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <a class="notch" href="#top" aria-label="Huber – początek strony">
+      <svg class="notch-shape" viewBox="0 0 200 76" preserveAspectRatio="none" aria-hidden="true">
+        <path class="notch-fill" d="M0 0H200L172 76H28Z"></path>
+        <path class="notch-edge" d="M0 0L28 76H172L200 0" vector-effect="non-scaling-stroke"></path>
+      </svg>
+      <Logo class="notch-logo" height={22} ink="var(--ink)" paper="var(--bg)" />
+    </a>
+
+    <ul class="links links-right" role="list">
+      {
+        right.map((l) => (
+          <li class="desk">
+            <a href={`#${l.id}`} data-nav={l.id}>
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>
+
+<dialog class="menu" id="pw-menu" aria-labelledby="pw-menu-title" data-menu>
+  <div class="menu-bar">
+    <button class="menu-close" type="button" data-menu-close>
+      <span class="cross" aria-hidden="true"></span>
+      <span>Zamknij</span>
+    </button>
+    <span class="menu-logo"><Logo height={20} ink="var(--ink)" paper="var(--bg)" /></span>
+  </div>
+  <h2 class="visually-hidden" id="pw-menu-title">Menu</h2>
+  <nav aria-label="Menu">
+    <ul class="menu-links" role="list">
+      {
+        links.map((l) => (
+          <li>
+            <a href={`#${l.id}`} data-nav={l.id}>
+              <span class="menu-label">{l.label}</span>
+              <span class="menu-meta">{l.meta}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</dialog>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-hdr]')!;
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const menu = document.querySelector<HTMLDialogElement>('[data-menu]')!;
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]')!;
+  const navLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-nav]')];
+  const sections = [...new Set(navLinks.map((a) => a.dataset.nav!))]
+    .map((id) => document.getElementById(id))
+    .filter((el): el is HTMLElement => el !== null)
+    .sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
+
+  let queued = false;
+
+  function setActive(id: string | null) {
+    for (const a of navLinks) {
+      if (a.dataset.nav === id) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    }
+  }
+
+  function update() {
+    queued = false;
+    const y = window.scrollY;
+    const bar = header.offsetHeight;
+    const heroBox = hero?.getBoundingClientRect();
+
+    header.toggleAttribute('data-scrolled', heroBox ? heroBox.top < bar - 1 : y > 0);
+
+    const line = window.innerHeight * 0.35;
+    const atBottom = window.innerHeight + y >= document.documentElement.scrollHeight - 2;
+    let current: string | null = null;
+    for (const s of sections) if (s.getBoundingClientRect().top <= line) current = s.id;
+    if (atBottom && sections.length) current = sections[sections.length - 1]!.id;
+    setActive(current);
+  }
+
+  function queue() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(update);
+  }
+
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  update();
+
+  openBtn.addEventListener('click', () => {
+    menu.showModal();
+    openBtn.setAttribute('aria-expanded', 'true');
+  });
+  menu.addEventListener('close', () => openBtn.setAttribute('aria-expanded', 'false'));
+  menu.querySelector('[data-menu-close]')!.addEventListener('click', () => menu.close());
+  menu.addEventListener('click', (event) => {
+    if ((event.target as Element).closest('a')) menu.close();
+  });
+  window.matchMedia('(min-width: 960px)').addEventListener('change', (event) => {
+    if (event.matches && menu.open) menu.close();
+  });
+</script>
+
+<style>
+  .skip {
+    position: absolute;
+    left: 16px;
+    top: 8px;
+    z-index: 100;
+    padding: 10px 14px;
+    background: var(--ink);
+    color: var(--bg, #fff);
+    transform: translateY(-200%);
+  }
+
+  .skip:focus {
+    transform: none;
+  }
+
+  .hdr {
+    --bar: 64px;
+    --notch-w: 200px;
+    --notch-h: 76px;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: var(--bar);
+    color: var(--ink);
+  }
+
+  .hdr-bg {
+    position: absolute;
+    inset: 0;
+    background: var(--bg, #fff);
+    border-bottom: 1px solid transparent;
+    transition: border-color 200ms ease;
+    pointer-events: none;
+  }
+
+  .hdr[data-scrolled] .hdr-bg {
+    border-bottom-color: var(--line);
+  }
+
+  .bar {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    height: 100%;
+    padding: 0 var(--pad);
+  }
+
+  .links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .links-left,
+  .menu-btn {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .links-right {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+    gap: 24px;
+  }
+
+  .links a,
+  .menu-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 160ms var(--ease);
+  }
+
+  .links a[data-nav]::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 10px;
+    height: 1.5px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 220ms var(--ease);
+  }
+
+  .links a[aria-current='true']::after {
+    transform: scaleX(1);
+  }
+
+  .menu-btn {
+    display: none;
+    gap: 10px;
+    margin-left: -10px;
+    padding: 0 10px;
+    border: 0;
+    background: none;
+  }
+
+  .burger,
+  .cross {
+    position: relative;
+    width: 18px;
+    height: 10px;
+  }
+
+  .burger::before,
+  .burger::after,
+  .cross::before,
+  .cross::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    background: currentColor;
+  }
+
+  .burger::before {
+    top: 0;
+  }
+
+  .burger::after {
+    bottom: 0;
+  }
+
+  .cross::before,
+  .cross::after {
+    top: 50%;
+  }
+
+  .cross::before {
+    transform: rotate(45deg);
+  }
+
+  .cross::after {
+    transform: rotate(-45deg);
+  }
+
+  .notch {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: var(--notch-w);
+    height: var(--notch-h);
+    padding-bottom: calc(var(--notch-h) - var(--bar));
+    margin-left: calc(var(--notch-w) / -2);
+    color: var(--ink);
+  }
+
+  .notch-shape {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .notch-fill {
+    fill: var(--bg, #fff);
+  }
+
+  .notch-edge {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 1;
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+
+  .hdr[data-scrolled] .notch-edge {
+    opacity: 1;
+  }
+
+  .notch :global(.notch-logo) {
+    position: relative;
+  }
+
+  .notch:focus-visible {
+    outline: none;
+  }
+
+  .notch:focus-visible :global(.notch-logo) {
+    outline: 2px solid var(--ink);
+    outline-offset: 4px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .links a[data-nav]:hover::after {
+      transform: scaleX(1);
+    }
+  }
+
+  .links a:active,
+  .menu-btn:active,
+  .menu-close:active {
+    transform: scale(0.97);
+  }
+
+  @media (max-width: 959px) {
+    .hdr {
+      --bar: 56px;
+      --notch-w: 156px;
+      --notch-h: 66px;
+    }
+
+    .menu-btn {
+      display: inline-flex;
+      justify-self: start;
+    }
+
+    .links-left,
+    .desk {
+      display: none;
+    }
+  }
+
+  /* Mobile menu: a modal dialog, so focus stays inside and Escape closes it. */
+
+  :global(html:has(dialog[open])) {
+    overflow: hidden;
+  }
+
+  .menu {
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0 var(--pad) 32px;
+    border: 0;
+    background: var(--bg, #fff);
+    color: var(--ink);
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition:
+      opacity 160ms var(--ease),
+      transform 160ms var(--ease),
+      overlay 160ms allow-discrete,
+      display 160ms allow-discrete;
+  }
+
+  .menu[open] {
+    opacity: 1;
+    transform: none;
+    transition-duration: 240ms;
+  }
+
+  @starting-style {
+    .menu[open] {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+
+  .menu::backdrop {
+    background: transparent;
+  }
+
+  .menu-bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    height: 56px;
+  }
+
+  .menu-close {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    justify-self: start;
+    min-height: 44px;
+    margin-left: -10px;
+    padding: 0 10px;
+    border: 0;
+    background: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: transform 160ms var(--ease);
+  }
+
+  .menu-links {
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .menu-links a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 0 12px;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+  }
+
+  .menu-label {
+    font-family: var(--display);
+    font-stretch: 72%;
+    font-weight: 700;
+    font-size: 44px;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+
+  .menu-links a[aria-current='true'] .menu-label {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+  }
+
+  .menu-meta {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-2);
+    text-align: right;
+  }
+
+</style>

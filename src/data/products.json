@@ -1,0 +1,1861 @@
+[
+  {
+    "slug": "rw-pt",
+    "code": "RW-PT",
+    "material": "mosiadz",
+    "title": "Rozdzielacze z przepływomierzami 2,6 l/min lub 5 l/min i wkładkami termostatycznymi",
+    "features": {
+      "flowMeters": true,
+      "thermostaticInserts": true,
+      "shutOffValves": false,
+      "mixingUnit": false,
+      "pex": false,
+      "vent": "auto"
+    },
+    "includes": [
+      "belka mosiężna GW 1” z przyłączami GW ½” – 2 szt.",
+      "uchwyt montażowy – 2 szt.",
+      "rotametry z nyplami ½”x¾” na zasilaniu",
+      "wkładki termostatyczne z nyplami ½”x¾” na powrocie",
+      "trójnik z odpowietrznikiem automatycznym i zaworem spustowym – 2 szt."
+    ],
+    "variants": [
+      "Rotametry do 5 l/min",
+      "Rotametry do 2,6 l/min"
+    ],
+    "rows": [
+      {
+        "circuits": 2,
+        "L": "145",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70102",
+          "R70122"
+        ]
+      },
+      {
+        "circuits": 3,
+        "L": "195",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70103",
+          "R70123"
+        ]
+      },
+      {
+        "circuits": 4,
+        "L": "245",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70104",
+          "R70124"
+        ]
+      },
+      {
+        "circuits": 5,
+        "L": "295",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70105",
+          "R70125"
+        ]
+      },
+      {
+        "circuits": 6,
+        "L": "345",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70106",
+          "R70126"
+        ]
+      },
+      {
+        "circuits": 7,
+        "L": "395",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70107",
+          "R70127"
+        ]
+      },
+      {
+        "circuits": 8,
+        "L": "445",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70108",
+          "R70128"
+        ]
+      },
+      {
+        "circuits": 9,
+        "L": "495",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70109",
+          "R70129"
+        ]
+      },
+      {
+        "circuits": 10,
+        "L": "545",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70110",
+          "R70130"
+        ]
+      },
+      {
+        "circuits": 11,
+        "L": "595",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70111",
+          "R70131"
+        ]
+      },
+      {
+        "circuits": 12,
+        "L": "645",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70112",
+          "R70132"
+        ]
+      },
+      {
+        "circuits": 13,
+        "L": "695",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70113",
+          "R70133"
+        ]
+      },
+      {
+        "circuits": 14,
+        "L": "745",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70114",
+          "R70134"
+        ]
+      },
+      {
+        "circuits": 15,
+        "L": "795",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70115",
+          "R70135"
+        ]
+      },
+      {
+        "circuits": 16,
+        "L": "845",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70116",
+          "R70136"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "rw-ptr",
+    "code": "RW-PTR",
+    "material": "mosiadz",
+    "title": "Rozdzielacze z przepływomierzami 2,6 l/min lub 5 l/min i wkładkami termostatycznymi",
+    "features": {
+      "flowMeters": true,
+      "thermostaticInserts": true,
+      "shutOffValves": false,
+      "mixingUnit": false,
+      "pex": false,
+      "vent": "manual"
+    },
+    "includes": [
+      "belka mosiężna GW 1” z przyłączami GW ½” – 2 szt.",
+      "uchwyt montażowy – 2 szt.",
+      "rotametry z nyplami ½”x¾” na zasilaniu",
+      "wkładki termostatyczne z nyplami ½”x¾” na powrocie",
+      "trójnik z odpowietrznikiem ręcznym i zaworem spustowym – 2 szt."
+    ],
+    "variants": [
+      "Rotametry do 5 l/min",
+      "Rotametry do 2,6 l/min"
+    ],
+    "rows": [
+      {
+        "circuits": 2,
+        "L": "145",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72102",
+          "R72122"
+        ]
+      },
+      {
+        "circuits": 3,
+        "L": "195",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72103",
+          "R72123"
+        ]
+      },
+      {
+        "circuits": 4,
+        "L": "245",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72104",
+          "R72124"
+        ]
+      },
+      {
+        "circuits": 5,
+        "L": "295",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72105",
+          "R72125"
+        ]
+      },
+      {
+        "circuits": 6,
+        "L": "345",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72106",
+          "R72126"
+        ]
+      },
+      {
+        "circuits": 7,
+        "L": "395",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72107",
+          "R72127"
+        ]
+      },
+      {
+        "circuits": 8,
+        "L": "445",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72108",
+          "R72128"
+        ]
+      },
+      {
+        "circuits": 9,
+        "L": "495",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72109",
+          "R72129"
+        ]
+      },
+      {
+        "circuits": 10,
+        "L": "545",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72110",
+          "R72130"
+        ]
+      },
+      {
+        "circuits": 11,
+        "L": "595",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72111",
+          "R72131"
+        ]
+      },
+      {
+        "circuits": 12,
+        "L": "645",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72112",
+          "R72132"
+        ]
+      },
+      {
+        "circuits": 13,
+        "L": "695",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72113",
+          "R72133"
+        ]
+      },
+      {
+        "circuits": 14,
+        "L": "745",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72114",
+          "R72134"
+        ]
+      },
+      {
+        "circuits": 15,
+        "L": "795",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72115",
+          "R72135"
+        ]
+      },
+      {
+        "circuits": 16,
+        "L": "845",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72116",
+          "R72136"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "rw-ptpex",
+    "code": "RW-PTPEX",
+    "material": "mosiadz",
+    "title": "Rozdzielacze z przepływomierzami 2,6 l/min lub 5 l/min i wkładkami termostatycznymi",
+    "features": {
+      "flowMeters": true,
+      "thermostaticInserts": true,
+      "shutOffValves": false,
+      "mixingUnit": false,
+      "pex": true,
+      "vent": "auto"
+    },
+    "includes": [
+      "belka mosiężna GW 1” z przyłączami GW ½” – 2 szt.",
+      "uchwyt montażowy – 2 szt.",
+      "rotametry z nyplami ½”x¾” na zasilaniu",
+      "wkładki termostatyczne z nyplami ½”x¾” na powrocie",
+      "trójnik z odpowietrznikiem automatycznym i zaworem spustowym – 2 szt.",
+      "złączki PEX 16 x 3/4”"
+    ],
+    "variants": [
+      "Rotametry do 5 l/min",
+      "Rotametry do 2,6 l/min"
+    ],
+    "rows": [
+      {
+        "circuits": 2,
+        "L": "145",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72702",
+          "R72802"
+        ]
+      },
+      {
+        "circuits": 3,
+        "L": "195",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72703",
+          "R72803"
+        ]
+      },
+      {
+        "circuits": 4,
+        "L": "245",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72704",
+          "R72804"
+        ]
+      },
+      {
+        "circuits": 5,
+        "L": "295",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72705",
+          "R72805"
+        ]
+      },
+      {
+        "circuits": 6,
+        "L": "345",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72706",
+          "R72806"
+        ]
+      },
+      {
+        "circuits": 7,
+        "L": "395",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72707",
+          "R72807"
+        ]
+      },
+      {
+        "circuits": 8,
+        "L": "445",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72708",
+          "R72808"
+        ]
+      },
+      {
+        "circuits": 9,
+        "L": "495",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72709",
+          "R72809"
+        ]
+      },
+      {
+        "circuits": 10,
+        "L": "545",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72710",
+          "R72810"
+        ]
+      },
+      {
+        "circuits": 11,
+        "L": "595",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72711",
+          "R72811"
+        ]
+      },
+      {
+        "circuits": 12,
+        "L": "645",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72712",
+          "R72812"
+        ]
+      },
+      {
+        "circuits": 13,
+        "L": "695",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72713",
+          "R72813"
+        ]
+      },
+      {
+        "circuits": 14,
+        "L": "745",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72714",
+          "R72814"
+        ]
+      },
+      {
+        "circuits": 15,
+        "L": "795",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72715",
+          "R72815"
+        ]
+      },
+      {
+        "circuits": 16,
+        "L": "845",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R72716",
+          "R72816"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "rw-ezmpt",
+    "code": "RW-EZMPT",
+    "material": "mosiadz",
+    "title": "Rozdzielacze z układem mieszającym z elektroniczną pompą WILO",
+    "features": {
+      "flowMeters": true,
+      "thermostaticInserts": true,
+      "shutOffValves": false,
+      "mixingUnit": true,
+      "pex": false,
+      "vent": "auto"
+    },
+    "includes": [
+      "belka mosiężna GW 1” z przyłączami GW 1/2” – 2 szt.",
+      "uchwyt montażowy – 2 szt.",
+      "rotametry z nyplami 1/2” x 3/4” na zasilaniu",
+      "wkładki termostatyczne M30x1,5 z nyplami 1/2” x 3/4” na powrocie",
+      "trójnik z odpowietrznikiem automatycznym i zaworem spustowym – 2 szt.",
+      "układ mieszający: zawór termostatyczny 3D ESBE: VTA322, 20–43°C 1,6 Kvs m³/h, do 125 m² VTA372, 20–43°C 3,4 Kvs m³/h, do 180 m²",
+      "elektroniczna pompa WILO YONOS PARA",
+      "termometry bimetaliczne"
+    ],
+    "variants": [
+      "Zawór ESBE VTA322",
+      "Zawór ESBE VTA372"
+    ],
+    "rows": [
+      {
+        "circuits": 2,
+        "L": "335",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70762",
+          "R70782"
+        ]
+      },
+      {
+        "circuits": 3,
+        "L": "385",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70763",
+          "R70783"
+        ]
+      },
+      {
+        "circuits": 4,
+        "L": "435",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70764",
+          "R70784"
+        ]
+      },
+      {
+        "circuits": 5,
+        "L": "485",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70765",
+          "R70785"
+        ]
+      },
+      {
+        "circuits": 6,
+        "L": "535",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70766",
+          "R70786"
+        ]
+      },
+      {
+        "circuits": 7,
+        "L": "585",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70767",
+          "R70787"
+        ]
+      },
+      {
+        "circuits": 8,
+        "L": "635",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70768",
+          "R70788"
+        ]
+      },
+      {
+        "circuits": 9,
+        "L": "685",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70769",
+          "R70789"
+        ]
+      },
+      {
+        "circuits": 10,
+        "L": "735",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70770",
+          "R70790"
+        ]
+      },
+      {
+        "circuits": 11,
+        "L": "785",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70771",
+          "R70791"
+        ]
+      },
+      {
+        "circuits": 12,
+        "L": "835",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70772",
+          "R70792"
+        ]
+      },
+      {
+        "circuits": 13,
+        "L": "885",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70773",
+          "R70793"
+        ]
+      },
+      {
+        "circuits": 14,
+        "L": "935",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70774",
+          "R70794"
+        ]
+      },
+      {
+        "circuits": 15,
+        "L": "985",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70775",
+          "R70795"
+        ]
+      },
+      {
+        "circuits": 16,
+        "L": "1045",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R70776",
+          "R70796"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "rw-ezmptr",
+    "code": "RW-EZMPTR",
+    "material": "mosiadz",
+    "title": "Rozdzielacze z układem mieszającym z elektroniczną pompą WILO",
+    "features": {
+      "flowMeters": true,
+      "thermostaticInserts": true,
+      "shutOffValves": false,
+      "mixingUnit": true,
+      "pex": false,
+      "vent": "manual"
+    },
+    "includes": [
+      "belka mosiężna GW 1” z przyłączami GW 1/2” – 2 szt.",
+      "uchwyt montażowy – 2 szt.",
+      "rotametry z nyplami 1/2” x 3/4” na zasilaniu",
+      "wkładki termostatyczne M30x1,5 z nyplami 1/2” x 3/4” na powrocie",
+      "trójnik z odpowietrznikiem ręcznym i zaworem spustowym – 2 szt.",
+      "układ mieszający: zawór termostatyczny 3D ESBE: VTA322, 20–43°C 1,6 Kvs m³/h, do 125 m² VTA372, 20–43°C 3,4 Kvs m³/h, do 180 m²",
+      "elektroniczna pompa WILO YONOS PARA",
+      "termometry bimetaliczne"
+    ],
+    "variants": [
+      "Zawór ESBE VTA322",
+      "Zawór ESBE VTA372"
+    ],
+    "rows": [
+      {
+        "circuits": 2,
+        "L": "335",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72502",
+          "R72602"
+        ]
+      },
+      {
+        "circuits": 3,
+        "L": "385",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72503",
+          "R72603"
+        ]
+      },
+      {
+        "circuits": 4,
+        "L": "435",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72504",
+          "R72604"
+        ]
+      },
+      {
+        "circuits": 5,
+        "L": "485",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72505",
+          "R72605"
+        ]
+      },
+      {
+        "circuits": 6,
+        "L": "535",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72506",
+          "R72606"
+        ]
+      },
+      {
+        "circuits": 7,
+        "L": "585",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72507",
+          "R72607"
+        ]
+      },
+      {
+        "circuits": 8,
+        "L": "635",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72508",
+          "R72608"
+        ]
+      },
+      {
+        "circuits": 9,
+        "L": "685",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72509",
+          "R72609"
+        ]
+      },
+      {
+        "circuits": 10,
+        "L": "735",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72510",
+          "R72610"
+        ]
+      },
+      {
+        "circuits": 11,
+        "L": "785",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72511",
+          "R72611"
+        ]
+      },
+      {
+        "circuits": 12,
+        "L": "835",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72512",
+          "R72612"
+        ]
+      },
+      {
+        "circuits": 13,
+        "L": "885",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72513",
+          "R72613"
+        ]
+      },
+      {
+        "circuits": 14,
+        "L": "935",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72514",
+          "R72614"
+        ]
+      },
+      {
+        "circuits": 15,
+        "L": "985",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72515",
+          "R72615"
+        ]
+      },
+      {
+        "circuits": 16,
+        "L": "1045",
+        "H": "400",
+        "G": "150",
+        "indexes": [
+          "R72516",
+          "R72616"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "rw-zz",
+    "code": "RW-ZZ",
+    "material": "mosiadz",
+    "title": "Rozdzielacze z zaworami odcinającymi",
+    "features": {
+      "flowMeters": false,
+      "thermostaticInserts": false,
+      "shutOffValves": true,
+      "mixingUnit": false,
+      "pex": false,
+      "vent": "auto"
+    },
+    "includes": [
+      "belka mosiężna GW 1” z przyłączami GW ½” – 2 szt.",
+      "uchwyt montażowy – 2 szt.",
+      "zawory odcinające z nyplami ½”x¾” na zasilaniu i powrocie",
+      "trójnik z odpowietrznikiem automatycznym i zaworem spustowym – 2 szt."
+    ],
+    "variants": [],
+    "rows": [
+      {
+        "circuits": 2,
+        "L": "145",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70302"
+        ]
+      },
+      {
+        "circuits": 3,
+        "L": "195",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70303"
+        ]
+      },
+      {
+        "circuits": 4,
+        "L": "245",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70304"
+        ]
+      },
+      {
+        "circuits": 5,
+        "L": "295",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70305"
+        ]
+      },
+      {
+        "circuits": 6,
+        "L": "345",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70306"
+        ]
+      },
+      {
+        "circuits": 7,
+        "L": "395",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70307"
+        ]
+      },
+      {
+        "circuits": 8,
+        "L": "445",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70308"
+        ]
+      },
+      {
+        "circuits": 9,
+        "L": "495",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70309"
+        ]
+      },
+      {
+        "circuits": 10,
+        "L": "545",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70310"
+        ]
+      },
+      {
+        "circuits": 11,
+        "L": "595",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70311"
+        ]
+      },
+      {
+        "circuits": 12,
+        "L": "645",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70312"
+        ]
+      },
+      {
+        "circuits": 13,
+        "L": "695",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70313"
+        ]
+      },
+      {
+        "circuits": 14,
+        "L": "745",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70314"
+        ]
+      },
+      {
+        "circuits": 15,
+        "L": "795",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70315"
+        ]
+      },
+      {
+        "circuits": 16,
+        "L": "845",
+        "H": "400",
+        "G": "80",
+        "indexes": [
+          "R70316"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "rw-zzr",
+    "code": "RW-ZZR",
+    "material": "mosiadz",
+    "title": "Rozdzielacze z zaworami odcinającymi",
+    "features": {
+      "flowMeters": false,
+      "thermostaticInserts": false,
+      "shutOffValves": true,
+      "mixingUnit": false,
+      "pex": false,
+      "vent": "manual"
+    },
+    "includes": [
+      "belka mosiężna GW 1” z przyłączami GW ½” – 2 szt.",
+      "uchwyt montażowy – 2 szt.",
+      "zawory odcinające z nyplami ½”x¾” na zasilaniu i powrocie",
+      "trójnik z odpowietrznikiem ręcznym i zaworem spustowym – 2 szt."
+    ],
+    "variants": [],
+    "rows": [
+      {
+        "circuits": 2,
+        "L": "145",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72302"
+        ]
+      },
+      {
+        "circuits": 3,
+        "L": "195",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72303"
+        ]
+      },
+      {
+        "circuits": 4,
+        "L": "245",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72304"
+        ]
+      },
+      {
+        "circuits": 5,
+        "L": "295",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72305"
+        ]
+      },
+      {
+        "circuits": 6,
+        "L": "345",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72306"
+        ]
+      },
+      {
+        "circuits": 7,
+        "L": "395",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72307"
+        ]
+      },
+      {
+        "circuits": 8,
+        "L": "445",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72308"
+        ]
+      },
+      {
+        "circuits": 9,
+        "L": "495",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72309"
+        ]
+      },
+      {
+        "circuits": 10,
+        "L": "545",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72310"
+        ]
+      },
+      {
+        "circuits": 11,
+        "L": "595",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72311"
+        ]
+      },
+      {
+        "circuits": 12,
+        "L": "645",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72312"
+        ]
+      },
+      {
+        "circuits": 13,
+        "L": "695",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72313"
+        ]
+      },
+      {
+        "circuits": 14,
+        "L": "745",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72314"
+        ]
+      },
+      {
+        "circuits": 15,
+        "L": "795",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72315"
+        ]
+      },
+      {
+        "circuits": 16,
+        "L": "845",
+        "H": "380",
+        "G": "80",
+        "indexes": [
+          "R72316"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "rw-zz0",
+    "code": "RW-ZZ0",
+    "material": "mosiadz",
+    "title": "Rozdzielacze z zaworami odcinającymi",
+    "features": {
+      "flowMeters": false,
+      "thermostaticInserts": false,
+      "shutOffValves": true,
+      "mixingUnit": false,
+      "pex": false,
+      "vent": "none"
+    },
+    "includes": [
+      "belka mosiężna GW 1” z przyłączami GW ½” – 2 szt.",
+      "uchwyt montażowy – 2 szt.",
+      "zawory odcinające z nyplami ½”x¾” na zasilaniu i powrocie"
+    ],
+    "variants": [],
+    "rows": [
+      {
+        "circuits": 2,
+        "L": "100",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70602"
+        ]
+      },
+      {
+        "circuits": 3,
+        "L": "150",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70603"
+        ]
+      },
+      {
+        "circuits": 4,
+        "L": "200",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70604"
+        ]
+      },
+      {
+        "circuits": 5,
+        "L": "250",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70605"
+        ]
+      },
+      {
+        "circuits": 6,
+        "L": "300",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70606"
+        ]
+      },
+      {
+        "circuits": 7,
+        "L": "350",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70607"
+        ]
+      },
+      {
+        "circuits": 8,
+        "L": "400",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70608"
+        ]
+      },
+      {
+        "circuits": 9,
+        "L": "450",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70609"
+        ]
+      },
+      {
+        "circuits": 10,
+        "L": "500",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70610"
+        ]
+      },
+      {
+        "circuits": 11,
+        "L": "550",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70611"
+        ]
+      },
+      {
+        "circuits": 12,
+        "L": "600",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70612"
+        ]
+      },
+      {
+        "circuits": 13,
+        "L": "650",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70613"
+        ]
+      },
+      {
+        "circuits": 14,
+        "L": "700",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70614"
+        ]
+      },
+      {
+        "circuits": 15,
+        "L": "750",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70615"
+        ]
+      },
+      {
+        "circuits": 16,
+        "L": "800",
+        "H": "320",
+        "G": "80",
+        "indexes": [
+          "R70616"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "rwko-pt",
+    "code": "RWKO-PT",
+    "material": "inox",
+    "title": "Rozdzielacze z przepływomierzami i wkładkami termostatycznymi",
+    "features": {
+      "flowMeters": true,
+      "thermostaticInserts": true,
+      "shutOffValves": false,
+      "mixingUnit": false,
+      "pex": false,
+      "vent": "auto"
+    },
+    "includes": [
+      "belka INOX GW 1” z przyłączami GW 1/2” – 2 szt.",
+      "uchwyt montażowy – 2 szt.",
+      "rotametry z nyplami 1/2” x 3/4” na zasilaniu",
+      "wkładki termostatyczne M30 x 1,5 z nyplami 1/2” x 3/4” na powrocie",
+      "trójnik z odpowietrznikiem automatycznym i zaworem spustowym – 2 szt."
+    ],
+    "variants": [],
+    "rows": [
+      {
+        "circuits": 2,
+        "L": "165",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82222"
+        ]
+      },
+      {
+        "circuits": 3,
+        "L": "215",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82223"
+        ]
+      },
+      {
+        "circuits": 4,
+        "L": "265",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82224"
+        ]
+      },
+      {
+        "circuits": 5,
+        "L": "315",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82225"
+        ]
+      },
+      {
+        "circuits": 6,
+        "L": "365",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82226"
+        ]
+      },
+      {
+        "circuits": 7,
+        "L": "415",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82227"
+        ]
+      },
+      {
+        "circuits": 8,
+        "L": "465",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82228"
+        ]
+      },
+      {
+        "circuits": 9,
+        "L": "515",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82229"
+        ]
+      },
+      {
+        "circuits": 10,
+        "L": "565",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82230"
+        ]
+      },
+      {
+        "circuits": 11,
+        "L": "615",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82231"
+        ]
+      },
+      {
+        "circuits": 12,
+        "L": "665",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82232"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "rwko-ptr",
+    "code": "RWKO-PTR",
+    "material": "inox",
+    "title": "Rozdzielacze z przepływomierzami i wkładkami termostatycznymi",
+    "features": {
+      "flowMeters": true,
+      "thermostaticInserts": true,
+      "shutOffValves": false,
+      "mixingUnit": false,
+      "pex": false,
+      "vent": "manual"
+    },
+    "includes": [
+      "belka INOX GW 1” z przyłączami GW 1/2” – 2 szt.",
+      "uchwyt montażowy – 2 szt.",
+      "rotametry z nyplami 1/2” x 3/4” na zasilaniu",
+      "wkładki termostatyczne M30 x 1,5 z nyplami 1/2” x 3/4” na powrocie",
+      "trójnik z odpowietrznikiem ręcznym i zaworem spustowym – 2 szt."
+    ],
+    "variants": [],
+    "rows": [
+      {
+        "circuits": 2,
+        "L": "165",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82202"
+        ]
+      },
+      {
+        "circuits": 3,
+        "L": "215",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82203"
+        ]
+      },
+      {
+        "circuits": 4,
+        "L": "265",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82204"
+        ]
+      },
+      {
+        "circuits": 5,
+        "L": "315",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82205"
+        ]
+      },
+      {
+        "circuits": 6,
+        "L": "365",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82206"
+        ]
+      },
+      {
+        "circuits": 7,
+        "L": "415",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82207"
+        ]
+      },
+      {
+        "circuits": 8,
+        "L": "465",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82208"
+        ]
+      },
+      {
+        "circuits": 9,
+        "L": "515",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82209"
+        ]
+      },
+      {
+        "circuits": 10,
+        "L": "565",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82210"
+        ]
+      },
+      {
+        "circuits": 11,
+        "L": "615",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82211"
+        ]
+      },
+      {
+        "circuits": 12,
+        "L": "665",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82212"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "rwko-ptpex",
+    "code": "RWKO-PTPEX",
+    "material": "inox",
+    "title": "Rozdzielacze z przepływomierzami, wkładkami termostatycznymi i złączkami PEX",
+    "features": {
+      "flowMeters": true,
+      "thermostaticInserts": true,
+      "shutOffValves": false,
+      "mixingUnit": false,
+      "pex": true,
+      "vent": "auto"
+    },
+    "includes": [
+      "belka INOX GW 1” z przyłączami GW 1/2” – 2 szt.",
+      "uchwyt montażowy – 2 szt.",
+      "rotametry z nyplami 1/2” x 3/4” na zasilaniu",
+      "wkładki termostatyczne M30 x 1,5 z nyplami 1/2” x 3/4” na powrocie",
+      "trójnik z odpowietrznikiem automatycznym i zaworem spustowym – 2 szt.",
+      "złączki PEX 16 x 3/4”"
+    ],
+    "variants": [],
+    "rows": [
+      {
+        "circuits": 2,
+        "L": "165",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82262"
+        ]
+      },
+      {
+        "circuits": 3,
+        "L": "215",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82263"
+        ]
+      },
+      {
+        "circuits": 4,
+        "L": "265",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82264"
+        ]
+      },
+      {
+        "circuits": 5,
+        "L": "315",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82265"
+        ]
+      },
+      {
+        "circuits": 6,
+        "L": "365",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82266"
+        ]
+      },
+      {
+        "circuits": 7,
+        "L": "415",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82267"
+        ]
+      },
+      {
+        "circuits": 8,
+        "L": "465",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82268"
+        ]
+      },
+      {
+        "circuits": 9,
+        "L": "515",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82269"
+        ]
+      },
+      {
+        "circuits": 10,
+        "L": "565",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82270"
+        ]
+      },
+      {
+        "circuits": 11,
+        "L": "615",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82271"
+        ]
+      },
+      {
+        "circuits": 12,
+        "L": "665",
+        "H": "308-403",
+        "G": "90",
+        "indexes": [
+          "R82272"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "rwko-ptrpex",
+    "code": "RWKO-PTRPEX",
+    "material": "inox",
+    "title": "Rozdzielacze z przepływomierzami, wkładkami termostatycznymi i złączkami PEX",
+    "features": {
+      "flowMeters": true,
+      "thermostaticInserts": true,
+      "shutOffValves": false,
+      "mixingUnit": false,
+      "pex": true,
+      "vent": "manual"
+    },
+    "includes": [
+      "belka INOX GW 1” z przyłączami GW 1/2” – 2 szt.",
+      "uchwyt montażowy – 2 szt.",
+      "rotametry z nyplami 1/2” x 3/4” na zasilaniu",
+      "wkładki termostatyczne M30 x 1,5 z nyplami 1/2” x 3/4” na powrocie",
+      "trójnik z odpowietrznikiem ręcznym i zaworem spustowym – 2 szt.",
+      "złączki PEX 16 x 3/4”"
+    ],
+    "variants": [],
+    "rows": [
+      {
+        "circuits": 2,
+        "L": "165",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82242"
+        ]
+      },
+      {
+        "circuits": 3,
+        "L": "215",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82243"
+        ]
+      },
+      {
+        "circuits": 4,
+        "L": "265",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82244"
+        ]
+      },
+      {
+        "circuits": 5,
+        "L": "315",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82245"
+        ]
+      },
+      {
+        "circuits": 6,
+        "L": "365",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82246"
+        ]
+      },
+      {
+        "circuits": 7,
+        "L": "415",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82247"
+        ]
+      },
+      {
+        "circuits": 8,
+        "L": "465",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82248"
+        ]
+      },
+      {
+        "circuits": 9,
+        "L": "515",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82249"
+        ]
+      },
+      {
+        "circuits": 10,
+        "L": "565",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82250"
+        ]
+      },
+      {
+        "circuits": 11,
+        "L": "615",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82251"
+        ]
+      },
+      {
+        "circuits": 12,
+        "L": "665",
+        "H": "305-400",
+        "G": "90",
+        "indexes": [
+          "R82252"
+        ]
+      }
+    ]
+  }
+]

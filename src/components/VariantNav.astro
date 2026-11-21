@@ -1,0 +1,102 @@
+---
+// Review bar for comparing the mock-ups and trying colours. Remove it when one variant is chosen.
+import { variants } from '../data/variants';
+import ThemeSwitcher from './ThemeSwitcher.astro';
+import { withBase } from '../data/paths';
+
+interface Props {
+  slug: string;
+}
+
+const index = variants.findIndex((v) => v.slug === Astro.props.slug);
+const current = variants[index]!;
+const prev = variants[(index - 1 + variants.length) % variants.length]!;
+const next = variants[(index + 1) % variants.length]!;
+---
+
+<nav class="variant-nav" aria-label="Warianty projektu">
+  <a class="all" href={withBase('/')}>Warianty</a>
+  <span class="current">
+    <strong>{index + 1}/{variants.length} · {current.name}</strong>
+    <span class="audience">dla: {current.audience}</span>
+  </span>
+  <ThemeSwitcher />
+  <span class="step">
+    <a href={withBase(`/warianty/${prev.slug}/`)} aria-label={`Poprzedni wariant: ${prev.name}`}>←</a>
+    <a href={withBase(`/warianty/${next.slug}/`)} aria-label={`Następny wariant: ${next.name}`}>→</a>
+  </span>
+</nav>
+
+<style>
+  .variant-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 40px;
+    padding: 6px 16px;
+    background: #0b0b0c;
+    color: #d4d4d8;
+    font: 13px/1.3 system-ui, -apple-system, 'Segoe UI', sans-serif;
+    border-bottom: 1px solid #27272a;
+  }
+
+  .variant-nav a {
+    color: #fafafa;
+    text-decoration: none;
+    border-radius: 6px;
+  }
+
+  .all {
+    padding: 4px 10px;
+    background: #27272a;
+  }
+
+  .current {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+  }
+
+  .current strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #fafafa;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .audience {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #a1a1aa;
+  }
+
+  .step {
+    display: flex;
+    gap: 4px;
+  }
+
+  .step a {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 28px;
+    background: #27272a;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .variant-nav a:hover {
+      background: #3f3f46;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .audience {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,69 @@
+---
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
+import { company } from '../data/company';
+import { withBase } from '../data/paths';
+import '../styles/reset.css';
+
+interface Props {
+  title: string;
+  description: string;
+  // Every variant is a candidate for the home page, so its canonical URL is "/".
+  path?: string;
+  themeColor?: string;
+  noindex?: boolean;
+  ogImage?: ImageMetadata;
+  jsonLd?: Record<string, unknown>[];
+}
+
+// Preview stage: no page is indexed, so this copy never competes with huber.info.pl in search. Turn off at launch.
+const PREVIEW = true;
+const { title, description, path = '/', themeColor = '#ffffff', noindex = PREVIEW, ogImage, jsonLd = [] } = Astro.props;
+
+const canonical = new URL(path, Astro.site);
+const og = ogImage ? await getImage({ src: ogImage, width: 1200, format: 'jpg' }) : undefined;
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: company.name,
+  url: `${company.liveSite}/`,
+  description: `${company.tagline}. Rodzinna firma produkcyjna od ${company.foundingYear} roku.`,
+  foundingDate: String(company.foundingYear),
+  email: company.email,
+  telephone: company.phone,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: `${company.address.village}, ${company.address.street}`,
+    postalCode: company.address.postalCode,
+    addressLocality: company.address.city,
+    addressCountry: company.address.country,
+  },
+};
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content={themeColor} />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pl_PL" />
+    <meta property="og:site_name" content={company.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {og && <meta property="og:image" content={new URL(og.src, Astro.site)} />}
+    <script type="application/ld+json" set:html={JSON.stringify([organization, ...jsonLd])} />
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

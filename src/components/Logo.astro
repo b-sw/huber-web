@@ -1,0 +1,31 @@
+---
+// Vector redraw of the current HUBER wordmark (logo2.jpg): "HU" on light, "BER" on dark.
+// Colours go through style, so callers can pass CSS variables such as var(--ink).
+interface Props {
+  ink?: string;
+  paper?: string;
+  height?: number;
+  class?: string;
+}
+
+const { ink = '#111', paper = '#fff', height = 30, class: className } = Astro.props;
+const width = Math.round((height * 200) / 36);
+---
+
+<svg
+  class={className}
+  width={width}
+  height={height}
+  viewBox="0 0 200 36"
+  role="img"
+  aria-label="Huber"
+  fill="none"
+  stroke-width="2.2"
+>
+  <rect x="1.1" y="1.1" width="197.8" height="33.8" style={`stroke:${ink};fill:${paper}`}></rect>
+  <rect x="78" y="1.1" width="120.9" height="33.8" style={`stroke:${ink};fill:${ink}`}></rect>
+  <path d="M14 9v18M36 9v18M14 18h22M48 9v12a6 6 0 0 0 6 6h10a6 6 0 0 0 6-6V9" style={`stroke:${ink}`}></path>
+  <path
+    d="M92 27V9h17a4.5 4.5 0 0 1 0 9H92h19a4.5 4.5 0 0 1 0 9zM146 9h-22v18h22M124 18h18M158 27V9h17a4.5 4.5 0 0 1 0 9h-17M170 18l10 9"
+    style={`stroke:${paper}`}></path>
+</svg>

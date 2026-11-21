@@ -1,0 +1,209 @@
+---
+// The brand field under the answer writes the name onto the hero box, the OEM layers and the inquiry e-mail.
+const wrong = ['Producenta', 'Niczyja'];
+---
+
+<div class="whose" data-whose>
+  <p class="q" data-reveal="words">Czyja marka jest <span class="tone">na pudełku?</span></p>
+  <div class="a">
+    <p class="k" data-reveal>Odpowiedź</p>
+    <ul class="opts" role="list" data-opts>
+      {
+        wrong.map((text) => (
+          <li class="opt" data-opt>
+            <s class="txt">{text}</s>
+            <span class="visually-hidden">: nie</span>
+          </li>
+        ))
+      }
+      <li class="opt" data-on data-opt>
+        <strong class="txt">Twoja</strong>
+        <svg class="tick" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+          <path d="M4 12.5l5 5L20 6.5"></path>
+        </svg>
+        <span class="visually-hidden">: tak</span>
+      </li>
+    </ul>
+    <label class="brand-line" data-reveal style="--d: 120">
+      <span class="visually-hidden">Nazwa Twojej marki</span>
+      <input type="text" data-brand-input placeholder="wpisz jej nazwę" autocomplete="organization" spellcheck="false" />
+    </label>
+    <p class="note" data-reveal style="--d: 180">Nazwa pojawi się na pudełku u góry strony i na warstwach poniżej.</p>
+  </div>
+</div>
+
+<style>
+  .whose {
+    display: grid;
+    gap: 28px;
+    padding: 44px var(--pad) 48px;
+    box-shadow: inset 0 1px 0 var(--line);
+  }
+
+  .q {
+    max-width: 14ch;
+    font-size: clamp(1.75rem, 1.2rem + 2vw, 2.75rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  .tone {
+    display: block;
+    color: var(--tone);
+  }
+
+  .a {
+    display: grid;
+    align-content: start;
+    max-width: 420px;
+  }
+
+  .k {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--soft);
+  }
+
+  .opts {
+    display: grid;
+    gap: 2px;
+    margin-top: 12px;
+  }
+
+  .opt {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 0;
+    font-size: clamp(1.5rem, 1.25rem + 0.8vw, 1.875rem);
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    color: var(--ink);
+    transition: color 320ms ease;
+  }
+
+  .opt:not([data-on]) {
+    color: var(--soft);
+  }
+
+  .txt {
+    position: relative;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  strong.txt {
+    font-weight: 600;
+  }
+
+  s.txt::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 55%;
+    height: 2px;
+    background: currentColor;
+    transform-origin: left;
+    transition: transform 360ms var(--ease);
+  }
+
+  .tick {
+    flex: none;
+    width: 0.9em;
+    height: 0.9em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: square;
+    stroke-dasharray: 24;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 300ms var(--ease) 60ms;
+  }
+
+  /* With JS and full motion the answers start open and get decided one by one. Otherwise the final state shows. */
+  .whose[data-anim] .opt:not([data-done]) {
+    color: var(--ink);
+  }
+
+  .whose[data-anim] .opt:not([data-done]) s.txt::after {
+    transform: scaleX(0);
+  }
+
+  .whose[data-anim] .opt:not([data-done]) .tick {
+    stroke-dashoffset: 24;
+  }
+
+  .brand-line {
+    display: block;
+    margin-top: 20px;
+    border-bottom: 1px solid var(--ink);
+    cursor: text;
+    transition: box-shadow 160ms ease;
+  }
+
+  .brand-line:focus-within {
+    box-shadow: 0 1px 0 var(--ink);
+  }
+
+  .brand-line input {
+    width: 100%;
+    min-height: 52px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: clamp(1.5rem, 1.25rem + 0.8vw, 1.875rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .brand-line input::placeholder {
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    text-transform: none;
+    color: var(--tone);
+  }
+
+  .brand-line input:focus-visible {
+    outline: none;
+  }
+
+  .note {
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--soft);
+  }
+
+  @media (min-width: 900px) {
+    .whose {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+      gap: 48px;
+      padding: 64px var(--pad) 64px;
+    }
+  }
+</style>
+
+<script>
+  const whose = document.querySelector<HTMLElement>('[data-whose]');
+  const opts = whose ? [...whose.querySelectorAll<HTMLElement>('[data-opt]')] : [];
+
+  if (whose && opts.length && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    whose.setAttribute('data-anim', '');
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        opts.forEach((opt, i) => setTimeout(() => opt.setAttribute('data-done', ''), 450 + i * 480));
+      },
+      { threshold: 0.6 },
+    );
+    io.observe(whose.querySelector('[data-opts]')!);
+  }
+</script>
