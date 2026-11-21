@@ -670,7 +670,9 @@ const pad = (x: number) => String(x).padStart(2, '0');
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    /* Cells in one row share their row tracks, so the meta rules line up even when index lists differ in length. */
     .cell {
+      grid-row: span 6;
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas:
         'top'
@@ -679,7 +681,7 @@ const pad = (x: number) => String(x).padStart(2, '0');
         'feat'
         'meta'
         'act';
-      grid-template-rows: auto auto auto 1fr auto auto;
+      grid-template-rows: subgrid;
       padding: 20px 24px 22px;
     }
 
