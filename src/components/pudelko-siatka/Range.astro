@@ -237,7 +237,7 @@ const pad = (x: number) => String(x).padStart(2, '0');
     right: 0;
     bottom: 0;
     height: 2px;
-    background: var(--ink);
+    background: var(--ink-accent);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 260ms var(--ease);
@@ -346,7 +346,7 @@ const pad = (x: number) => String(x).padStart(2, '0');
   }
 
   .c-toggle:focus-visible .face {
-    outline: 2px solid var(--ink);
+    outline: 2px solid var(--ink-accent);
     outline-offset: 3px;
   }
 
@@ -372,9 +372,9 @@ const pad = (x: number) => String(x).padStart(2, '0');
   }
 
   .c-toggle[aria-expanded='true'] .face {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--bg);
+    background: var(--action);
+    border-color: var(--action);
+    color: var(--on-action);
   }
 
   .plus-minus {
@@ -425,7 +425,7 @@ const pad = (x: number) => String(x).padStart(2, '0');
     }
 
     .cell:hover .c-toggle:not([aria-expanded='true']) .face {
-      border-color: var(--ink);
+      border-color: var(--ink-accent);
     }
 
     .c-link:hover {
@@ -630,8 +630,8 @@ const pad = (x: number) => String(x).padStart(2, '0');
 
   /* After the hover rule, so a copied index stays dark under the cursor. */
   .idx[data-copied] {
-    background: var(--ink);
-    color: var(--bg);
+    background: var(--action);
+    color: var(--on-action);
   }
 
   .p-foot {
@@ -674,7 +674,7 @@ const pad = (x: number) => String(x).padStart(2, '0');
 
   @media (hover: hover) and (pointer: fine) {
     .p-close:hover {
-      border-color: var(--ink);
+      border-color: var(--ink-accent);
     }
   }
 

@@ -3,6 +3,7 @@ import '../../styles/archivo-subset.css';
 import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/600.css';
 import '../../styles/reveal.css';
+import '../../styles/palette.css';
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import VariantNav from '../../components/VariantNav.astro';
@@ -74,7 +75,7 @@ const year = new Date().getFullYear();
 <Base
   title="Rozdzielacze do podłogówki – producent i OEM pod Twoją marką | Huber"
   description={`Producent rozdzielaczy do ogrzewania podłogowego od ${company.foundingYear} roku. ${products.length} konfiguracji z mosiądzu i inoxu, ${all.min}–${all.max} obwodów. Produkcja OEM pod Twoją marką dla hurtowni i dystrybutorów.`}
-  themeColor="#ffffff"
+  themeColor="#fff8f5"
   ogImage={productImage('rw-ezmptr')}
   jsonLd={[itemList]}
 >
@@ -87,6 +88,12 @@ const year = new Date().getFullYear();
       <h1 class="hero-title" id="hero-h">
         Rozdzielacze do podłogówki <span class="tape">pod Twoją marką</span>
       </h1>
+      <svg class="tape-defs" aria-hidden="true" focusable="false">
+        <filter id="tape-rough" x="-4%" y="-25%" width="108%" height="150%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.018 0.11" numOctaves="3" seed="7" />
+          <feDisplacementMap in="SourceGraphic" scale="11" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </svg>
       <div class="hero-stage">
         <BoxStage />
       </div>
@@ -278,16 +285,23 @@ const year = new Date().getFullYear();
 
 <style is:global>
   :root {
-    --bg: var(--t-bg, #fff);
-    --surface: var(--t-surface, #f2f2f2);
-    --surface-2: var(--t-surface-2, #ebebeb);
-    --ink: var(--t-ink, #111);
-    --ink-2: var(--t-ink-2, #555);
-    --muted: var(--t-muted, #6e6e6e);
-    --line: var(--t-line, #e5e5e5);
-    --kraft: var(--t-accent, #c69c6d);
-    --kraft-ink: var(--t-accent-ink, #7a5530);
-    --on-kraft: var(--t-on-accent, #111);
+    --bg: var(--color-warm-grey-50);
+    --surface: #fff;
+    --surface-2: color-mix(in oklab, var(--color-warm-grey-100) 50%, var(--color-warm-grey-50));
+    --ink: var(--color-warm-grey-900);
+    --ink-2: var(--color-warm-grey-700);
+    --muted: var(--color-warm-grey-650);
+    --line: var(--color-warm-grey-150);
+    --line-2: var(--color-warm-grey-200);
+    --kraft: var(--color-warm-grey-500);
+    --kraft-ink: var(--color-warm-grey-700);
+    --on-kraft: var(--color-warm-grey-50);
+    --action: var(--color-warm-grey-700);
+    --on-action: var(--color-warm-grey-50);
+    --action-hover: var(--color-warm-grey-800);
+    --action-edge: var(--color-warm-grey-900);
+    --ink-accent: var(--color-warm-grey-750);
+    --tone-accent: var(--color-warm-grey-650);
     --pad: clamp(16px, 2.5vw, 36px);
     --ease: cubic-bezier(0.23, 1, 0.32, 1);
     --display: 'Archivo Subset', 'Arial Narrow', Arial, sans-serif;
@@ -297,7 +311,7 @@ const year = new Date().getFullYear();
   }
 
   html {
-    background: var(--t-bg, #fff);
+    background: var(--bg);
   }
 
   body {
@@ -398,7 +412,7 @@ const year = new Date().getFullYear();
   }
 
   .muted {
-    color: var(--muted);
+    color: var(--tone-accent);
   }
 
   .sec-lead {
@@ -431,11 +445,11 @@ const year = new Date().getFullYear();
     align-items: center;
     justify-content: center;
     gap: 12px;
-    min-height: 52px;
-    padding: 0 22px;
+    min-height: 44px;
+    padding: 0 18px;
     border-radius: 6px;
-    background: var(--ink);
-    color: var(--bg);
+    background: var(--action);
+    color: var(--on-action);
     font-family: var(--display);
     font-stretch: 85%;
     font-size: 16px;
@@ -459,6 +473,7 @@ const year = new Date().getFullYear();
     min-height: 44px;
     font-size: 16px;
     font-weight: 500;
+    color: var(--ink-accent);
     text-decoration: underline;
     text-decoration-thickness: 1.5px;
     text-underline-offset: 5px;
@@ -479,7 +494,7 @@ const year = new Date().getFullYear();
 
   @media (hover: hover) and (pointer: fine) {
     .btn:hover {
-      background: color-mix(in oklab, var(--ink) 82%, var(--bg));
+      background: var(--action-hover);
     }
 
     .btn:hover :global(svg),
@@ -537,6 +552,54 @@ const year = new Date().getFullYear();
     from {
       transform: scaleX(0);
     }
+  }
+
+  /* Taśma: brand packing tape, torn off at both ends and stuck on at a slight angle. */
+  :global([data-tape='tasma']) .tape {
+    padding-inline: 0.26em;
+    rotate: -1.4deg;
+  }
+
+  :global([data-tape='tasma']) .tape::before {
+    inset: -0.06em 0 -0.15em;
+    clip-path: polygon(
+      0.1em 0,
+      calc(100% - 0.14em) 0,
+      100% 10%,
+      calc(100% - 0.1em) 22%,
+      calc(100% - 0.02em) 35%,
+      calc(100% - 0.13em) 48%,
+      calc(100% - 0.03em) 61%,
+      calc(100% - 0.15em) 74%,
+      calc(100% - 0.05em) 87%,
+      calc(100% - 0.12em) 100%,
+      0.06em 100%,
+      0.15em 89%,
+      0.02em 77%,
+      0.12em 64%,
+      0 52%,
+      0.1em 39%,
+      0.01em 27%,
+      0.14em 13%
+    );
+  }
+
+  /* Marker: one brush stroke with ragged edges, from the #tape-rough filter beside the headline. */
+  :global([data-tape='marker']) .tape {
+    padding-inline: 0.24em;
+  }
+
+  :global([data-tape='marker']) .tape::before {
+    inset: 0.03em 0 -0.03em;
+    border-radius: 0.1em 0.24em 0.14em 0.28em;
+    rotate: -0.8deg;
+    filter: url(#tape-rough);
+  }
+
+  .tape-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
   }
 
   .hero-stage {
@@ -685,7 +748,7 @@ const year = new Date().getFullYear();
     display: flex;
     align-items: baseline;
     gap: 16px;
-    border-bottom: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink-accent);
     transition: border-color 200ms ease;
   }
 
@@ -745,8 +808,8 @@ const year = new Date().getFullYear();
     --stack-muted: var(--ink-2);
     --stack-line: color-mix(in oklab, var(--ink) 12%, transparent);
     --stack-line-strong: color-mix(in oklab, var(--ink) 32%, transparent);
-    --stack-plate: var(--t-surface, #f4f4f4);
-    --stack-plate-edge: var(--t-line-2, #d9d9d9);
+    --stack-plate: var(--surface);
+    --stack-plate-edge: var(--line-2);
     --stack-accent: var(--kraft);
     --stack-accent-ink: var(--kraft-ink);
     --stack-shadow: color-mix(in oklab, var(--ink) 12%, transparent);
@@ -781,6 +844,7 @@ const year = new Date().getFullYear();
     position: relative;
     aspect-ratio: 544 / 232;
     overflow: hidden;
+    border-radius: 8px;
     background: var(--surface);
   }
 
@@ -835,7 +899,7 @@ const year = new Date().getFullYear();
 
   .steps {
     margin-top: 12px;
-    border-top: 1px solid var(--ink);
+    border-top: 1px solid var(--ink-accent);
   }
 
   .steps li {
@@ -885,7 +949,7 @@ const year = new Date().getFullYear();
   }
 
   .oem-cta p a {
-    color: var(--ink);
+    color: var(--ink-accent);
     text-underline-offset: 3px;
   }
 
@@ -930,7 +994,7 @@ const year = new Date().getFullYear();
     overflow: hidden;
     min-height: 640px;
     padding-block: 8px clamp(72px, 9vw, 128px);
-    --loops-line: var(--t-line, #e6e6e6);
+    --loops-line: var(--line);
     --loops-heat: #f26a21;
   }
 

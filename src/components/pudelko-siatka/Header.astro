@@ -70,7 +70,7 @@ const { links } = Astro.props;
 
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     .hdr {
-      background: color-mix(in oklab, var(--bg) 92%, transparent);
+      background: color-mix(in oklab, var(--bg) 86%, transparent);
       -webkit-backdrop-filter: blur(16px) saturate(1.4);
       backdrop-filter: blur(16px) saturate(1.4);
     }
@@ -141,7 +141,7 @@ const { links } = Astro.props;
     bottom: 2px;
     width: 1px;
     height: 1px;
-    background: var(--ink);
+    background: var(--ink-accent);
     transform-origin: left;
     opacity: 0;
     transition:
@@ -217,7 +217,7 @@ const { links } = Astro.props;
     }
 
     .sq:hover {
-      border-color: var(--ink);
+      border-color: var(--ink-accent);
     }
   }
 
@@ -304,7 +304,7 @@ const { links } = Astro.props;
   }
 
   .menu-list a[aria-current='true'] .menu-mark {
-    background: var(--ink);
+    background: var(--ink-accent);
   }
 
 

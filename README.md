@@ -34,23 +34,19 @@ stays visible at all times and holds only section links. Earlier rounds were rem
 Two review tools sit on top of the design. Remove both when one direction is chosen:
 
 - `VariantNav`, the thin black bar at the top, switches between proposals.
-- `ThemeSwitcher`, the "Kolory" button at the bottom left, tries light colour themes (see below).
+- `StylePicker`, the "Styl" button in that bar, switches the button style (Płaski, Wypukły, Uniesiony, Druk) and,
+  on the shop-window page, the headline highlight (Taśma, Marker, Płaskie). The choice sits on `<html>` as
+  `data-btn` and `data-tape`. When one style is chosen, move its rules into the pages and remove the picker.
 
-## Colour themes
+## Colours
 
-`src/components/ThemeSwitcher.astro` builds a light theme from five numbers, following
-[The 1-minute color system](https://simn.so/the-1-minute-color-system):
+`src/styles/palette.css` holds one toned warm grey ramp (hue 44) from
+[The 1-minute color system](https://simn.so/the-1-minute-color-system). Each page maps its colour roles to ramp steps:
+background 50, surfaces 100–150, lines 150–200, text 600–900, buttons 700 with 50 text. Only the headline tape and
+small brand marks use step 500, so text never takes the highlight colour. Every text step keeps at least 6.8:1
+contrast on the background.
 
-- a grey ramp from one hue and one tint strength, with tapered chroma so near-white stays neutral;
-- one accent colour (hue, chroma, lightness).
-
-Each grey step has a job: background, raised surface, line, secondary text, text. The text steps keep at least 4.5:1
-contrast on the background. Text on the accent switches between ink and background, whichever reads better. The
-switcher writes the result as `--t-*` custom properties on `<html>`. Each page maps them to its own tokens and falls
-back to its original colours when no theme is set. "Kopiuj CSS" copies the chosen tokens, ready to hard-code.
-
-The kraft box, the product photos and the orange sticker keep their real colours in every theme. They show physical
-objects.
+The kraft box, the product photos and the orange sticker keep their real colours. They show physical objects.
 
 ## Shared parts
 
@@ -136,7 +132,7 @@ These claims are new or inferred. Check them before launch:
 ```
 src/
   pages/            index and /warianty/* proposals
-  components/       Logo, Icon, VariantNav, ThemeSwitcher, pudelko/ (box hero), oem/, heat/, pudelko-witryna/, pudelko-siatka/
+  components/       Logo, Icon, VariantNav, StylePicker, pudelko/ (box hero), oem/, heat/, pudelko-witryna/, pudelko-siatka/
   layouts/Base.astro  head tags, canonical, Open Graph, JSON-LD, noindex during the preview
   data/             company.ts, products.json (12 products scraped from the live site), products.ts, oem.ts, paths.ts
   scripts/          brand.ts (brand name), reveal.ts (scroll reveal)

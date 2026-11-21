@@ -1,0 +1,430 @@
+---
+// Review tool for comparing button styles and the headline highlight. It lives in VariantNav and goes away with it.
+// The choice sits on <html> as data-btn and data-tape. This file styles the buttons. The page styles its highlight.
+// When the owner picks a style, move its rules into the pages and remove this file.
+import Icon from './Icon.astro';
+
+interface Props {
+  highlight?: boolean;
+}
+
+const { highlight = false } = Astro.props;
+
+const groups = [
+  {
+    key: 'btn',
+    label: 'Przyciski',
+    options: [
+      { id: 'plaski', name: 'Płaski', note: 'Tylko zmiana koloru' },
+      { id: 'wypukly', name: 'Wypukły', note: 'Wciska się jak klawisz' },
+      { id: 'uniesiony', name: 'Uniesiony', note: 'Unosi się i opada' },
+      { id: 'druk', name: 'Druk', note: 'Przesunięty nadruk' },
+    ],
+  },
+  ...(highlight
+    ? [
+        {
+          key: 'tape',
+          label: 'Wyróżnienie w nagłówku',
+          options: [
+            { id: 'tasma', name: 'Taśma', note: 'Oderwane końce' },
+            { id: 'marker', name: 'Marker', note: 'Postrzępiony pędzel' },
+            { id: 'blok', name: 'Blok', note: 'Prosty prostokąt' },
+          ],
+        },
+      ]
+    : []),
+];
+---
+
+<script is:inline>
+  (() => {
+    const DEFAULT = { btn: 'wypukly', tape: 'tasma' };
+    let saved = null;
+    try {
+      saved = JSON.parse(localStorage.getItem('huber-style') || 'null');
+    } catch {}
+    Object.assign(document.documentElement.dataset, DEFAULT, saved);
+  })();
+</script>
+
+<div class="sp" data-sp>
+  <button class="sp-toggle" type="button" aria-expanded="false" aria-controls="sp-panel" data-sp-toggle>Styl</button>
+  <div class="sp-panel" id="sp-panel" role="dialog" aria-label="Styl strony" hidden data-sp-panel>
+    <p class="sp-title">Styl strony <span>narzędzie podglądu</span></p>
+    {
+      groups.map((g) => (
+        <div class="sp-group" role="group" aria-labelledby={`sp-${g.key}`}>
+          <p class="sp-label" id={`sp-${g.key}`}>{g.label}</p>
+          <div class="sp-options">
+            {g.options.map((o) => (
+              <button type="button" class="sp-opt" data-key={g.key} data-value={o.id} aria-pressed="false">
+                <strong>{o.name}</strong>
+                <span>{o.note}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ))
+    }
+    <div class="sp-try">
+      <button type="button" class="sp-sample">
+        Wypróbuj <Icon name="arrow-right" size={16} />
+      </button>
+      <p>Najedź na przycisk i kliknij go. Wybór zapisuje się w tej przeglądarce.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const KEY = 'huber-style';
+  const root = document.querySelector<HTMLElement>('[data-sp]');
+
+  if (root) {
+    const html = document.documentElement;
+    const toggle = root.querySelector<HTMLButtonElement>('[data-sp-toggle]')!;
+    const panel = root.querySelector<HTMLElement>('[data-sp-panel]')!;
+    const options = [...root.querySelectorAll<HTMLButtonElement>('[data-key]')];
+
+    // The <html> attributes are the only state. The buttons only reflect them.
+    const render = () =>
+      options.forEach((b) => b.setAttribute('aria-pressed', String(html.dataset[b.dataset.key!] === b.dataset.value)));
+
+    root.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-key]');
+      if (!b) return;
+      html.dataset[b.dataset.key!] = b.dataset.value;
+      try {
+        localStorage.setItem(KEY, JSON.stringify({ btn: html.dataset.btn, tape: html.dataset.tape }));
+      } catch {}
+      render();
+    });
+
+    const open = (next: boolean) => {
+      panel.hidden = !next;
+      toggle.setAttribute('aria-expanded', String(next));
+    };
+    toggle.addEventListener('click', () => open(toggle.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !panel.hidden) {
+        open(false);
+        toggle.focus();
+      }
+    });
+    document.addEventListener('pointerdown', (e) => {
+      if (!panel.hidden && !root.contains(e.target as Node)) open(false);
+    });
+
+    render();
+  }
+</script>
+
+<style is:global>
+  /* Colours of each button kind. A style below changes only depth and motion. */
+  :is(.btn, .ps-btn--ink, .cta) {
+    --b-face: var(--action);
+    --b-text: var(--on-action);
+    --b-edge: var(--action-edge);
+  }
+
+  .ps-btn:not(.ps-btn--ink) {
+    --b-face: var(--bg);
+    --b-text: var(--ink-accent);
+    --b-edge: var(--ink-accent);
+  }
+
+  .sp-sample {
+    --b-face: var(--color-warm-grey-700);
+    --b-text: var(--color-warm-grey-50);
+    --b-edge: var(--color-warm-grey-900);
+  }
+
+  :is(.btn, .ps-btn, .cta, .sp-sample) {
+    --b-offset: var(--color-warm-grey-500);
+  }
+
+  /* Secondary buttons: a light face and a quiet edge. An open toggle takes the primary colours. */
+  :is(.sq, .p-close, .c-toggle .face) {
+    --b-face: var(--raised);
+    --b-text: var(--ink);
+    --b-edge: var(--line-2);
+    --b-offset: var(--line-2);
+  }
+
+  .c-toggle[aria-expanded='true'] .face {
+    --b-face: var(--action);
+    --b-text: var(--on-action);
+    --b-edge: var(--action-edge);
+  }
+
+  /* Płaski: colour only. The press goes one step darker than the hover. */
+  :root[data-btn='plaski'] :is(.btn, .ps-btn--ink, .cta, .sp-sample):active {
+    background: var(--b-edge);
+  }
+
+  /* Wypukły: a darker base under the face, like a key. Based on PostHog's buttons. */
+  :root[data-btn='wypukly'] :is(.btn, .ps-btn, .cta, .sp-sample, .sq, .p-close, .c-toggle .face) {
+    border: 1.5px solid var(--b-edge);
+    background: var(--b-face);
+    color: var(--b-text);
+    box-shadow: 0 2px 0 0 var(--b-edge);
+    transform: translateY(-2px);
+    transition:
+      transform 100ms ease-out,
+      box-shadow 100ms ease-out,
+      border-color 100ms ease-out;
+  }
+
+  :root[data-btn='wypukly'] :is(.btn, .ps-btn, .cta, .sp-sample, .sq, .p-close):active,
+  :root[data-btn='wypukly'] .c-toggle:active .face {
+    transform: translateY(-1px);
+    box-shadow: 0 1px 0 0 var(--b-edge);
+  }
+
+  /* An open toggle stays pressed in. */
+  :root[data-btn='wypukly'] .c-toggle[aria-expanded='true'] .face {
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Uniesiony: lifts 1px with a soft shadow and sinks 1px on press. Based on artdeclare.co.uk. */
+  :root[data-btn='uniesiony'] :is(.btn, .ps-btn, .cta, .sp-sample, .sq, .p-close, .c-toggle .face) {
+    box-shadow:
+      0 1px 3px 0 color-mix(in oklab, var(--color-warm-grey-900) 12%, transparent),
+      0 1px 2px -1px color-mix(in oklab, var(--color-warm-grey-900) 12%, transparent);
+    transition:
+      transform 120ms ease-out,
+      box-shadow 160ms ease-out,
+      border-color 160ms ease,
+      background-color 160ms ease;
+  }
+
+  :root[data-btn='uniesiony'] :is(.btn, .ps-btn, .cta, .sp-sample, .sq, .p-close):active,
+  :root[data-btn='uniesiony'] .c-toggle:active .face {
+    transform: translateY(1px) scale(0.99);
+    box-shadow: 0 1px 1px 0 color-mix(in oklab, var(--color-warm-grey-900) 10%, transparent);
+  }
+
+  :root[data-btn='uniesiony'] .c-toggle[aria-expanded='true'] .face {
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Druk: a second ink printed off register. The press closes the gap. */
+  :root[data-btn='druk'] :is(.btn, .ps-btn, .cta, .sp-sample, .sq, .p-close, .c-toggle .face) {
+    border: 1.5px solid var(--b-edge);
+    box-shadow: 4px 4px 0 0 var(--b-offset);
+    transition:
+      transform 90ms ease-out,
+      box-shadow 90ms ease-out,
+      border-color 90ms ease-out,
+      background-color 160ms ease;
+  }
+
+  :root[data-btn='druk'] :is(.btn, .ps-btn, .cta, .sp-sample, .sq, .p-close):active,
+  :root[data-btn='druk'] .c-toggle:active .face,
+  :root[data-btn='druk'] .c-toggle[aria-expanded='true'] .face {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 0 var(--b-offset);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    :is(.sq, .p-close):hover,
+    .cell:hover .c-toggle:not([aria-expanded='true']) .face {
+      --b-edge: var(--ink-accent);
+    }
+
+    :root[data-btn='wypukly'] :is(.btn, .ps-btn, .cta, .sp-sample, .sq, .p-close):hover:not(:active),
+    :root[data-btn='wypukly'] .c-toggle:not([aria-expanded='true']):hover:not(:active) .face {
+      background: var(--b-face);
+      transform: translateY(-3px);
+      box-shadow: 0 3px 0 0 var(--b-edge);
+    }
+
+    :root[data-btn='uniesiony'] :is(.btn, .ps-btn, .cta, .sp-sample, .sq, .p-close):hover:not(:active),
+    :root[data-btn='uniesiony'] .c-toggle:not([aria-expanded='true']):hover:not(:active) .face {
+      transform: translateY(-1px);
+      box-shadow:
+        0 6px 14px -6px color-mix(in oklab, var(--color-warm-grey-900) 30%, transparent),
+        0 2px 4px -2px color-mix(in oklab, var(--color-warm-grey-900) 18%, transparent);
+    }
+
+    :root[data-btn='druk'] :is(.btn, .ps-btn, .cta, .sp-sample, .sq, .p-close):hover:not(:active),
+    :root[data-btn='druk'] .c-toggle:not([aria-expanded='true']):hover:not(:active) .face {
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0 0 var(--b-offset);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root[data-btn] :is(.btn, .ps-btn, .cta, .sp-sample, .sq, .p-close, .c-toggle .face) {
+      transition-property: background-color, box-shadow, border-color;
+    }
+  }
+</style>
+
+<style>
+  .sp {
+    font: 13px/1.35 system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: #18181b;
+  }
+
+  /* The toggle sits in the dark review bar. */
+  .sp-toggle {
+    height: 28px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 6px;
+    background: #27272a;
+    color: #fafafa;
+    font-weight: 500;
+    transition:
+      transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
+      background-color 150ms ease;
+  }
+
+  .sp-toggle[aria-expanded='true'] {
+    background: #3f3f46;
+  }
+
+  .sp-toggle:active {
+    transform: scale(0.97);
+  }
+
+  /* Fixed at the bottom left, so it stays open while the owner scrolls and leaves the headline and buttons visible. */
+  .sp-panel {
+    position: fixed;
+    left: 16px;
+    bottom: 16px;
+    z-index: 90;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    display: grid;
+    gap: 16px;
+    width: min(340px, calc(100vw - 32px));
+    padding: 16px;
+    border: 1px solid #e4e4e7;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 16px 40px rgb(0 0 0 / 0.16);
+    transform-origin: bottom left;
+    transition:
+      opacity 160ms ease,
+      transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
+
+    @starting-style {
+      opacity: 0;
+      transform: translateY(4px) scale(0.98);
+    }
+  }
+
+  .sp-panel[hidden] {
+    display: none;
+  }
+
+  .sp-title {
+    font-weight: 600;
+  }
+
+  .sp-title span {
+    margin-left: 6px;
+    font-weight: 400;
+    color: #71717a;
+  }
+
+  .sp-group {
+    display: grid;
+    gap: 8px;
+  }
+
+  .sp-label {
+    color: #52525b;
+  }
+
+  .sp-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .sp-opt {
+    display: grid;
+    gap: 2px;
+    padding: 7px 10px;
+    border: 1px solid #e4e4e7;
+    border-radius: 8px;
+    background: #ffffff;
+    text-align: left;
+    transition: border-color 150ms ease;
+  }
+
+  .sp-opt strong {
+    font-weight: 600;
+  }
+
+  .sp-opt span {
+    color: #71717a;
+    font-size: 12px;
+  }
+
+  .sp-opt[aria-pressed='true'] {
+    border-color: #18181b;
+    box-shadow: inset 0 0 0 1px #18181b;
+  }
+
+  .sp-opt[aria-pressed='true'] strong::after {
+    content: ' ✓';
+  }
+
+  .sp-try {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-top: 16px;
+    border-top: 1px solid #e4e4e7;
+  }
+
+  .sp-try p {
+    color: #71717a;
+    font-size: 12px;
+  }
+
+  .sp-sample {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 6px;
+    background: var(--b-face);
+    color: var(--b-text);
+    font-weight: 600;
+  }
+
+  .sp :focus-visible {
+    outline: 2px solid #18181b;
+    outline-offset: 2px;
+  }
+
+  .sp-toggle:focus-visible {
+    outline-color: #fafafa;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .sp-opt:hover {
+      border-color: #a1a1aa;
+    }
+
+    .sp-toggle:hover {
+      background: #3f3f46;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sp-panel {
+      transition: none;
+    }
+  }
+</style>

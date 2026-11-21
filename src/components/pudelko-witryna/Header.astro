@@ -163,8 +163,8 @@ const { links, cta } = Astro.props;
     top: 8px;
     z-index: 100;
     padding: 10px 14px;
-    background: var(--ink);
-    color: var(--bg, #fff);
+    background: var(--action);
+    color: var(--on-action);
     transform: translateY(-200%);
   }
 
@@ -179,7 +179,9 @@ const { links, cta } = Astro.props;
     z-index: 40;
     height: var(--bar);
     color: var(--ink);
-    background: var(--bg, #fff);
+    background: color-mix(in oklab, var(--bg) 86%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
     border-bottom: 1px solid transparent;
     transition: border-color 200ms ease;
   }
@@ -246,7 +248,7 @@ const { links, cta } = Astro.props;
     bottom: 10px;
     width: 100%;
     height: 1.5px;
-    background: var(--ink);
+    background: var(--ink-accent);
     transform: translateX(var(--ix)) scaleX(var(--iw));
     transform-origin: left;
     opacity: 0;
@@ -270,8 +272,8 @@ const { links, cta } = Astro.props;
     min-height: 40px;
     padding: 0 18px;
     border-radius: 6px;
-    background: var(--ink);
-    color: var(--bg, #fff);
+    background: var(--action);
+    color: var(--on-action);
     font-family: var(--display);
     font-stretch: 85%;
     font-size: 14px;
@@ -283,12 +285,6 @@ const { links, cta } = Astro.props;
       transform 160ms var(--ease),
       color 200ms ease,
       background-color 200ms ease;
-  }
-
-  .hdr:not([data-scrolled]) .cta {
-    background: transparent;
-    color: var(--ink);
-    box-shadow: inset 0 0 0 1.5px var(--ink);
   }
 
   .menu-btn,
@@ -354,13 +350,8 @@ const { links, cta } = Astro.props;
       color: var(--ink);
     }
 
-    .hdr[data-scrolled] .cta:hover {
-      background: color-mix(in oklab, var(--ink) 82%, var(--bg));
-    }
-
-    .hdr:not([data-scrolled]) .cta:hover {
-      background: var(--ink);
-      color: var(--bg, #fff);
+    .cta:hover {
+      background: var(--action-hover);
     }
   }
 
