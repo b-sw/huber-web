@@ -4,6 +4,7 @@ import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/600.css';
 import '../../styles/reveal.css';
 import '../../styles/palette.css';
+import '../../styles/links.css';
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import VariantNav from '../../components/VariantNav.astro';
@@ -117,7 +118,7 @@ const year = new Date().getFullYear();
             Zobacz asortyment
             <Icon name="arrow-right" size={18} />
           </a>
-          <a class="arrow-link" href="#oem">Jak działa OEM</a>
+          <a class="btn btn--line" href="#oem">Jak działa OEM</a>
         </div>
       </div>
     </section>
@@ -140,9 +141,9 @@ const year = new Date().getFullYear();
 
       <aside class="custom" aria-label="Konfiguracje na zamówienie" data-reveal>
         <p>Nie ma tu Twojej konfiguracji? Wykonamy ją na zamówienie.</p>
-        <a class="arrow-link" href={customMail}>
+        <a class="btn btn--line" href={customMail}>
           Opisz, czego potrzebujesz
-          <Icon name="arrow-right" size={18} />
+          <Icon name="arrow-up-right" size={18} />
         </a>
       </aside>
       <p class="visually-hidden" aria-live="polite" data-copy-status></p>
@@ -202,10 +203,10 @@ const year = new Date().getFullYear();
           <div class="oem-cta" data-reveal style="--d: 200">
             <a class="btn" href={`mailto:${company.email}`} data-brand-mailto={company.email}>
               Napisz zapytanie OEM
-              <Icon name="arrow-right" size={18} />
+              <Icon name="arrow-up-right" size={18} />
             </a>
             <p>
-              Otworzy się e-mail z gotowym szablonem. Adres: <a href={`mailto:${company.email}`}>{company.email}</a>
+              Otworzy się e-mail z gotowym szablonem. Adres: <a class="t-link" href={`mailto:${company.email}`}>{company.email}</a>
             </p>
           </div>
         </div>
@@ -242,10 +243,10 @@ const year = new Date().getFullYear();
         <h2 class="statement" id="contact-h" data-reveal="words">
           Zapytaj o ofertę hurtową <span class="muted">albo o produkcję pod Twoją marką.</span>
         </h2>
-        <a class="big-tel" href={company.phoneHref}>
+        <a class="big-tel t-link" href={company.phoneHref}>
           <span class="rise" data-reveal="rise" style="--d: 120"><span>{company.phone}</span></span>
         </a>
-        <a class="big-mail" href={`mailto:${company.email}`} data-reveal style="--d: 240">{company.email}</a>
+        <a class="big-mail t-link" href={`mailto:${company.email}`} data-reveal style="--d: 240">{company.email}</a>
         <div class="contact-foot" data-reveal style="--d: 320">
           <address>
             {company.name}<br />
@@ -254,11 +255,11 @@ const year = new Date().getFullYear();
             {`${company.address.postalCode} ${company.address.city}`}
           </address>
           <div class="contact-links">
-            <a class="arrow-link" href={`mailto:${company.email}`} data-brand-mailto={company.email}>
+            <a class="arrow-link t-link t-link--out" href={`mailto:${company.email}`} data-brand-mailto={company.email}>
               Zapytanie OEM z szablonem
-              <Icon name="arrow-right" size={18} />
+              <Icon name="arrow-up-right" size={18} />
             </a>
-            <a class="arrow-link" href={company.mapUrl} rel="noopener">
+            <a class="arrow-link t-link t-link--out" href={company.mapUrl} rel="noopener">
               Mapa dojazdu
               <Icon name="arrow-up-right" size={18} />
             </a>
@@ -271,7 +272,7 @@ const year = new Date().getFullYear();
   <footer class="foot">
     <Logo height={18} ink="var(--ink)" paper="var(--bg)" />
     <p>© {year} {company.name}. {company.tagline} od {company.foundingYear} roku.</p>
-    <a href="#top">Do góry</a>
+    <a class="t-link" href="#top">Do góry</a>
   </footer>
 </Base>
 
@@ -445,14 +446,14 @@ const year = new Date().getFullYear();
     align-items: center;
     justify-content: center;
     gap: 12px;
-    min-height: 44px;
-    padding: 0 18px;
+    min-height: 40px;
+    padding: 0 16px;
     border-radius: 6px;
     background: var(--action);
     color: var(--on-action);
     font-family: var(--display);
     font-stretch: 85%;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -460,6 +461,20 @@ const year = new Date().getFullYear();
     transition:
       transform 160ms var(--ease),
       background-color 200ms ease;
+  }
+
+  /* Secondary: the same size and type as .btn, with an outline instead of a fill. */
+  .btn--line {
+    border: 1px solid var(--line-2);
+    background: transparent;
+    color: var(--ink);
+  }
+
+  /* Phones keep a 44px touch target. */
+  @media (max-width: 639px) {
+    .btn {
+      min-height: 44px;
+    }
   }
 
   .btn :global(svg) {
@@ -473,22 +488,9 @@ const year = new Date().getFullYear();
     min-height: 44px;
     font-size: 16px;
     font-weight: 500;
-    color: var(--ink-accent);
-    text-decoration: underline;
-    text-decoration-thickness: 1.5px;
-    text-underline-offset: 5px;
-    transition: transform 160ms var(--ease);
   }
 
-  .arrow-link :global(svg) {
-    transition: transform 200ms var(--ease);
-  }
-
-  .btn:active,
-  .arrow-link:active,
-  .big-tel:active,
-  .big-mail:active,
-  .foot a:active {
+  .btn:active {
     transform: scale(0.97);
   }
 
@@ -497,8 +499,11 @@ const year = new Date().getFullYear();
       background: var(--action-hover);
     }
 
-    .btn:hover :global(svg),
-    .arrow-link:hover :global(svg) {
+    .btn--line:hover {
+      border-color: var(--ink-accent);
+    }
+
+    .btn:hover :global(svg) {
       transform: translateX(3px);
     }
   }
@@ -680,7 +685,7 @@ const year = new Date().getFullYear();
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px 28px;
+    gap: 12px;
   }
 
   .sec-intro {
@@ -709,12 +714,13 @@ const year = new Date().getFullYear();
   }
 
   .flag {
-    padding: 3px 7px 2px;
+    padding: 2px 6px 1px;
+    border-radius: 4px;
     background: var(--kraft);
     color: var(--on-kraft);
     font-family: var(--display);
     font-stretch: 80%;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.06em;
   }
@@ -844,6 +850,7 @@ const year = new Date().getFullYear();
     position: relative;
     aspect-ratio: 544 / 232;
     overflow: hidden;
+    border: 1px solid var(--line);
     border-radius: 8px;
     background: var(--surface);
   }
@@ -948,11 +955,6 @@ const year = new Date().getFullYear();
     color: var(--ink-2);
   }
 
-  .oem-cta p a {
-    color: var(--ink-accent);
-    text-underline-offset: 3px;
-  }
-
   .about-grid {
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
@@ -1013,9 +1015,7 @@ const year = new Date().getFullYear();
     display: block;
     width: fit-content;
     max-width: 100%;
-    text-decoration: none;
     transform-origin: left center;
-    transition: transform 160ms var(--ease);
   }
 
   .big-tel {
@@ -1037,15 +1037,6 @@ const year = new Date().getFullYear();
     line-height: 1.15;
     letter-spacing: -0.01em;
     overflow-wrap: anywhere;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .big-tel:hover,
-    .big-mail:hover {
-      text-decoration: underline;
-      text-decoration-thickness: 2px;
-      text-underline-offset: 0.12em;
-    }
   }
 
   .contact-foot {
@@ -1093,9 +1084,6 @@ const year = new Date().getFullYear();
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    color: var(--ink);
-    text-underline-offset: 3px;
-    transition: transform 160ms var(--ease);
   }
 
   @media (max-width: 959px) {

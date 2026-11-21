@@ -72,7 +72,7 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
                     <span>
                       {r.min}–{r.max} obwodów
                     </span>
-                    <span class="tile-more" aria-hidden="true">
+                    <span class="tile-more t-link" aria-hidden="true">
                       Indeksy
                       <span class="pm" />
                     </span>
@@ -149,18 +149,18 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
                     ))}
                   </ul>
                   <p class="panel-links">
-                    <a href={productUrl(p.slug)} rel="noopener">
+                    <a class="t-link t-link--out" href={productUrl(p.slug)} rel="noopener">
                       Karta produktu
                       <Icon name="arrow-up-right" size={16} />
                     </a>
-                    <a href={mailto(company.email, `Zapytanie: rozdzielacz ${p.code}`)}>
+                    <a class="t-link t-link--out" href={mailto(company.email, `Zapytanie: rozdzielacz ${p.code}`)}>
                       Zapytaj o {p.code}
-                      <Icon name="arrow-right" size={16} />
+                      <Icon name="arrow-up-right" size={16} />
                     </a>
                   </p>
                 </div>
 
-                <button class="panel-close" type="button" data-panel-close>
+                <button class="panel-close t-link" type="button" data-panel-close>
                   Zamknij
                   <span class="pm is-open" aria-hidden="true" />
                 </button>
@@ -435,15 +435,15 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
     height: 11px;
   }
 
+  /* Whole-pixel bars, so the rotated bar renders as thin as the flat one. */
   .pm::before,
   .pm::after {
     content: '';
     position: absolute;
     left: 0;
-    top: 50%;
+    top: 5px;
     width: 100%;
-    height: 1.5px;
-    margin-top: -0.75px;
+    height: 1px;
     background: currentColor;
     transition: transform 220ms var(--ease);
   }
@@ -462,18 +462,18 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
       transform: translateY(-3%) scale(1.04);
     }
 
-    .tile:hover :global(.shot) {
-      background-color: var(--surface-2, #ebebeb);
-    }
-
     .tile:hover .tile-more {
-      text-decoration: underline;
-      text-underline-offset: 3px;
+      text-decoration-color: currentColor;
     }
   }
 
-  .tile[data-open] :global(.shot) {
-    background-color: var(--surface-2, #ebebeb);
+  /* An open tile keeps the zoom and a solid underline, so it stays marked after the pointer leaves. */
+  .tile[data-open] :global(.shot-in) {
+    transform: translateY(-3%) scale(1.04);
+  }
+
+  .tile[data-open] .tile-more {
+    text-decoration-color: currentColor;
   }
 
   .panel {
@@ -579,14 +579,6 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
     min-height: 44px;
     font-size: 15px;
     font-weight: 500;
-    text-decoration: underline;
-    text-underline-offset: 4px;
-    transition: transform 160ms var(--ease);
-  }
-
-  .panel-links a:active,
-  .panel-close:active {
-    transform: scale(0.97);
   }
 
   .panel-head {
@@ -702,7 +694,6 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
     font-size: 12px;
     letter-spacing: 0.02em;
     text-transform: uppercase;
-    transition: transform 160ms var(--ease);
   }
 
   @media (max-width: 1099px) {

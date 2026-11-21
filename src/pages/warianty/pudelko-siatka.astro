@@ -4,6 +4,7 @@ import '@fontsource-variable/geist-mono';
 import '../../styles/archivo-subset.css';
 import '../../styles/reveal.css';
 import '../../styles/palette.css';
+import '../../styles/links.css';
 import { Image, getImage } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Icon from '../../components/Icon.astro';
@@ -200,10 +201,10 @@ const year = new Date().getFullYear();
               <div class="ask-cta" data-reveal style="--d: 200">
                 <a class="ps-btn ps-btn--ink" href={`mailto:${company.email}`} data-brand-mailto={company.email}>
                   Napisz zapytanie OEM
-                  <Icon name="arrow-right" size={16} strokeWidth={2} />
+                  <Icon name="arrow-up-right" size={16} strokeWidth={2} />
                 </a>
                 <p class="ask-p">
-                  Albo zadzwoń: <a class="ask-tel" href={company.phoneHref}>{company.phone}</a>
+                  Albo zadzwoń: <a class="ask-tel t-link" href={company.phoneHref}>{company.phone}</a>
                 </p>
               </div>
             </div>
@@ -302,21 +303,21 @@ const year = new Date().getFullYear();
               <li data-reveal>
                 <a class="c-link" href={company.phoneHref}>
                   <span class="c-k">Telefon</span>
-                  <span class="c-v">{company.phone}</span>
+                  <span class="c-v t-link">{company.phone}</span>
                   <Icon name="arrow-up-right" size={22} strokeWidth={1.5} />
                 </a>
               </li>
               <li data-reveal style="--d: 70">
                 <a class="c-link" href={`mailto:${company.email}`}>
                   <span class="c-k">E-mail</span>
-                  <span class="c-v">{company.email}</span>
+                  <span class="c-v t-link">{company.email}</span>
                   <Icon name="arrow-up-right" size={22} strokeWidth={1.5} />
                 </a>
               </li>
               <li data-reveal style="--d: 140">
                 <a class="c-link" href={`mailto:${company.email}`} data-brand-mailto={company.email}>
                   <span class="c-k">Zapytanie OEM</span>
-                  <span class="c-v c-v--sm">E-mail z gotowym szablonem</span>
+                  <span class="c-v c-v--sm t-link">E-mail z gotowym szablonem</span>
                   <Icon name="arrow-up-right" size={22} strokeWidth={1.5} />
                 </a>
               </li>
@@ -326,7 +327,7 @@ const year = new Date().getFullYear();
                   {company.name}, {company.address.street}<br />
                   {company.address.village}, {company.address.postalCode} {company.address.city}
                 </address>
-                <a class="ps-arrow" href={company.mapUrl}>
+                <a class="ps-arrow t-link t-link--out" href={company.mapUrl}>
                   Mapa dojazdu
                   <Icon name="arrow-up-right" size={15} strokeWidth={2} />
                 </a>
@@ -344,7 +345,7 @@ const year = new Date().getFullYear();
       <div class="ps-wrap foot-in">
         <Logo ink="var(--ink)" paper="var(--bg)" height={20} />
         <p>© {year} {company.name} · {company.tagline}</p>
-        <a href="#top">Do góry ↑</a>
+        <a class="t-link" href="#top">Do góry ↑</a>
       </div>
     </footer>
   </div>
@@ -590,10 +591,10 @@ const year = new Date().getFullYear();
     gap: 10px;
     height: 40px;
     padding: 0 16px;
-    border: 1px solid var(--ink-accent);
+    border: 1px solid var(--line-2);
     border-radius: 6px;
     background: transparent;
-    color: var(--ink-accent);
+    color: var(--ink);
     font-size: 15px;
     font-weight: 500;
     text-decoration: none;
@@ -631,17 +632,11 @@ const year = new Date().getFullYear();
     gap: 6px;
     font-size: 15px;
     font-weight: 500;
-    color: var(--ink-accent);
-    text-decoration: none;
-  }
-
-  .ps-arrow svg {
-    transition: transform 200ms var(--ease);
   }
 
   @media (hover: hover) and (pointer: fine) {
     .ps-btn:hover {
-      background: color-mix(in oklab, var(--ink) 5%, transparent);
+      border-color: var(--ink-accent);
     }
 
     .ps-btn--ink:hover {
@@ -653,14 +648,6 @@ const year = new Date().getFullYear();
       transform: translateX(2px);
     }
 
-    .ps-arrow:hover {
-      text-decoration: underline;
-      text-underline-offset: 4px;
-    }
-
-    .ps-arrow:hover svg {
-      transform: translate(2px, -2px);
-    }
   }
 
   @media (min-width: 900px) {
@@ -878,9 +865,7 @@ const year = new Date().getFullYear();
   }
 
   .ask-tel {
-    color: var(--ink-accent);
     font-variant-numeric: tabular-nums;
-    text-underline-offset: 3px;
   }
 
   @media (min-width: 1000px) {
@@ -1125,7 +1110,6 @@ const year = new Date().getFullYear();
     font-variant-numeric: tabular-nums;
     overflow-wrap: anywhere;
     transform-origin: left center;
-    transition: transform 160ms var(--ease);
   }
 
   .c-v--sm {
@@ -1176,13 +1160,6 @@ const year = new Date().getFullYear();
       color: var(--ink);
       transform: translate(3px, -3px);
     }
-
-    .c-link:hover .c-v {
-      text-decoration: underline;
-      text-decoration-thickness: 1px;
-      text-underline-offset: 0.16em;
-      text-decoration-color: var(--line-2);
-    }
   }
 
   @media (min-width: 1000px) {
@@ -1208,15 +1185,4 @@ const year = new Date().getFullYear();
     color: var(--muted);
   }
 
-  .foot-in a {
-    color: var(--ink);
-    text-decoration: none;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .foot-in a:hover {
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-  }
 </style>

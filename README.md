@@ -48,6 +48,22 @@ contrast on the background.
 
 The kraft box, the product photos and the orange sticker keep their real colours. They show physical objects.
 
+## Buttons and links
+
+Both variants use three levels:
+
+| Level | Look | Used for |
+| --- | --- | --- |
+| Primary | Filled with step 700 | One main action per area: KONTAKT in the header, "Zobacz asortyment" in the hero, "Napisz zapytanie OEM" |
+| Secondary | Light outline that darkens on hover, same size as the primary | "Zapytaj o OEM", "Jak działa OEM", "Opisz, czego potrzebujesz", the menu button, and the small "Indeksy i wymiary" and "Zwiń tabelę" |
+| Tertiary | Text link, class `.t-link` from `src/styles/links.css` | Indeks toggles, product cards, map, phone and e-mail, "Do góry" |
+
+Buttons are 40px in the page and 36px in the header and for small secondary buttons. On phones they are 44px.
+A tertiary link has a light underline that turns solid on hover, and its arrow moves (`.t-link--out` moves it up
+and right). Hover never changes a background colour. Arrows: ↗ marks a link that leaves the page (product card, map,
+mail app), → marks the main action that stays on the page. The button style (depth and motion) comes from
+`StylePicker`.
+
 ## Shared parts
 
 | Part | What it does |

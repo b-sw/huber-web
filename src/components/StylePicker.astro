@@ -121,16 +121,10 @@ const groups = [
 
 <style is:global>
   /* Colours of each button kind. A style below changes only depth and motion. */
-  :is(.btn, .ps-btn--ink, .cta) {
+  :is(.btn:not(.btn--line), .ps-btn--ink, .cta) {
     --b-face: var(--action);
     --b-text: var(--on-action);
     --b-edge: var(--action-edge);
-  }
-
-  .ps-btn:not(.ps-btn--ink) {
-    --b-face: var(--bg);
-    --b-text: var(--ink-accent);
-    --b-edge: var(--ink-accent);
   }
 
   .sp-sample {
@@ -143,9 +137,9 @@ const groups = [
     --b-offset: var(--color-warm-grey-500);
   }
 
-  /* Secondary buttons: a light face and a quiet edge. An open toggle takes the primary colours. */
-  :is(.sq, .p-close, .c-toggle .face) {
-    --b-face: var(--raised);
+  /* Secondary buttons: a light face and a quiet edge that darkens on hover. An open toggle takes the primary colours. */
+  :is(.ps-btn:not(.ps-btn--ink), .btn--line, .sq, .p-close, .c-toggle .face) {
+    --b-face: var(--raised, var(--bg));
     --b-text: var(--ink);
     --b-edge: var(--line-2);
     --b-offset: var(--line-2);
@@ -158,7 +152,7 @@ const groups = [
   }
 
   /* Płaski: colour only. The press goes one step darker than the hover. */
-  :root[data-btn='plaski'] :is(.btn, .ps-btn--ink, .cta, .sp-sample):active {
+  :root[data-btn='plaski'] :is(.btn:not(.btn--line), .ps-btn--ink, .cta, .sp-sample):active {
     background: var(--b-edge);
   }
 
@@ -229,8 +223,8 @@ const groups = [
   }
 
   @media (hover: hover) and (pointer: fine) {
-    :is(.sq, .p-close):hover,
-    .cell:hover .c-toggle:not([aria-expanded='true']) .face {
+    :is(.ps-btn:not(.ps-btn--ink), .btn--line, .sq, .p-close):hover,
+    .cell:hover:not(:has(.c-link:hover)) .c-toggle:not([aria-expanded='true']) .face {
       --b-edge: var(--ink-accent);
     }
 

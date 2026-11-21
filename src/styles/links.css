@@ -1,0 +1,37 @@
+/* Tertiary links in both variants: dark accent text with a light underline that turns solid on hover.
+   Each page keeps its own font and size. Add .t-link--out to an external link, so its arrow moves up and right. */
+.t-link {
+  color: var(--ink-accent);
+  text-decoration-line: underline;
+  text-decoration-color: var(--line-2);
+  text-decoration-thickness: clamp(1px, 0.06em, 3px);
+  text-underline-offset: max(0.12em, 4px);
+  transition:
+    color 160ms ease,
+    text-decoration-color 160ms ease,
+    transform 160ms var(--ease, ease-out);
+}
+
+.t-link svg {
+  flex: none;
+  transition: transform 200ms var(--ease, ease-out);
+}
+
+.t-link:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .t-link:hover,
+  :is(a, button):hover .t-link {
+    text-decoration-color: currentColor;
+  }
+
+  .t-link:hover svg {
+    transform: translateX(3px);
+  }
+
+  .t-link--out:hover svg {
+    transform: translate(2px, -2px);
+  }
+}

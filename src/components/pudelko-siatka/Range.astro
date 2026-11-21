@@ -94,7 +94,7 @@ const pad = (x: number) => String(x).padStart(2, '0');
                         <span class="plus-minus" aria-hidden="true" />
                       </span>
                     </button>
-                    <a class="c-link" href={productUrl(p.slug)}>
+                    <a class="c-link t-link t-link--out" href={productUrl(p.slug)}>
                       Karta<span class="visually-hidden"> produktu {p.code}</span>
                       <Icon name="arrow-up-right" size={14} strokeWidth={2} />
                     </a>
@@ -160,7 +160,7 @@ const pad = (x: number) => String(x).padStart(2, '0');
                       <div class="p-foot">
                         <p class="p-note">Wymiary L, H, G w mm. Kliknij indeks, żeby go skopiować.</p>
                         <div class="p-actions">
-                          <a class="c-link" href={productUrl(p.slug)}>
+                          <a class="c-link t-link t-link--out" href={productUrl(p.slug)}>
                             Karta produktu
                             <Icon name="arrow-up-right" size={14} strokeWidth={2} />
                           </a>
@@ -379,8 +379,8 @@ const pad = (x: number) => String(x).padStart(2, '0');
 
   .plus-minus {
     position: relative;
-    width: 10px;
-    height: 10px;
+    width: 11px;
+    height: 11px;
   }
 
   .plus-minus::before,
@@ -388,9 +388,9 @@ const pad = (x: number) => String(x).padStart(2, '0');
     content: '';
     position: absolute;
     left: 0;
-    top: 4.25px;
-    width: 10px;
-    height: 1.5px;
+    top: 5px;
+    width: 11px;
+    height: 1px;
     background: currentColor;
     transition: transform 200ms var(--ease);
   }
@@ -411,28 +411,18 @@ const pad = (x: number) => String(x).padStart(2, '0');
     gap: 4px;
     min-height: 36px;
     font-size: 13.5px;
-    color: var(--muted);
-    text-decoration: none;
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .cell:hover {
-      background: color-mix(in oklab, var(--ink) 2.5%, transparent);
-    }
-
-    .cell:hover .c-img img {
+    /* A hover on the card link must not also light up the toggle. */
+    .cell:hover:not(:has(.c-link:hover)) .c-img img {
       transform: scale(1.04);
     }
 
-    .cell:hover .c-toggle:not([aria-expanded='true']) .face {
+    .cell:hover:not(:has(.c-link:hover)) .c-toggle:not([aria-expanded='true']) .face {
       border-color: var(--ink-accent);
     }
 
-    .c-link:hover {
-      color: var(--ink);
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
   }
 
   .panel {
