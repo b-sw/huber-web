@@ -1,9 +1,7 @@
 ---
 import Shot from './Shot.astro';
-import Icon from '../Icon.astro';
-import { company } from '../../data/company';
-import { byMaterial, circuitRange, featureList, materials, productUrl, type Material } from '../../data/products';
-import { configurations, mailto, sentence } from './text';
+import { byMaterial, circuitRange, featureList, materials, type Material } from '../../data/products';
+import { configurations, sentence } from './text';
 
 interface Props {
   material: Material;
@@ -18,17 +16,15 @@ const titleId = `${material}-h`;
 const dash = (value: string) => value.replace('-', '–');
 const keepLastWord = (value: string) => value.replace(/ (?=\S+$)/, ' ');
 const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾', '3/4');
+const shortVersion = (v: string) => v.replace(/^Rotametry do /, '').replace(/^Zawór ESBE /, '');
 ---
 
 <div class="cat" id={material} role="group" aria-labelledby={titleId}>
   <div class="cat-head">
     <h3 class="cat-title rise" id={titleId} data-reveal="rise"><span>{info.label}</span></h3>
-    <div class="cat-side" data-reveal style="--d: 160">
-      <p class="cat-facts">
-        {configurations(list.length)} · {range.min}–{range.max} obwodów · {keepLastWord(info.bar)}
-      </p>
-      <p class="cat-lead">{info.lead}</p>
-    </div>
+    <p class="cat-facts" data-reveal style="--d: 160">
+      {configurations(list.length)} · {range.min}–{range.max} obwodów · {keepLastWord(info.bar)}
+    </p>
   </div>
 
   <div class="grid" data-grid>
@@ -115,9 +111,13 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
                     <thead>
                       <tr>
                         <th scope="col">Obwody</th>
-                        <th scope="col">Długość L, mm</th>
+                        <th scope="col">L, mm</th>
                         {twoIndexes ? (
-                          p.variants.map((v) => <th scope="col">{v.replace('Rotametry do', 'Przepływomierz do')}</th>)
+                          p.variants.map((v) => (
+                            <th scope="col" class="idx-h">
+                              Indeks <span>{shortVersion(v)}</span>
+                            </th>
+                          ))
                         ) : (
                           <th scope="col">Indeks</th>
                         )}
@@ -148,16 +148,6 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
                       <li>{inches(item)}</li>
                     ))}
                   </ul>
-                  <p class="panel-links">
-                    <a class="t-link t-link--out" href={productUrl(p.slug)} rel="noopener">
-                      Karta produktu
-                      <Icon name="arrow-up-right" size={16} />
-                    </a>
-                    <a class="t-link t-link--out" href={mailto(company.email, `Zapytanie: rozdzielacz ${p.code}`)}>
-                      Zapytaj o {p.code}
-                      <Icon name="arrow-up-right" size={16} />
-                    </a>
-                  </p>
                 </div>
 
                 <button class="panel-close t-link" type="button" data-panel-close>
@@ -307,9 +297,7 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
 
   .cat-head {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
-    align-items: end;
-    gap: 24px 48px;
+    gap: 14px;
     padding: 0 0 40px;
   }
 
@@ -317,7 +305,7 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
     font-family: var(--display);
     font-stretch: 72%;
     font-weight: 700;
-    font-size: clamp(64px, 11.4vw, 188px);
+    font-size: clamp(40px, 5vw, 76px);
     line-height: 0.82;
     letter-spacing: -0.01em;
     text-transform: uppercase;
@@ -332,12 +320,6 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
     color: var(--ink-2);
   }
 
-  .cat-lead {
-    margin-top: 10px;
-    font-size: 16px;
-    line-height: 1.5;
-    max-width: 36ch;
-  }
 
   .grid {
     display: grid;
@@ -353,7 +335,14 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
     flex-direction: column;
     height: 100%;
     padding-bottom: 40px;
-    transition: transform 160ms var(--ease);
+    transition:
+      transform 160ms var(--ease),
+      opacity 240ms ease;
+  }
+
+  /* While one tile is open, the others in its group step back, so the open one stands out. */
+  .grid:has(.tile[data-open]) .tile:not([data-open]) {
+    opacity: 0.45;
   }
 
   .tile:has(.tile-btn:active) {
@@ -458,6 +447,10 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
   }
 
   @media (hover: hover) and (pointer: fine) {
+    .grid:has(.tile[data-open]) .tile:not([data-open]):hover {
+      opacity: 1;
+    }
+
     .tile:hover :global(.shot-in) {
       transform: translateY(-3%) scale(1.04);
     }
@@ -498,13 +491,13 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
 
   .panel-tip {
     position: absolute;
-    top: -10px;
+    top: -14px;
     left: var(--tip, 50%);
     width: 28px;
-    height: 10px;
+    height: 14px;
     margin-left: -14px;
     background: var(--ink-accent);
-    clip-path: polygon(28% 0, 72% 0, 100% 100%, 0 100%);
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
   }
 
   .panel-code {
@@ -565,22 +558,6 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
     border-bottom: 1px solid var(--line);
   }
 
-  .panel-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 28px;
-    margin-top: 24px;
-  }
-
-  .panel-links a {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    font-size: 15px;
-    font-weight: 500;
-  }
-
   .panel-head {
     grid-area: head;
   }
@@ -589,10 +566,12 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
     grid-area: kit;
   }
 
+  /* Only a wide table scrolls, and only sideways. Rows that slide in must not flash a vertical scrollbar. */
   .panel-table {
     grid-area: table;
     min-width: 0;
     overflow-x: auto;
+    overflow-y: hidden;
   }
 
   table {
@@ -615,22 +594,35 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
 
   th,
   td {
-    padding: 6px 12px 6px 0;
+    padding: 8px 16px 8px 0;
     border-bottom: 1px solid var(--line);
     text-align: left;
-    vertical-align: bottom;
+    vertical-align: middle;
+    white-space: nowrap;
   }
 
   thead th {
+    vertical-align: bottom;
     font-weight: 400;
-    color: var(--ink-2);
+    color: var(--muted);
     font-size: 12px;
     line-height: 1.3;
-    border-bottom-color: var(--ink-accent);
+    border-bottom-color: var(--line-2);
   }
 
+  .idx-h span {
+    display: block;
+    color: var(--ink-2);
+  }
+
+  /* Circuits and indexes carry the row. Lengths stay lighter. */
   tbody th {
-    font-weight: 400;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  tbody td {
+    color: var(--ink-2);
   }
 
   .idx {
@@ -641,7 +633,8 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
     border: 0;
     background: none;
     font: inherit;
-    letter-spacing: 0.02em;
+    font-weight: 600;
+    color: var(--ink);
     transition:
       background-color 150ms ease,
       transform 160ms var(--ease);
@@ -729,8 +722,6 @@ const inches = (value: string) => value.replaceAll('½', '1/2').replaceAll('¾',
 
   @media (max-width: 720px) {
     .cat-head {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 20px;
       padding-bottom: 28px;
     }
 

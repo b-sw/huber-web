@@ -20,7 +20,7 @@ export const variants: Variant[] = [
     slug: 'pudelko-siatka',
     name: 'Pudełko × Siatka',
     audience: 'Hurtownie, instalatorzy, marki OEM',
-    idea: 'Pudełko z wariantu 1 w siatce cienkich linii z wariantu 2. Warstwy OEM, katalog z indeksami, płynne przejścia.',
+    idea: 'Pudełko z wariantu 1 w siatce cienkich linii z wariantu 2. Rozdzielacz OEM rozłożony na części, katalog z indeksami, płynne przejścia.',
     palette: ['#f9f9f7', '#18181b', '#c69c6d'],
     fonts: 'Geist + Geist Mono',
   },

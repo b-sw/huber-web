@@ -130,9 +130,8 @@ const year = new Date().getFullYear();
           {products.length} konfiguracji z mosiądzu i inoxu. <span class="muted">Od {all.min} do {all.max} obwodów.</span>
         </h2>
         <p class="sec-lead" data-reveal style="--d: 180">
-          Wybierz zestaw, żeby zobaczyć indeksy i wymiary dla każdej liczby obwodów.{' '}
-          <span class="on-fine">Indeks skopiujesz jednym kliknięciem.</span>
-          <span class="on-touch">Indeks skopiujesz jednym dotknięciem.</span>
+          <span class="on-fine">Kliknij zestaw, żeby zobaczyć indeksy i wymiary.</span>
+          <span class="on-touch">Dotknij zestawu, żeby zobaczyć indeksy i wymiary.</span>
         </p>
       </div>
 
@@ -254,16 +253,6 @@ const year = new Date().getFullYear();
             {company.address.village}<br />
             {`${company.address.postalCode} ${company.address.city}`}
           </address>
-          <div class="contact-links">
-            <a class="arrow-link t-link t-link--out" href={`mailto:${company.email}`} data-brand-mailto={company.email}>
-              Zapytanie OEM z szablonem
-              <Icon name="arrow-up-right" size={18} />
-            </a>
-            <a class="arrow-link t-link t-link--out" href={company.mapUrl} rel="noopener">
-              Mapa dojazdu
-              <Icon name="arrow-up-right" size={18} />
-            </a>
-          </div>
         </div>
       </div>
     </section>
@@ -435,7 +424,7 @@ const year = new Date().getFullYear();
     font-family: var(--display);
     font-stretch: 72%;
     font-weight: 700;
-    font-size: clamp(56px, 11.4vw, 188px);
+    font-size: clamp(44px, 6.4vw, 100px);
     line-height: 0.82;
     letter-spacing: -0.01em;
     text-transform: uppercase;
@@ -479,15 +468,6 @@ const year = new Date().getFullYear();
 
   .btn :global(svg) {
     transition: transform 200ms var(--ease);
-  }
-
-  .arrow-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 44px;
-    font-size: 16px;
-    font-weight: 500;
   }
 
   .btn:active {
@@ -688,11 +668,10 @@ const year = new Date().getFullYear();
     gap: 12px;
   }
 
+  /* A short lead sits under the heading, not in a far right column. */
   .sec-intro {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
-    align-items: end;
-    gap: 24px 48px;
+    gap: 16px;
     margin-bottom: clamp(56px, 7vw, 104px);
   }
 
@@ -846,13 +825,12 @@ const year = new Date().getFullYear();
     margin: 0;
   }
 
+  /* The page colour sits behind the photo, so the multiplied photo loses its pale cut-out fringe. */
   .bar-crop {
     position: relative;
     aspect-ratio: 544 / 232;
     overflow: hidden;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--surface);
+    background: var(--bg);
   }
 
   .bar-zoom {
@@ -861,6 +839,7 @@ const year = new Date().getFullYear();
   }
 
   .bar-crop :global(.bar-img) {
+    mix-blend-mode: multiply;
     position: absolute;
     width: 294.12%;
     max-width: none;
@@ -1023,7 +1002,7 @@ const year = new Date().getFullYear();
     font-family: var(--display);
     font-stretch: 72%;
     font-weight: 700;
-    font-size: clamp(52px, 7.6vw, 112px);
+    font-size: clamp(40px, 5.4vw, 80px);
     line-height: 0.9;
     letter-spacing: -0.005em;
     font-variant-numeric: tabular-nums;
@@ -1057,11 +1036,6 @@ const year = new Date().getFullYear();
     line-height: 1.7;
   }
 
-  .contact-links {
-    display: grid;
-    justify-items: start;
-  }
-
   .foot {
     display: flex;
     flex-wrap: wrap;
@@ -1087,7 +1061,6 @@ const year = new Date().getFullYear();
   }
 
   @media (max-width: 959px) {
-    .sec-intro,
     .oem-proof,
     .about-grid {
       grid-template-columns: minmax(0, 1fr);

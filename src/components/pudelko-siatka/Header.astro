@@ -1,6 +1,7 @@
 ---
 // The header never hides: the page is short and the visitor jumps between sections often.
 import Logo from '../Logo.astro';
+import Rule from './Rule.astro';
 
 export interface NavLink {
   id: string;
@@ -38,6 +39,7 @@ const { links } = Astro.props;
       </button>
     </div>
   </div>
+  <Rule edge="bottom" />
 </header>
 
 <div class="menu" id="ps-menu" data-menu>
@@ -64,35 +66,16 @@ const { links } = Astro.props;
     position: sticky;
     top: 0;
     z-index: 50;
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid transparent;
     background: color-mix(in oklab, var(--bg) 94%, transparent);
   }
 
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     .hdr {
-      background: color-mix(in oklab, var(--bg) 86%, transparent);
+      background: color-mix(in oklab, var(--bg) 64%, transparent);
       -webkit-backdrop-filter: blur(16px) saturate(1.4);
       backdrop-filter: blur(16px) saturate(1.4);
     }
-  }
-
-  .hdr::before,
-  .hdr::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    width: 9px;
-    height: 9px;
-    background: var(--plus-mark);
-    pointer-events: none;
-  }
-
-  .hdr::before {
-    left: calc((100% - var(--frame)) / 2 - 4px);
-  }
-
-  .hdr::after {
-    right: calc((100% - var(--frame)) / 2 - 4px);
   }
 
   /* The frame lines pass under the blurred background, so the header draws them again. */
@@ -101,6 +84,45 @@ const { links } = Astro.props;
     width: var(--frame);
     margin-inline: auto;
     border-inline: 1px solid var(--line);
+  }
+
+  /* These lines match the page's frame lines: one screen tall, from the same top, with the same animation. The clip
+     keeps the part inside the header, so the two copies grow as one line. */
+  .hdr-frame {
+    position: relative;
+    border-inline-color: transparent;
+    clip-path: inset(0 -1px);
+  }
+
+  .hdr-frame::before,
+  .hdr-frame::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: 100lvh;
+    background: var(--line);
+    transform-origin: top;
+  }
+
+  .hdr-frame::before {
+    left: -1px;
+  }
+
+  .hdr-frame::after {
+    right: -1px;
+  }
+
+  /* ps-rail and the timing vars come from the page. */
+  @media (prefers-reduced-motion: no-preference) {
+    .hdr-frame::before,
+    .hdr-frame::after {
+      animation: ps-rail var(--rail-in) var(--ease-draw) backwards;
+    }
+
+    .hdr-frame::after {
+      animation-delay: var(--rail-lag);
+    }
   }
 
   .hdr-in {

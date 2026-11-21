@@ -3,7 +3,7 @@
 // BoxStage renders one full copy for the open box and one copy inside each cursor lens.
 import { Image } from 'astro:assets';
 import { getProduct, productImage } from '../../data/products';
-import { VB, back, front, photoSizes, photoStyle, photoWidths, productBox, pts, side, sticker, top, topAt } from './geometry';
+import { VB, back, front, photoSizes, photoStyle, photoWidths, pts, side, sticker, top, topAt } from './geometry';
 
 interface Props {
   id: string;
@@ -59,11 +59,6 @@ const grid = `${id}-grid`;
       class="svg-sticker"
       data-brand
       data-brand-fit-svg={sticker.w - 8}>TWOJA MARKA</text>
-    <g stroke="#8fb8de" stroke-width="1.2" fill="#cfe3f5">
-      <path d={`M${productBox.x1} 722v14M${productBox.x2} 722v14M${productBox.x1} 729H${productBox.x2}`} fill="none"></path>
-      <text x={(productBox.x1 + productBox.x2) / 2} y="722" text-anchor="middle" class="svg-mono" stroke="none">L {row.L} mm</text>
-      <path d={`M44 ${productBox.y1}h14M44 ${productBox.y2}h14M51 ${productBox.y1}V${productBox.y2}`} fill="none"></path>
-    </g>
   </svg>
   {
     withList && (

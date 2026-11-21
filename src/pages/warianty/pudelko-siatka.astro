@@ -11,21 +11,21 @@ import Icon from '../../components/Icon.astro';
 import Logo from '../../components/Logo.astro';
 import VariantNav from '../../components/VariantNav.astro';
 import BoxStage from '../../components/pudelko/BoxStage.astro';
-import OemStack from '../../components/oem/OemStack.astro';
+import ManifoldExploded from '../../components/oem/ManifoldExploded.astro';
 import HeatLoops from '../../components/heat/HeatLoops.astro';
 import Header, { type NavLink } from '../../components/pudelko-siatka/Header.astro';
 import Label from '../../components/pudelko-siatka/Label.astro';
+import Rule from '../../components/pudelko-siatka/Rule.astro';
 import Range from '../../components/pudelko-siatka/Range.astro';
 import Whose from '../../components/pudelko-siatka/Whose.astro';
 import { company } from '../../data/company';
-import { byMaterial, circuitRange, getProduct, materials, productImage, productUrl, products } from '../../data/products';
+import { byMaterial, circuitRange, materials, productImage, productUrl, products } from '../../data/products';
 import factory from '../../assets/photos/factory.jpg';
 
 const TOTAL = 6;
 const all = circuitRange(products);
 const brass = circuitRange(byMaterial('mosiadz'));
 const inox = circuitRange(byMaterial('inox'));
-const boxed = getProduct('rw-ezmptr');
 
 const links: NavLink[] = [
   { id: 'asortyment', n: 2, label: 'Asortyment', long: 'Asortyment' },
@@ -99,18 +99,9 @@ const year = new Date().getFullYear();
           <div class="hero-stage">
             <BoxStage />
           </div>
-          <p class="stage-cap">
-            <span>Na wierzchu: <span data-brand>TWOJA MARKA</span>.</span>
-            <span>
-              W środku: rozdzielacz {boxed.code}.{' '}
-              <span class="cap-fine">Kliknij pudełko, żeby zajrzeć do środka.</span>
-              <span class="cap-touch">Dotknij pudełka, żeby zajrzeć do środka.</span>
-              <span class="cap-open">Kliknij albo dotknij, żeby zamknąć pudełko.</span>
-            </span>
-          </p>
         </div>
 
-        <div class="ps-rule"></div>
+        <div class="ps-rule"><Rule delay={500} /></div>
 
         <div class="ps-wrap hero-head">
           <Label n={1} total={TOTAL} text={`Producent rozdzielaczy od ${company.foundingYear}`} />
@@ -137,6 +128,7 @@ const year = new Date().getFullYear();
       </section>
 
       <section class="ps-sec" id="asortyment" aria-labelledby="asortyment-h">
+        <Rule wait />
         <div class="ps-wrap">
           <div class="ps-head">
             <Label n={2} total={TOTAL} text="Asortyment" />
@@ -146,8 +138,8 @@ const year = new Date().getFullYear();
                 <span class="ps-tone">Mosiądz i inox.</span>
               </h2>
               <p class="ps-lead" data-reveal style="--d: 150">
-                Mosiądz od {brass.min} do {brass.max} obwodów, inox od {inox.min} do {inox.max}. Kliknij zestaw, a pod jego
-                rzędem otworzy się tabela indeksów z wymiarami. Inną konfigurację wykonamy na zamówienie.
+                Mosiądz od {brass.min} do {brass.max} obwodów, inox od {inox.min} do {inox.max}. Inną konfigurację wykonamy
+                na zamówienie.
               </p>
             </div>
           </div>
@@ -156,6 +148,7 @@ const year = new Date().getFullYear();
       </section>
 
       <section class="ps-sec" id="oem" aria-labelledby="oem-h">
+        <Rule wait />
         <div class="ps-wrap">
           <div class="ps-head">
             <Label n={3} total={TOTAL} text="OEM · Nowość" />
@@ -165,8 +158,7 @@ const year = new Date().getFullYear();
                 <span class="ps-tone">Nasza produkcja pod spodem.</span>
               </h2>
               <p class="ps-lead" data-reveal style="--d: 150">
-                Nowość w ofercie: produkujemy rozdzielacze pod marką klienta. Twoje oznaczenie trafia na belkę, a gotowy
-                zestaw do Twojego opakowania. Konfigurację wybierasz z katalogu albo zamawiasz własną.
+                Twoje oznaczenie trafia na belkę, a gotowy zestaw do Twojego opakowania.
               </p>
             </div>
           </div>
@@ -174,7 +166,7 @@ const year = new Date().getFullYear();
           <Whose />
 
           <div class="stack-cell" data-reveal>
-            <OemStack />
+            <ManifoldExploded />
           </div>
 
           <div class="proof">
@@ -213,6 +205,7 @@ const year = new Date().getFullYear();
       </section>
 
       <section class="ps-sec" id="jak-to-dziala" aria-labelledby="jak-h">
+        <Rule wait />
         <div class="ps-wrap">
           <div class="ps-head">
             <Label n={4} total={TOTAL} text="Jak to działa" />
@@ -222,7 +215,7 @@ const year = new Date().getFullYear();
                 <span class="ps-tone">W czterech krokach.</span>
               </h2>
               <p class="ps-lead" data-reveal style="--d: 150">
-                Tak przebiega produkcja pod Twoją marką. Na każdym etapie rozmawiasz bezpośrednio z producentem.
+                Na każdym etapie rozmawiasz bezpośrednio z producentem.
               </p>
             </div>
           </div>
@@ -245,6 +238,7 @@ const year = new Date().getFullYear();
       </section>
 
       <section class="ps-sec" id="o-firmie" aria-labelledby="o-firmie-h">
+        <Rule wait />
         <div class="ps-wrap">
           <div class="ps-head">
             <Label n={5} total={TOTAL} text="O firmie" />
@@ -254,8 +248,7 @@ const year = new Date().getFullYear();
                 <span class="ps-tone">Od {company.foundingYear} roku.</span>
               </h2>
               <p class="ps-lead" data-reveal style="--d: 150">
-                Specjalizujemy się w rozdzielaczach do ogrzewania podłogowego. Obrabiamy metal i składamy rozdzielacze u siebie.
-                Współpracujemy z hurtowniami w całym kraju, a nasze wyroby trafiają też za granicę.
+                Obrabiamy metal i składamy rozdzielacze u siebie.
               </p>
             </div>
           </div>
@@ -284,8 +277,10 @@ const year = new Date().getFullYear();
       </section>
 
       <section class="ps-sec" id="kontakt" aria-labelledby="kontakt-h">
+        <Rule wait />
         <div class="ps-wrap">
-          <div class="ps-head">
+          <div class="ps-head ps-head--loops">
+            <HeatLoops id="ps-loops" />
             <Label n={6} total={TOTAL} text="Kontakt" />
             <div class="ps-split">
               <h2 class="ps-h2" id="kontakt-h" data-reveal="words">
@@ -293,7 +288,7 @@ const year = new Date().getFullYear();
                 <span class="ps-tone">Odpowiada producent.</span>
               </h2>
               <p class="ps-lead" data-reveal style="--d: 150">
-                Zapytaj o dostępność, indeksy, konfigurację na zamówienie albo produkcję pod Twoją marką.
+                Zapytaj o indeksy, dostępność albo produkcję pod Twoją marką.
               </p>
             </div>
           </div>
@@ -314,14 +309,7 @@ const year = new Date().getFullYear();
                   <Icon name="arrow-up-right" size={22} strokeWidth={1.5} />
                 </a>
               </li>
-              <li data-reveal style="--d: 140">
-                <a class="c-link" href={`mailto:${company.email}`} data-brand-mailto={company.email}>
-                  <span class="c-k">Zapytanie OEM</span>
-                  <span class="c-v c-v--sm t-link">E-mail z gotowym szablonem</span>
-                  <Icon name="arrow-up-right" size={22} strokeWidth={1.5} />
-                </a>
-              </li>
-              <li class="c-addr" data-reveal style="--d: 210">
+              <li class="c-addr" data-reveal style="--d: 140">
                 <span class="c-k">Adres</span>
                 <address>
                   {company.name}, {company.address.street}<br />
@@ -333,15 +321,13 @@ const year = new Date().getFullYear();
                 </a>
               </li>
             </ul>
-            <div class="c-art">
-              <HeatLoops id="ps-loops" />
-            </div>
           </div>
         </div>
       </section>
     </main>
 
     <footer class="ps-sec foot">
+      <Rule wait />
       <div class="ps-wrap foot-in">
         <Logo ink="var(--ink)" paper="var(--bg)" height={20} />
         <p>© {year} {company.name} · {company.tagline}</p>
@@ -429,9 +415,18 @@ const year = new Date().getFullYear();
     --tone-accent: var(--color-warm-grey-650);
     /* BoxStage draws its focus ring in --orange. */
     --orange: var(--ink);
-    --plus-mark:
-      linear-gradient(var(--plus), var(--plus)) center / 9px 1px no-repeat,
-      linear-gradient(var(--plus), var(--plus)) center / 1px 9px no-repeat;
+    /* A 9px strip: the hairline on its middle row and a plus mark on each frame line. */
+    --rule:
+      linear-gradient(90deg, var(--plus) 9px, transparent 0 calc(100% - 9px), var(--plus) 0) center 4px /
+        calc(var(--frame) + 8px) 1px no-repeat,
+      linear-gradient(90deg, var(--plus) 1px, transparent 0 calc(100% - 1px), var(--plus) 0) center 0 / var(--frame)
+        9px no-repeat,
+      linear-gradient(var(--line), var(--line)) 0 4px / 100% 1px no-repeat;
+    /* The header draws its own copy of the frame lines with the same timing, so the two copies read as one line. */
+    --rail-in: 2200ms;
+    --rail-lag: 500ms;
+    --rule-in: 1700ms;
+    --ease-draw: cubic-bezier(0.65, 0, 0.25, 1);
     --gutter: 10px;
     --pad: 16px;
     --frame: min(1200px, 100% - 2 * var(--gutter));
@@ -484,8 +479,23 @@ const year = new Date().getFullYear();
     inset: 0;
     width: var(--frame);
     margin-inline: auto;
-    border-inline: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     pointer-events: none;
+  }
+
+  /* Each frame line is one screen tall and sticks to the screen, so it reads as a full-height line. It draws inside the
+     screen even when the visitor scrolls during the intro. */
+  .ps-frame::before,
+  .ps-frame::after {
+    content: '';
+    position: sticky;
+    top: 0;
+    width: 1px;
+    height: 100lvh;
+    background: var(--line);
+    transform-origin: top;
   }
 
   .ps-wrap {
@@ -493,34 +503,28 @@ const year = new Date().getFullYear();
     margin-inline: auto;
   }
 
+  /* The border keeps its 1px in the layout. A Rule paints the line. */
   .ps-rule,
   .ps-sec {
     position: relative;
-    border-top: 1px solid var(--line);
+    border-top: 1px solid transparent;
   }
 
-  .ps-rule::before,
-  .ps-rule::after,
-  .ps-sec::before,
-  .ps-sec::after {
-    content: '';
-    position: absolute;
-    z-index: 2;
-    top: -5px;
-    width: 9px;
-    height: 9px;
-    background: var(--plus-mark);
-    pointer-events: none;
+  @media (prefers-reduced-motion: no-preference) {
+    .ps-frame::before,
+    .ps-frame::after {
+      animation: ps-rail var(--rail-in) var(--ease-draw) backwards;
+    }
+
+    .ps-frame::after {
+      animation-delay: var(--rail-lag);
+    }
   }
 
-  .ps-rule::before,
-  .ps-sec::before {
-    left: calc((100% - var(--frame)) / 2 - 4px);
-  }
-
-  .ps-rule::after,
-  .ps-sec::after {
-    right: calc((100% - var(--frame)) / 2 - 4px);
+  @keyframes ps-rail {
+    from {
+      transform: scaleY(0);
+    }
   }
 
   .ps-sec {
@@ -533,7 +537,7 @@ const year = new Date().getFullYear();
 
   .ps-split {
     display: grid;
-    gap: 20px;
+    gap: 16px;
     margin-top: 28px;
   }
 
@@ -656,9 +660,6 @@ const year = new Date().getFullYear();
     }
 
     .ps-split {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
-      align-items: end;
-      gap: 48px;
       margin-top: 40px;
     }
   }
@@ -693,57 +694,18 @@ const year = new Date().getFullYear();
   }
 
   .stage-cell {
-    padding: 20px 6px 0;
+    padding: 20px 6px 24px;
   }
 
-  /* The box opens the page. It leaves room for the caption, the headline and the buttons on the first screen. */
+  /* The box opens the page. It leaves room for the headline and the buttons on the first screen. */
   .hero-stage {
-    width: min(100%, max(560px, calc((100svh - var(--review-bar, 0px) - var(--hdr) - 284px) * 1200 / 760)));
+    width: min(100%, max(560px, calc((100svh - var(--review-bar, 0px) - var(--hdr) - 252px) * 1200 / 760)));
     margin-inline: auto;
-  }
-
-  .stage-cap {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 4px 24px;
-    padding: 18px calc(var(--pad) - 6px) 22px;
-    font-family: var(--mono);
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--soft);
-  }
-
-  .cap-touch,
-  .cap-open {
-    display: none;
-  }
-
-  @media (hover: none), (pointer: coarse) {
-    .cap-fine {
-      display: none;
-    }
-
-    .cap-touch {
-      display: inline;
-    }
-  }
-
-  .stage-cell:has([data-open]) :is(.cap-fine, .cap-touch) {
-    display: none;
-  }
-
-  .stage-cell:has([data-open]) .cap-open {
-    display: inline;
   }
 
   @media (min-width: 640px) {
     .stage-cell {
-      padding: 8px var(--pad) 0;
-    }
-
-    .stage-cap {
-      padding-inline: 0;
+      padding: 8px var(--pad) 28px;
     }
   }
 
@@ -786,7 +748,6 @@ const year = new Date().getFullYear();
     position: relative;
     aspect-ratio: 544 / 232;
     overflow: hidden;
-    background: #fff;
   }
 
   .bar-crop img {
@@ -1078,6 +1039,9 @@ const year = new Date().getFullYear();
 
   .contact {
     display: grid;
+  }
+
+  .c-list {
     box-shadow: inset 0 1px 0 var(--line);
   }
 
@@ -1112,11 +1076,6 @@ const year = new Date().getFullYear();
     transform-origin: left center;
   }
 
-  .c-v--sm {
-    font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
-    letter-spacing: -0.03em;
-  }
-
   .c-link svg {
     color: var(--soft);
     transition:
@@ -1146,30 +1105,58 @@ const year = new Date().getFullYear();
     box-shadow: none;
   }
 
-  .c-art {
+  /* The contact heading sits on the heating loops. They start under the label and fade out toward the text. */
+  .ps-head--loops {
     position: relative;
     overflow: hidden;
-    min-height: 260px;
-    box-shadow: inset 0 1px 0 var(--line);
-    --loops-line: var(--line-2);
+    --loops-line: var(--line);
     --loops-heat: #f26a21;
+  }
+
+  .ps-head--loops > :not([data-loops]) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .ps-head--loops :global(.loops[data-loops]) {
+    -webkit-mask-image:
+      linear-gradient(90deg, transparent 54%, #000 74%),
+      linear-gradient(180deg, transparent 110px, #000 190px, #000 calc(100% - 90px), transparent);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(90deg, transparent 54%, #000 74%),
+      linear-gradient(180deg, transparent 110px, #000 190px, #000 calc(100% - 90px), transparent);
+    mask-composite: intersect;
+  }
+
+  /* On narrow screens the text takes the full width, so the loops move to a band under it. */
+  @media (max-width: 899px) {
+    .ps-head--loops {
+      padding-bottom: 220px;
+    }
+
+    .ps-head--loops :global(.loops[data-loops]) {
+      -webkit-mask-image: linear-gradient(
+        180deg,
+        transparent calc(100% - 210px),
+        #000 calc(100% - 140px),
+        #000 calc(100% - 60px),
+        transparent
+      );
+      mask-image: linear-gradient(
+        180deg,
+        transparent calc(100% - 210px),
+        #000 calc(100% - 140px),
+        #000 calc(100% - 60px),
+        transparent
+      );
+    }
   }
 
   @media (hover: hover) and (pointer: fine) {
     .c-link:hover svg {
       color: var(--ink);
       transform: translate(3px, -3px);
-    }
-  }
-
-  @media (min-width: 1000px) {
-    .contact {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    }
-
-    .c-art {
-      min-height: 100%;
-      box-shadow: inset 1px 0 0 var(--line);
     }
   }
 

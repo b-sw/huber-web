@@ -1,0 +1,102 @@
+import { circuitRange, products } from './products';
+
+const range = circuitRange(products);
+
+export type PartId =
+  | 'rotametry'
+  | 'odpowietrznik'
+  | 'zasilanie'
+  | 'oznaczenie'
+  | 'uchwyty'
+  | 'wkladki'
+  | 'powrot'
+  | 'trojnik'
+  | 'przylacza';
+
+export type PartSide = 'huber' | 'brand';
+
+export interface ManifoldPart {
+  id: PartId;
+  title: string;
+  short: string;
+  detail: string;
+  side: PartSide;
+  // The side of the drawing where the label sits on wide screens.
+  column: 'left' | 'right';
+}
+
+// Numbered down the left column, then down the right column.
+export const manifoldParts: ManifoldPart[] = [
+  {
+    id: 'rotametry',
+    title: 'Rotametry',
+    short: 'Do 2,6 albo 5 l/min',
+    detail: 'Na zasilaniu każdego obwodu. Pokazują przepływ wody w pętli. Wybierasz wersję do 2,6 albo do 5 l/min.',
+    side: 'huber',
+    column: 'left',
+  },
+  {
+    id: 'zasilanie',
+    title: 'Belka zasilania',
+    short: 'Mosiądz albo inox · GW 1″',
+    detail: 'Doprowadza ciepłą wodę do obwodów. Przyłącze GW 1″, odejścia GW ½″. Wybierasz mosiądz albo stal nierdzewną.',
+    side: 'huber',
+    column: 'left',
+  },
+  {
+    id: 'uchwyty',
+    title: 'Uchwyty montażowe',
+    short: '2 szt. w zestawie',
+    detail: 'Trzymają obie belki w stałym rozstawie. Nimi mocujesz rozdzielacz do ściany albo do szafki.',
+    side: 'huber',
+    column: 'left',
+  },
+  {
+    id: 'wkladki',
+    title: 'Wkładki termostatyczne',
+    short: 'Na powrocie obwodu',
+    detail: 'Na powrocie każdego obwodu. Pokrętłem zamykasz i otwierasz pętlę.',
+    side: 'huber',
+    column: 'left',
+  },
+  {
+    id: 'powrot',
+    title: 'Belka powrotu',
+    short: 'Mosiądz albo inox · GW 1″',
+    detail: 'Zbiera schłodzoną wodę z obwodów i odprowadza ją do źródła ciepła.',
+    side: 'huber',
+    column: 'left',
+  },
+  {
+    id: 'przylacza',
+    title: 'Przyłącza obwodów',
+    short: `Od ${range.min} do ${range.max} · nyple ½″×¾″`,
+    detail: `Jedno przyłącze to jedna pętla grzewcza pod podłogą. Rozdzielacz ma od ${range.min} do ${range.max} obwodów.`,
+    side: 'huber',
+    column: 'left',
+  },
+  {
+    id: 'odpowietrznik',
+    title: 'Odpowietrznik',
+    short: '2 szt. · automatyczny albo ręczny',
+    detail: 'Usuwa powietrze z instalacji. Jest na końcu każdej belki, w wersji automatycznej albo ręcznej.',
+    side: 'huber',
+    column: 'right',
+  },
+  {
+    id: 'oznaczenie',
+    title: 'Oznaczenie',
+    short: 'Twoja marka na belce',
+    detail: 'Na belce jest Twoje oznaczenie zamiast naszego. Klient hurtowni widzi Twoją markę.',
+    side: 'brand',
+    column: 'right',
+  },
+  {
+    id: 'trojnik',
+    title: 'Trójnik z zaworem spustowym',
+    short: '2 szt. w zestawie',
+    detail: 'Na końcu każdej belki. Przez zawór spustowy napełniasz albo opróżniasz instalację.',
+    side: 'huber',
+    column: 'right',
+  },
+];

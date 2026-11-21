@@ -25,7 +25,6 @@ export const frontRect = F;
 const s = 540 / 847;
 export const photo = { x: 70 - 113 * s, y: 170 - 32 * s, w: 1600 * s, h: 900 * s };
 export const sticker = { x: photo.x + 752 * s, y: photo.y + 210 * s, w: 88 * s, h: 26 * s };
-export const productBox = { x1: 70, x2: 70 + 1105 * s, y1: 170, y2: 170 + 847 * s };
 
 const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(3)}%`;
 export const silhouetteClip = `polygon(${silhouette.map(([x, y]) => `${pct(x, VB.w)} ${pct(y, VB.h)}`).join(', ')})`;

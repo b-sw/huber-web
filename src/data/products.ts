@@ -33,17 +33,15 @@ export interface Product {
 
 export const products = data as Product[];
 
-export const materials: Record<Material, { label: string; name: string; lead: string; bar: string }> = {
+export const materials: Record<Material, { label: string; name: string; bar: string }> = {
   mosiadz: {
     label: 'Mosiądz',
     name: 'Rozdzielacze mosiężne',
-    lead: 'Trwałe i odporne na korozję rozwiązania do efektywnego rozdziału wody w pętlach grzewczych.',
     bar: 'belka mosiężna GW 1″',
   },
   inox: {
     label: 'Inox',
     name: 'Rozdzielacze ze stali nierdzewnej',
-    lead: 'Wytrzymałe i solidne komponenty zapewniające niezawodność w instalacjach ogrzewania podłogowego.',
     bar: 'belka INOX GW 1″',
   },
 };

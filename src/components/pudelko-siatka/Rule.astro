@@ -1,0 +1,84 @@
+---
+interface Props {
+  edge?: 'top' | 'bottom';
+  /** Draw when the line scrolls into view, not when the page opens. */
+  wait?: boolean;
+  /** Start delay in ms. */
+  delay?: number;
+}
+
+const { edge = 'top', wait = false, delay = 0 } = Astro.props;
+---
+
+<span
+  class:list={['rule', edge]}
+  data-reveal={wait ? '' : undefined}
+  style={delay ? `--d: ${delay}` : undefined}
+  aria-hidden="true"
+>
+  <span class="ink"></span>
+</span>
+
+<style>
+  /* The page sets --rule (the hairline and its plus marks) and the timing.
+     The window slides in from the left while the ink slides the other way, so the ink stays put and shows from the
+     left. Both moves are transforms, so a busy main thread cannot stall the line. */
+  .rule {
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    right: 0;
+    height: 9px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .top {
+    top: -5px;
+  }
+
+  .bottom {
+    bottom: -5px;
+  }
+
+  .ink {
+    position: absolute;
+    inset: 0;
+    background: var(--rule);
+  }
+
+  /* A waiting line uses the shared reveal only as its trigger. */
+  :global(.reveal-on) .rule[data-reveal] {
+    opacity: 1;
+    filter: none;
+    transition: none;
+  }
+
+  :global(.reveal-on) .rule[data-reveal]:not([data-shown]) {
+    transform: translateX(-100%);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .rule:not([data-reveal]),
+    .rule[data-shown] {
+      animation: rule-window var(--rule-in) var(--ease-draw) calc(var(--d, 0) * 1ms) backwards;
+    }
+
+    .rule:not([data-reveal]) .ink,
+    .rule[data-shown] .ink {
+      animation: rule-ink var(--rule-in) var(--ease-draw) calc(var(--d, 0) * 1ms) backwards;
+    }
+  }
+
+  @keyframes rule-window {
+    from {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes rule-ink {
+    from {
+      transform: translateX(100%);
+    }
+  }
+</style>

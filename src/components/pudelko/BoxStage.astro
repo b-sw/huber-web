@@ -313,11 +313,16 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
       y: h * (0.47 + 0.15 * Math.sin(t * 0.00061 + 1.2)),
     });
 
+    // Whole device pixels keep the X-ray copy at an exact position. Fractional offsets make some Windows GPUs
+    // draw hairline seams through the lens.
+    const snap = (v: number) => Math.round(v * devicePixelRatio) / devicePixelRatio;
     const place = (lens: (typeof lenses)[number]) => {
       const s = Math.max(lens.s, 0.001);
+      const x = snap(lens.x);
+      const y = snap(lens.y);
       lens.el.style.opacity = lens.s < 0.02 ? '0' : '1';
-      lens.el.style.transform = `translate3d(${lens.x}px, ${lens.y}px, 0) scale(${s}) translate3d(${-lens.r}px, ${-lens.r}px, 0)`;
-      lens.inner.style.transform = `translate3d(${lens.r}px, ${lens.r}px, 0) scale(${1 / s}) translate3d(${-lens.x}px, ${-lens.y}px, 0)`;
+      lens.el.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${s}) translate3d(${-lens.r}px, ${-lens.r}px, 0)`;
+      lens.inner.style.transform = `translate3d(${lens.r}px, ${lens.r}px, 0) scale(${1 / s}) translate3d(${-x}px, ${-y}px, 0)`;
     };
 
     const tick = (now: number) => {
@@ -337,6 +342,8 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
         lens.x += (lead.x - lens.x) * lens.follow;
         lens.y += (lead.y - lens.y) * lens.follow;
         lens.s += (want - lens.s) * 0.12;
+        // Settle on the exact size, so a resting lens is not scaled by a fraction.
+        if (Math.abs(want - lens.s) < 0.004) lens.s = want;
         if (Math.abs(lead.x - lens.x) > 0.3 || Math.abs(lead.y - lens.y) > 0.3 || Math.abs(want - lens.s) > 0.004) moving = true;
         place(lens);
       });

@@ -94,10 +94,6 @@ const pad = (x: number) => String(x).padStart(2, '0');
                         <span class="plus-minus" aria-hidden="true" />
                       </span>
                     </button>
-                    <a class="c-link t-link t-link--out" href={productUrl(p.slug)}>
-                      Karta<span class="visually-hidden"> produktu {p.code}</span>
-                      <Icon name="arrow-up-right" size={14} strokeWidth={2} />
-                    </a>
                   </div>
                 </article>
 
@@ -414,12 +410,11 @@ const pad = (x: number) => String(x).padStart(2, '0');
   }
 
   @media (hover: hover) and (pointer: fine) {
-    /* A hover on the card link must not also light up the toggle. */
-    .cell:hover:not(:has(.c-link:hover)) .c-img img {
+    .cell:hover .c-img img {
       transform: scale(1.04);
     }
 
-    .cell:hover:not(:has(.c-link:hover)) .c-toggle:not([aria-expanded='true']) .face {
+    .cell:hover .c-toggle:not([aria-expanded='true']) .face {
       border-color: var(--ink-accent);
     }
 
@@ -526,8 +521,10 @@ const pad = (x: number) => String(x).padStart(2, '0');
     min-width: 0;
   }
 
+  /* Only a wide table scrolls, and only sideways. Rows that slide in must not flash a vertical scrollbar. */
   .p-scroll {
     overflow-x: auto;
+    overflow-y: hidden;
     overscroll-behavior-x: contain;
   }
 

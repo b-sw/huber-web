@@ -1,0 +1,592 @@
+---
+// Exploded 3D view of an OEM manifold: the parts float apart as the section scrolls in, each with its label.
+// The photo is the fallback when WebGL is missing. The labels then stay a plain list.
+import { Image } from 'astro:assets';
+import { manifoldParts } from '../../data/manifold';
+import { productImage } from '../../data/products';
+
+const parts = manifoldParts.map((part, i) => ({ ...part, n: i + 1 }));
+const brandPart = parts.find((part) => part.side === 'brand')!;
+---
+
+<div class="mx" data-manifold data-layout="list">
+  <div class="mx-stage">
+    <div class="mx-view" data-view>
+      <Image
+        class="mx-photo"
+        src={productImage('rw-pt')}
+        alt="Rozdzielacz z rotametrami, wkładkami termostatycznymi i trójnikami z odpowietrznikiem"
+        widths={[800, 1600]}
+        sizes="(min-width: 960px) 1100px, 100vw"
+        loading="lazy"
+      />
+      <span class="mx-shadow" data-shadow aria-hidden="true"></span>
+      <canvas
+        class="mx-canvas"
+        data-canvas
+        role="img"
+        aria-label={`Rozdzielacz rozłożony na części: ${parts.map((part) => part.title.toLowerCase()).join(', ')}`}
+      ></canvas>
+      <svg class="mx-leaders" data-leaders aria-hidden="true">
+        {parts.map((part) => <line data-leader={part.id} data-side={part.side} />)}
+        <line class="mx-trail" data-trail={brandPart.id} />
+      </svg>
+      {
+        parts.map((part) => (
+          <span class="mx-pin" data-pin={part.id} data-side={part.side} aria-hidden="true">
+            {part.n}
+          </span>
+        ))
+      }
+      <span data-brand hidden>TWOJA MARKA</span>
+    </div>
+
+    <ol class="mx-labels" role="list">
+      {
+        parts.map((part) => (
+          <li class="mx-label" data-label={part.id} data-column={part.column} data-side={part.side}>
+            <button type="button" data-part={part.id} aria-pressed="false" aria-controls="mx-detail">
+              <span class="mx-head">
+                <span class="mx-n">{part.n}</span>
+                <span class="mx-title">{part.title}</span>
+              </span>
+              <span class="mx-short">{part.short}</span>
+            </button>
+            <p class="mx-more">{part.detail}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  <div class="mx-detail" id="mx-detail" aria-live="polite">
+    <p class="mx-legend">
+      <span class="mx-key" data-side="huber">Produkcja Huber</span>
+      <span class="mx-key" data-side="brand">Twoja marka</span>
+    </p>
+    <p class="mx-text mx-hint" data-detail="">Wskaż część na rysunku albo jej nazwę, aby zobaczyć opis.</p>
+    {
+      parts.map((part) => (
+        <div class="mx-text" data-detail={part.id} hidden>
+          <p class="mx-text-head">
+            <span class="mx-n">{part.n}</span> {part.title}
+          </p>
+          <p class="mx-text-body">{part.detail}</p>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  import type { PartId } from '../../data/manifold';
+  import type { Frame, ManifoldView } from './manifold-scene';
+
+  const WIDE = 860;
+  const LABEL_GAP = 50;
+  const LEADER_GAP = 36;
+
+  document.querySelectorAll<HTMLElement>('[data-manifold]').forEach((root) => {
+    const view = root.querySelector<HTMLElement>('[data-view]')!;
+    const canvas = root.querySelector<HTMLCanvasElement>('[data-canvas]')!;
+    const leaders = root.querySelector<SVGSVGElement>('[data-leaders]')!;
+    const shadow = root.querySelector<HTMLElement>('[data-shadow]')!;
+    const trail = root.querySelector<SVGLineElement>('[data-trail]')!;
+    const brandSource = root.querySelector<HTMLElement>('[data-brand]')!;
+    const byPart = <T extends Element>(selector: string, key: string) =>
+      new Map([...root.querySelectorAll<T>(selector)].map((el) => [(el as unknown as HTMLElement).dataset[key] as PartId, el]));
+    const labels = byPart<HTMLElement>('[data-label]', 'label');
+    const pins = byPart<HTMLElement>('[data-pin]', 'pin');
+    const lines = byPart<SVGLineElement>('[data-leader]', 'leader');
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-part]')];
+    const details = [...root.querySelectorAll<HTMLElement>('[data-detail]')];
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let scene: ManifoldView | null = null;
+    let selected: PartId | null = null;
+
+    const select = (part: PartId | null) => {
+      if (part === selected) return;
+      selected = part;
+      root.toggleAttribute('data-focus', part !== null);
+      const mark = (el: Element, id: PartId) => el.toggleAttribute('data-on', id === part);
+      labels.forEach(mark);
+      pins.forEach(mark);
+      lines.forEach(mark);
+      mark(trail, trail.dataset.trail as PartId);
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.part === part)));
+      details.forEach((el) => (el.hidden = el.dataset.detail !== (part ?? '')));
+      scene?.highlight(part);
+    };
+
+    buttons.forEach((button) => {
+      const part = button.dataset.part as PartId;
+      button.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && select(part));
+      // A tap also focuses the button. Only keyboard focus selects, so the click after a tap does not undo it.
+      button.addEventListener('focus', () => button.matches(':focus-visible') && select(part));
+      button.addEventListener('click', () => select(button.getAttribute('aria-pressed') === 'true' ? null : part));
+    });
+    root.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && select(null));
+    root.addEventListener('focusout', (e) => {
+      if (!root.contains(e.relatedTarget as Node)) select(null);
+    });
+
+    const progress = () => {
+      const rect = view.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const t = Math.min(1, Math.max(0, (vh - rect.top) / (vh * 0.8)));
+      return 1 - Math.pow(1 - t, 3);
+    };
+
+    let wide = false;
+    let viewHeight = 0;
+    const measure = () => {
+      wide = view.clientWidth >= WIDE;
+      viewHeight = view.clientHeight;
+      root.dataset.layout = wide ? 'wide' : 'compact';
+      leaders.setAttribute('viewBox', `0 0 ${view.clientWidth} ${viewHeight}`);
+      scene?.setFill(wide ? 0.42 : 0.86);
+    };
+
+    const layout = ({ p, points, box, trail: [from, to] }: Frame) => {
+      root.style.setProperty('--p', p.toFixed(3));
+      trail.setAttribute('x1', from.x.toFixed(1));
+      trail.setAttribute('y1', from.y.toFixed(1));
+      trail.setAttribute('x2', to.x.toFixed(1));
+      trail.setAttribute('y2', to.y.toFixed(1));
+      shadow.style.transform = `translate(${((box.left + box.right) / 2).toFixed(1)}px, ${box.bottom.toFixed(1)}px)`;
+      shadow.style.width = `${((box.right - box.left) * 0.7).toFixed(1)}px`;
+      pins.forEach((pin, id) => {
+        const { x, y } = points.get(id)!;
+        pin.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+      });
+      if (!wide) return;
+      for (const column of ['left', 'right'] as const) {
+        const items = [...labels]
+          .filter(([, el]) => el.dataset.column === column)
+          .map(([id, el]) => ({ id, el, at: points.get(id)!, y: points.get(id)!.y }))
+          .sort((a, b) => a.at.y - b.at.y);
+        for (let i = 1; i < items.length; i++) items[i].y = Math.max(items[i].y, items[i - 1].y + LABEL_GAP);
+        const overflow = items[items.length - 1].y - (viewHeight - 20);
+        if (overflow > 0) items.forEach((item) => (item.y -= overflow));
+        const edge = column === 'left' ? box.left - LEADER_GAP : box.right + LEADER_GAP;
+        for (const { id, el, at, y } of items) {
+          el.style.transform = `translate(${edge.toFixed(1)}px, ${y.toFixed(1)}px)`;
+          const line = lines.get(id)!;
+          line.setAttribute('x1', at.x.toFixed(1));
+          line.setAttribute('y1', at.y.toFixed(1));
+          line.setAttribute('x2', (edge + (column === 'left' ? 8 : -8)).toFixed(1));
+          line.setAttribute('y2', y.toFixed(1));
+        }
+      }
+    };
+
+    const start = async () => {
+      const { mountManifold } = await import('./manifold-scene');
+      scene = mountManifold({ canvas, still, progress, onPick: select, onFrame: layout });
+      if (!scene) return;
+      root.toggleAttribute('data-3d', true);
+      measure();
+      new ResizeObserver(measure).observe(view);
+      const syncBrand = () => scene?.setBrand(brandSource.textContent?.trim() || 'TWOJA MARKA');
+      new MutationObserver(syncBrand).observe(brandSource, { childList: true, characterData: true, subtree: true });
+      syncBrand();
+    };
+
+    const near = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        near.disconnect();
+        start();
+      },
+      { rootMargin: '800px 0px' },
+    );
+    near.observe(root);
+  });
+</script>
+
+<style>
+  .mx {
+    --p: 1;
+    /* Leaders, pins and labels appear once the parts are almost fully apart. */
+    --reveal: clamp(0, calc(var(--p) * 6 - 5), 1);
+    color: var(--stack-ink, #18181b);
+    container-type: inline-size;
+  }
+
+  .mx-stage {
+    position: relative;
+  }
+
+  .mx-view {
+    position: relative;
+    aspect-ratio: 4 / 5;
+  }
+
+  .mx[data-layout='wide'] .mx-view {
+    aspect-ratio: 12 / 7;
+  }
+
+  /* On a tablet the drawing would fill the screen and push the list below the fold. */
+  .mx[data-layout='compact'] .mx-view {
+    max-height: 72svh;
+    margin-inline: auto;
+  }
+
+  .mx-photo,
+  .mx-canvas,
+  .mx-leaders {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .mx-photo {
+    object-fit: contain;
+    transition: opacity 400ms ease;
+  }
+
+  .mx-canvas {
+    display: block;
+    opacity: 0;
+    transition: opacity 500ms ease;
+  }
+
+  .mx[data-3d] .mx-photo {
+    opacity: 0;
+  }
+
+  .mx-shadow {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 36px;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--stack-shadow, rgb(24 24 27 / 0.16)), transparent);
+    opacity: calc(0.4 + var(--p) * 0.6);
+    pointer-events: none;
+  }
+
+  .mx[data-3d] .mx-shadow {
+    display: block;
+  }
+
+  .mx[data-3d] .mx-canvas {
+    opacity: 1;
+  }
+
+  .mx-leaders {
+    display: none;
+    overflow: visible;
+    pointer-events: none;
+    opacity: var(--reveal);
+  }
+
+  .mx[data-3d] .mx-leaders {
+    display: block;
+  }
+
+  .mx-leaders line {
+    stroke: var(--stack-line-strong, rgb(24 24 27 / 0.35));
+    stroke-width: 1;
+    transition: stroke 200ms ease;
+  }
+
+  .mx[data-layout='compact'] .mx-leaders [data-leader] {
+    display: none;
+  }
+
+  .mx-leaders line[data-side='brand'],
+  .mx-leaders .mx-trail {
+    stroke: var(--stack-accent, #c69c6d);
+  }
+
+  .mx-leaders .mx-trail {
+    stroke-width: 1.5;
+    stroke-dasharray: 3 5;
+  }
+
+  .mx-leaders line[data-on] {
+    stroke: var(--stack-ink, #18181b);
+  }
+
+  .mx-leaders line,
+  .mx-pin {
+    transition: opacity 200ms ease;
+  }
+
+  .mx[data-focus] .mx-leaders line:not([data-on]) {
+    opacity: 0.25;
+  }
+
+  .mx[data-focus] .mx-pin:not([data-on]) {
+    opacity: calc(var(--reveal) * 0.25);
+  }
+
+  .mx-pin {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+
+  .mx[data-3d] .mx-pin {
+    display: block;
+  }
+
+  .mx[data-layout='wide'] .mx-pin {
+    width: 7px;
+    height: 7px;
+    margin: -3.5px 0 0 -3.5px;
+    border-radius: 50%;
+    background: var(--stack-ink, #18181b);
+    box-shadow: 0 0 0 2px var(--stack-plate, #fff);
+    font-size: 0;
+    opacity: var(--reveal);
+  }
+
+  .mx[data-layout='compact'] .mx-pin {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    border-radius: 50%;
+    background: var(--stack-plate, #fff);
+    box-shadow: inset 0 0 0 1px var(--stack-ink, #18181b);
+    font-family: var(--stack-mono, ui-monospace, monospace);
+    font-size: 11px;
+    font-weight: 600;
+    opacity: var(--reveal);
+  }
+
+  .mx[data-3d] .mx-pin[data-side='brand'] {
+    background: var(--stack-accent, #c69c6d);
+  }
+
+  .mx[data-layout='compact'] .mx-pin[data-on] {
+    background: var(--stack-ink, #18181b);
+    color: var(--stack-plate, #fff);
+  }
+
+  /* The list under the drawing serves a narrow view and pages without WebGL. */
+  .mx-labels {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--stack-line, rgb(24 24 27 / 0.14));
+  }
+
+  .mx-label {
+    border-bottom: 1px solid var(--stack-line, rgb(24 24 27 / 0.14));
+    transition: opacity 200ms ease;
+  }
+
+  @container (min-width: 600px) {
+    .mx:not([data-layout='wide']) .mx-labels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 32px;
+    }
+  }
+
+  .mx-label button {
+    display: grid;
+    justify-items: start;
+    gap: 2px;
+    width: 100%;
+    padding: 12px 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .mx-label button:focus-visible {
+    outline: 2px solid var(--stack-accent, #c69c6d);
+    outline-offset: 2px;
+  }
+
+  .mx-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .mx-n {
+    font-family: var(--stack-mono, ui-monospace, monospace);
+    font-size: 0.8125rem;
+    color: var(--stack-muted, #6b6b70);
+  }
+
+  [data-side='brand'] .mx-n {
+    color: var(--stack-accent-ink, #8a5a2b);
+  }
+
+  .mx-title {
+    font-weight: 600;
+    transition: color 200ms ease;
+  }
+
+  .mx-label .mx-short {
+    padding-left: calc(1ch + 10px);
+  }
+
+  .mx[data-layout='wide'] .mx-label .mx-short {
+    padding-left: 0;
+  }
+
+  .mx-short {
+    font-family: var(--stack-mono, ui-monospace, monospace);
+    font-size: 0.8125rem;
+    color: var(--stack-muted, #6b6b70);
+  }
+
+  .mx[data-focus] .mx-label:not([data-on]) {
+    opacity: 0.4;
+  }
+
+  /* In the list, a row opens its description under itself. A plus that turns into a cross marks it. */
+  .mx:not([data-layout='wide']) .mx-label button {
+    position: relative;
+    padding-right: 32px;
+  }
+
+  .mx:not([data-layout='wide']) .mx-label button::after {
+    content: '+';
+    position: absolute;
+    top: 10px;
+    right: 4px;
+    font-family: var(--stack-mono, ui-monospace, monospace);
+    font-size: 1.25rem;
+    line-height: 1;
+    color: var(--stack-muted, #6b6b70);
+    transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .mx:not([data-layout='wide']) .mx-label button[aria-pressed='true']::after {
+    transform: rotate(45deg);
+  }
+
+  .mx-more {
+    display: none;
+    max-width: 40em;
+    margin: 0 0 14px;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    padding-left: calc(1ch + 10px);
+    color: var(--stack-muted, #6b6b70);
+  }
+
+  .mx:not([data-layout='wide']) .mx-label[data-on] .mx-more {
+    display: block;
+  }
+
+  .mx-label[data-on] .mx-title {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
+    text-decoration-color: var(--stack-accent, #c69c6d);
+  }
+
+  .mx[data-layout='wide'] .mx-labels {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    pointer-events: none;
+    opacity: var(--reveal);
+  }
+
+  .mx[data-layout='wide'] .mx-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 0;
+    pointer-events: auto;
+  }
+
+  .mx[data-layout='wide'] .mx-label button {
+    width: max-content;
+    max-width: 300px;
+    padding: 0;
+    /* Lift the label by half a title line, so the leader meets the title. */
+    translate: 0 -0.8em;
+  }
+
+  .mx[data-layout='wide'] .mx-label[data-column='left'] button {
+    justify-items: end;
+    text-align: right;
+    translate: -100% -0.8em;
+  }
+
+  .mx[data-layout='wide'] .mx-label[data-column='left'] .mx-head {
+    flex-direction: row-reverse;
+  }
+
+  .mx-detail {
+    display: grid;
+    gap: 10px;
+    max-width: 34rem;
+    margin: 28px auto 0;
+  }
+
+  .mx[data-3d] .mx-detail {
+    opacity: var(--reveal);
+  }
+
+  .mx[data-layout='wide'] .mx-detail {
+    min-height: 7.5em;
+  }
+
+  .mx:not([data-layout='wide']) .mx-text {
+    display: none;
+  }
+
+  .mx-legend {
+    display: flex;
+    gap: 18px;
+    font-family: var(--stack-mono, ui-monospace, monospace);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--stack-muted, #6b6b70);
+  }
+
+  .mx-key::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: var(--stack-ink, #18181b);
+  }
+
+  .mx-key[data-side='brand']::before {
+    background: var(--stack-accent, #c69c6d);
+  }
+
+  .mx-text {
+    padding-top: 12px;
+    border-top: 1px solid var(--stack-line, rgb(24 24 27 / 0.14));
+  }
+
+  .mx-text-head {
+    font-weight: 600;
+  }
+
+  .mx-text-body,
+  .mx-hint {
+    color: var(--stack-muted, #6b6b70);
+  }
+
+  .mx-text-body {
+    margin-top: 6px;
+  }
+</style>
