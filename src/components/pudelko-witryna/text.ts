@@ -17,6 +17,4 @@ export interface NavLink {
   id: string;
   label: string;
   meta: string;
-  /** Where the desktop bar shows the link. "menu" means only the mobile menu. */
-  place: 'left' | 'right' | 'menu';
 }

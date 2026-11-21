@@ -65,6 +65,9 @@ objects.
 ## The box hero
 
 - A kraft carton shows a halftone print of the RW-EZMPTR manifold and the visitor's brand.
+- The carton is drawn in layers: board faces with light, flute stripes and printed ink, then grey height maps
+  blended over the board (soft-light), then tape, edges and the sticker. The height maps keep the board colour and
+  break up the ink, like flexo print on kraft. The sticker is clipped to the box outline, so it wraps over the edges.
 - An X-ray spot drifts over the box by itself and shows the real manifold inside. A cursor takes over and leaves a
   trail of four shrinking circles. Over the printed label the circles close, so the brand stays readable.
 - A transparent button covers the box. Click, tap, Enter or Space opens the whole box.
@@ -75,7 +78,8 @@ objects.
 Performance: each circle is a small round window with its own copy of the X-ray (`XrayLayer.astro`). The windows move
 only with `transform`, so the browser composites them on the GPU and paints nothing per frame. The first version
 rebuilt a mask of 14 gradients on every frame and drew the cardboard grain with a live SVG noise filter. Both forced
-full repaints. The grain is now a 34 KB tile (`scripts/kraft-grain.py`). The loop stops when the box is off screen or
+full repaints. The grain is now a 38 KB WebP tile plus a 1 KB tone map (`scripts/kraft-grain.py`). Both are static
+blend layers, so the lenses still paint nothing per frame. The loop stops when the box is off screen or
 the tab is hidden. `geometry.ts` holds the shared frame, so the print and the photo line up by construction.
 
 ## Why static rendering
@@ -141,7 +145,7 @@ src/
 scripts/
   subset-fonts.py   cuts Archivo to Latin + Polish glyphs (173 KB → 51 KB)
   halftone.py       renders the halftone print on the box (only RW-EZMPTR is used)
-  kraft-grain.py    renders the tileable cardboard grain
+  kraft-grain.py    renders the cardboard grain tile and tone map
 ```
 
 The Python scripts need Pillow, and fontTools with brotli. Run them from the repo root.

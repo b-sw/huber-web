@@ -29,17 +29,16 @@ const links: NavLink[] = [
     id: 'mosiadz',
     label: 'Mosiądz',
     meta: `${configurations(brass.length)} · ${brassRange.min}–${brassRange.max} obwodów`,
-    place: 'left',
   },
   {
     id: 'inox',
     label: 'Inox',
     meta: `${configurations(inox.length)} · ${inoxRange.min}–${inoxRange.max} obwodów`,
-    place: 'left',
   },
-  { id: 'oem', label: 'OEM', meta: 'Pod Twoją marką', place: 'right' },
-  { id: 'o-firmie', label: 'O firmie', meta: `Od ${company.foundingYear}`, place: 'right' },
+  { id: 'oem', label: 'OEM', meta: 'Pod Twoją marką' },
+  { id: 'o-firmie', label: 'O firmie', meta: `Od ${company.foundingYear}` },
 ];
+const contact: NavLink = { id: 'kontakt', label: 'Kontakt', meta: company.phone };
 
 const steps = [
   { title: 'Konfiguracja', text: 'Wybierasz zestawy z katalogu albo opisujesz własne wyposażenie.' },
@@ -81,7 +80,7 @@ const year = new Date().getFullYear();
 >
   <script is:inline slot="head">document.documentElement.classList.add('reveal-on');</script>
   <VariantNav slug="pudelko-witryna" />
-  <Header links={links} />
+  <Header links={links} cta={contact} />
 
   <main id="tresc">
     <section class="hero" id="top" data-hero aria-labelledby="hero-h">

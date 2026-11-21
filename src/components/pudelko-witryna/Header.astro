@@ -4,33 +4,23 @@ import type { NavLink } from './text';
 
 interface Props {
   links: NavLink[];
+  cta: NavLink;
 }
 
-const { links } = Astro.props;
-const left = links.filter((l) => l.place === 'left');
-const right = links.filter((l) => l.place === 'right');
+const { links, cta } = Astro.props;
 ---
 
 <a class="skip" href="#tresc">Przejdź do treści</a>
 
 <header class="hdr" data-hdr>
-  <span class="hdr-bg" aria-hidden="true"></span>
   <nav class="bar" aria-label="Główna">
-    <button
-      class="menu-btn"
-      type="button"
-      aria-haspopup="dialog"
-      aria-expanded="false"
-      aria-controls="pw-menu"
-      data-menu-open
-    >
-      <span class="burger" aria-hidden="true"></span>
-      <span>Menu</span>
-    </button>
+    <a class="home" href="#top" aria-label="Huber – początek strony">
+      <Logo height={22} ink="var(--ink)" paper="var(--bg)" />
+    </a>
 
-    <ul class="links links-left" role="list">
+    <ul class="links" role="list" data-links>
       {
-        left.map((l) => (
+        links.map((l) => (
           <li>
             <a href={`#${l.id}`} data-nav={l.id}>
               {l.label}
@@ -40,41 +30,35 @@ const right = links.filter((l) => l.place === 'right');
       }
     </ul>
 
-    <a class="notch" href="#top" aria-label="Huber – początek strony">
-      <svg class="notch-shape" viewBox="0 0 200 76" preserveAspectRatio="none" aria-hidden="true">
-        <path class="notch-fill" d="M0 0H200L172 76H28Z"></path>
-        <path class="notch-edge" d="M0 0L28 76H172L200 0" vector-effect="non-scaling-stroke"></path>
-      </svg>
-      <Logo class="notch-logo" height={22} ink="var(--ink)" paper="var(--bg)" />
-    </a>
+    <a class="cta" href={`#${cta.id}`} data-nav={cta.id}>{cta.label}</a>
 
-    <ul class="links links-right" role="list">
-      {
-        right.map((l) => (
-          <li class="desk">
-            <a href={`#${l.id}`} data-nav={l.id}>
-              {l.label}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <button
+      class="menu-btn"
+      type="button"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+      aria-controls="pw-menu"
+      data-menu-open
+    >
+      <span>Menu</span>
+      <span class="burger" aria-hidden="true"></span>
+    </button>
   </nav>
 </header>
 
 <dialog class="menu" id="pw-menu" aria-labelledby="pw-menu-title" data-menu>
   <div class="menu-bar">
+    <span class="menu-logo"><Logo height={22} ink="var(--ink)" paper="var(--bg)" /></span>
     <button class="menu-close" type="button" data-menu-close>
-      <span class="cross" aria-hidden="true"></span>
       <span>Zamknij</span>
+      <span class="cross" aria-hidden="true"></span>
     </button>
-    <span class="menu-logo"><Logo height={20} ink="var(--ink)" paper="var(--bg)" /></span>
   </div>
   <h2 class="visually-hidden" id="pw-menu-title">Menu</h2>
   <nav aria-label="Menu">
     <ul class="menu-links" role="list">
       {
-        links.map((l) => (
+        [...links, cta].map((l) => (
           <li>
             <a href={`#${l.id}`} data-nav={l.id}>
               <span class="menu-label">{l.label}</span>
@@ -90,6 +74,7 @@ const right = links.filter((l) => l.place === 'right');
 <script>
   const header = document.querySelector<HTMLElement>('[data-hdr]')!;
   const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const list = document.querySelector<HTMLElement>('[data-links]')!;
   const menu = document.querySelector<HTMLDialogElement>('[data-menu]')!;
   const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]')!;
   const navLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-nav]')];
@@ -99,12 +84,35 @@ const right = links.filter((l) => l.place === 'right');
     .sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
 
   let queued = false;
+  let active: string | null | undefined;
+
+  function placeIndicator(snap = false) {
+    const link = list.querySelector<HTMLElement>('a[aria-current="true"]');
+    const width = list.offsetWidth;
+    if (!link || !width) {
+      list.removeAttribute('data-active');
+      return;
+    }
+    const appearing = !list.hasAttribute('data-active');
+    snap ||= appearing;
+    list.toggleAttribute('data-snap', snap);
+    list.style.setProperty('--ix', `${link.offsetLeft}px`);
+    list.style.setProperty('--iw', String(link.offsetWidth / width));
+    if (snap) {
+      void list.offsetWidth;
+      list.removeAttribute('data-snap');
+    }
+    list.setAttribute('data-active', '');
+  }
 
   function setActive(id: string | null) {
+    if (id === active) return;
+    active = id;
     for (const a of navLinks) {
       if (a.dataset.nav === id) a.setAttribute('aria-current', 'true');
       else a.removeAttribute('aria-current');
     }
+    placeIndicator();
   }
 
   function update() {
@@ -131,6 +139,7 @@ const right = links.filter((l) => l.place === 'right');
 
   window.addEventListener('scroll', queue, { passive: true });
   window.addEventListener('resize', queue);
+  new ResizeObserver(() => placeIndicator(true)).observe(list);
   update();
 
   openBtn.addEventListener('click', () => {
@@ -165,38 +174,39 @@ const right = links.filter((l) => l.place === 'right');
 
   .hdr {
     --bar: 64px;
-    --notch-w: 200px;
-    --notch-h: 76px;
     position: sticky;
     top: 0;
     z-index: 40;
     height: var(--bar);
     color: var(--ink);
-  }
-
-  .hdr-bg {
-    position: absolute;
-    inset: 0;
     background: var(--bg, #fff);
     border-bottom: 1px solid transparent;
     transition: border-color 200ms ease;
-    pointer-events: none;
   }
 
-  .hdr[data-scrolled] .hdr-bg {
+  .hdr[data-scrolled] {
     border-bottom-color: var(--line);
   }
 
   .bar {
-    position: relative;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    display: flex;
     align-items: center;
+    gap: 32px;
     height: 100%;
     padding: 0 var(--pad);
   }
 
+  .home {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-right: auto;
+  }
+
   .links {
+    --ix: 0px;
+    --iw: 0;
+    position: relative;
     display: flex;
     align-items: center;
     gap: 28px;
@@ -205,22 +215,9 @@ const right = links.filter((l) => l.place === 'right');
     list-style: none;
   }
 
-  .links-left,
-  .menu-btn {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .links-right {
-    grid-column: 3;
-    grid-row: 1;
-    justify-self: end;
-    gap: 24px;
-  }
-
   .links a,
-  .menu-btn {
-    position: relative;
+  .menu-btn,
+  .menu-close {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
@@ -228,34 +225,84 @@ const right = links.filter((l) => l.place === 'right');
     font-weight: 500;
     letter-spacing: 0.01em;
     text-decoration: none;
-    color: inherit;
     transition: transform 160ms var(--ease);
   }
 
-  .links a[data-nav]::after {
+  .links a {
+    color: var(--ink-2);
+    transition:
+      color 150ms ease,
+      transform 160ms var(--ease);
+  }
+
+  .links a[aria-current='true'] {
+    color: var(--ink);
+  }
+
+  .links::after {
     content: '';
     position: absolute;
     left: 0;
-    right: 0;
     bottom: 10px;
+    width: 100%;
     height: 1.5px;
-    background: currentColor;
-    transform: scaleX(0);
+    background: var(--ink);
+    transform: translateX(var(--ix)) scaleX(var(--iw));
     transform-origin: left;
-    transition: transform 220ms var(--ease);
+    opacity: 0;
+    transition:
+      transform 280ms cubic-bezier(0.77, 0, 0.175, 1),
+      opacity 160ms ease;
+    pointer-events: none;
   }
 
-  .links a[aria-current='true']::after {
-    transform: scaleX(1);
+  .links[data-active]::after {
+    opacity: 1;
+  }
+
+  .links[data-snap]::after {
+    transition: none;
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 18px;
+    border-radius: 6px;
+    background: var(--ink);
+    color: var(--bg, #fff);
+    font-family: var(--display);
+    font-stretch: 85%;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition:
+      transform 160ms var(--ease),
+      color 200ms ease,
+      background-color 200ms ease;
+  }
+
+  .hdr:not([data-scrolled]) .cta {
+    background: transparent;
+    color: var(--ink);
+    box-shadow: inset 0 0 0 1.5px var(--ink);
+  }
+
+  .menu-btn,
+  .menu-close {
+    gap: 10px;
+    margin-right: -10px;
+    padding: 0 10px;
+    border: 0;
+    background: none;
+    color: inherit;
   }
 
   .menu-btn {
     display: none;
-    gap: 10px;
-    margin-left: -10px;
-    padding: 0 10px;
-    border: 0;
-    background: none;
   }
 
   .burger,
@@ -285,9 +332,13 @@ const right = links.filter((l) => l.place === 'right');
     bottom: 0;
   }
 
+  .cross {
+    top: -1px;
+  }
+
   .cross::before,
   .cross::after {
-    top: 50%;
+    top: calc(50% - 0.75px);
   }
 
   .cross::before {
@@ -298,87 +349,48 @@ const right = links.filter((l) => l.place === 'right');
     transform: rotate(-45deg);
   }
 
-  .notch {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    display: grid;
-    place-items: center;
-    width: var(--notch-w);
-    height: var(--notch-h);
-    padding-bottom: calc(var(--notch-h) - var(--bar));
-    margin-left: calc(var(--notch-w) / -2);
-    color: var(--ink);
-  }
-
-  .notch-shape {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
-
-  .notch-fill {
-    fill: var(--bg, #fff);
-  }
-
-  .notch-edge {
-    fill: none;
-    stroke: var(--line);
-    stroke-width: 1;
-    opacity: 0;
-    transition: opacity 200ms ease;
-  }
-
-  .hdr[data-scrolled] .notch-edge {
-    opacity: 1;
-  }
-
-  .notch :global(.notch-logo) {
-    position: relative;
-  }
-
-  .notch:focus-visible {
-    outline: none;
-  }
-
-  .notch:focus-visible :global(.notch-logo) {
-    outline: 2px solid var(--ink);
-    outline-offset: 4px;
-  }
-
   @media (hover: hover) and (pointer: fine) {
-    .links a[data-nav]:hover::after {
-      transform: scaleX(1);
+    .links a:hover {
+      color: var(--ink);
+    }
+
+    .hdr[data-scrolled] .cta:hover {
+      background: color-mix(in oklab, var(--ink) 82%, var(--bg));
+    }
+
+    .hdr:not([data-scrolled]) .cta:hover {
+      background: var(--ink);
+      color: var(--bg, #fff);
     }
   }
 
   .links a:active,
+  .cta:active,
   .menu-btn:active,
   .menu-close:active {
     transform: scale(0.97);
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .links::after {
+      transition: opacity 160ms ease;
+    }
+  }
+
   @media (max-width: 959px) {
     .hdr {
       --bar: 56px;
-      --notch-w: 156px;
-      --notch-h: 66px;
     }
 
     .menu-btn {
       display: inline-flex;
-      justify-self: start;
     }
 
-    .links-left,
-    .desk {
+    .links,
+    .cta {
       display: none;
     }
   }
-
-  /* Mobile menu: a modal dialog, so focus stays inside and Escape closes it. */
 
   :global(html:has(dialog[open])) {
     overflow: hidden;
@@ -422,25 +434,14 @@ const right = links.filter((l) => l.place === 'right');
   }
 
   .menu-bar {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    display: flex;
     align-items: center;
+    justify-content: space-between;
     height: 56px;
   }
 
-  .menu-close {
+  .menu-logo {
     display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    justify-self: start;
-    min-height: 44px;
-    margin-left: -10px;
-    padding: 0 10px;
-    border: 0;
-    background: none;
-    font-size: 15px;
-    font-weight: 500;
-    transition: transform 160ms var(--ease);
   }
 
   .menu-links {
@@ -481,5 +482,4 @@ const right = links.filter((l) => l.place === 'right');
     color: var(--ink-2);
     text-align: right;
   }
-
 </style>
