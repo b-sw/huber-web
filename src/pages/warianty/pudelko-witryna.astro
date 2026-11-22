@@ -45,7 +45,7 @@ const contact: NavLink = { id: 'kontakt', label: 'Kontakt', meta: company.phone 
 const steps = [
   { title: 'Konfiguracja', text: 'Wybierasz zestawy z katalogu albo opisujesz własne wyposażenie.' },
   { title: 'Wycena', text: 'Przygotowujemy ofertę dla Twoich ilości i terminów.' },
-  { title: 'Produkcja', text: 'Wykonujemy rozdzielacze z Twoim oznaczeniem na belce i pakujemy je w Twoje opakowanie.' },
+  { title: 'Produkcja', text: 'Wykonujemy rozdzielacze z Twoim oznaczeniem na belce. Pudełka zaklejamy Twoją taśmą i Twoimi naklejkami.' },
   { title: 'Dostawa', text: 'Dostarczamy terminowo i pilnujemy ciągłości kolejnych dostaw.' },
 ];
 
@@ -153,7 +153,7 @@ const year = new Date().getFullYear();
       <h2 class="mega rise" id="oem-h" data-reveal="rise"><span>Pod Twoją marką</span></h2>
 
       <p class="statement oem-lead" data-reveal="words">
-        Każdy rozdzielacz z katalogu wykonamy z Twoim oznaczeniem i w Twoim opakowaniu. <span class="muted"
+        Każdy rozdzielacz z katalogu wykonamy z Twoim oznaczeniem, a pudełko zakleimy Twoją taśmą. <span class="muted"
           >Także konfigurację spoza katalogu.</span
         >
       </p>
@@ -1069,8 +1069,10 @@ const year = new Date().getFullYear();
       padding-top: 26px;
     }
 
+    /* Room between the headline and the lid of the box. */
     .hero-stage {
       min-width: 0;
+      margin-top: 14px;
     }
 
     .hero-foot {

@@ -2,28 +2,24 @@
 import '../../styles/archivo-subset.css';
 import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/600.css';
-import { Image } from 'astro:assets';
 import { circuitRange, getProduct, products } from '../../data/products';
-import halftone from '../../assets/halftone/rw-ezmptr.png';
 import grain from '../../assets/textures/kraft-grain.webp';
 import mottle from '../../assets/textures/kraft-mottle.webp';
 import XrayLayer from './XrayLayer.astro';
+import ManifoldDrawing from './ManifoldDrawing.astro';
 import {
+  TAPE,
   VB,
   front,
-  photoSizes,
-  photoStyle,
-  photoWidths,
+  photoTransform,
   pts,
   side,
-  sideAt,
   silhouette,
   silhouetteClip,
-  tapeEnd,
-  tapeSide,
-  tapeTop,
+  tapeOutline,
+  tapePrint,
+  tapes,
   top,
-  topAt,
 } from './geometry';
 
 const product = getProduct('rw-ezmptr');
@@ -31,7 +27,7 @@ const row = product.rows.find((r) => r.circuits === 5)!;
 const [index] = row.indexes;
 const range = circuitRange(products);
 
-// Decorative barcode derived from the index digits.
+// Decorative barcode derived from the index and the dimensions.
 const bars: { x: number; w: number }[] = [];
 let bx = 0;
 for (const ch of `${index}${row.L}${row.H}`.repeat(2)) {
@@ -41,10 +37,10 @@ for (const ch of `${index}${row.L}${row.H}`.repeat(2)) {
     bx += w * 1.6 + 2.4;
   }
 }
-const barScale = 220 / bx;
 
 // Cursor lenses, largest first. Each one holds its own copy of the X-ray, moved only with transforms.
 const lenses = [15, 11.5, 8.5, 6];
+const stamp = { x: 90, y: 166, r: 84 };
 const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 'zawór ESBE VTA322', '2 termometry', '2 uchwyty montażowe'];
 ---
 
@@ -70,7 +66,7 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
         <pattern id="flutes-side" width="9" height="10" patternUnits="userSpaceOnUse">
           <rect width="9" height="10" fill="url(#flute)"></rect>
         </pattern>
-        <pattern id="flutes-top" width="14" height="10" patternUnits="userSpaceOnUse" patternTransform="skewX(-49.4)">
+        <pattern id="flutes-top" width="14" height="10" patternUnits="userSpaceOnUse" patternTransform="skewX(-40)">
           <rect width="14" height="10" fill="url(#flute)"></rect>
         </pattern>
         <linearGradient id="front-light" x1="0" y1="140" x2="0" y2="740" gradientUnits="userSpaceOnUse">
@@ -88,7 +84,7 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
           <stop offset="0" stop-color="#fff" stop-opacity="0.16"></stop>
           <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
         </linearGradient>
-        <linearGradient id="side-light" x1="0" y1="68" x2="0" y2="740" gradientUnits="userSpaceOnUse">
+        <linearGradient id="side-light" x1="0" y1="40" x2="0" y2="740" gradientUnits="userSpaceOnUse">
           <stop offset="0" stop-color="#fff" stop-opacity="0.05"></stop>
           <stop offset="1" stop-color="#2a1a0c" stop-opacity="0.22"></stop>
         </linearGradient>
@@ -99,8 +95,8 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
         </linearGradient>
       </defs>
 
-      <polygon points="44,738 1090,738 1172,668 1194,672 1108,752 60,754" fill="#2a1f14" opacity="0.2" filter="url(#shadow-soft)"></polygon>
-      <polygon points="32,738.5 1090,738.5 1173,667.5 1177,669 1093,744 34,744" fill="#1c140c" opacity="0.45" filter="url(#shadow-tight)"></polygon>
+      <polygon points="44,738 1090,738 1172,640 1194,644 1108,752 60,754" fill="#2a1f14" opacity="0.2" filter="url(#shadow-soft)"></polygon>
+      <polygon points="32,738.5 1090,738.5 1173,639.5 1177,641 1093,744 34,744" fill="#1c140c" opacity="0.45" filter="url(#shadow-tight)"></polygon>
 
       <polygon points={pts(front)} fill="#c69c6d"></polygon>
       <polygon points={pts(top)} fill="#d7b386"></polygon>
@@ -113,71 +109,46 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
       <polygon points={pts(top)} fill="url(#top-light)"></polygon>
       <polygon points={pts(side)} fill="url(#side-light)"></polygon>
       <polygon points={pts(side)} fill="url(#side-turn)"></polygon>
-
-      <g class="ink">
-        <g transform="translate(818 170)" fill="none" stroke="#231a12" stroke-width="2.4" stroke-linecap="square">
-          <path d="M0 30h26M7 26V6M2 11l5-6 5 6M19 26V6M14 11l5-6 5 6"></path>
-          <path d="M44 14a12 12 0 0 1 24 0zM56 14v10a3 3 0 0 0 6 0"></path>
-          <path d="M84 2h16l-1.5 11a6.5 6.5 0 0 1-13 0zM92 19v10M86 29h12"></path>
-        </g>
-        <rect x="810" y="215" width="250" height="3" fill="#231a12"></rect>
-        <g transform={`translate(820 618) scale(${barScale} 1)`} fill="#231a12">
-          {bars.map((b) => <rect x={b.x} y="0" width={b.w} height="56" />)}
-        </g>
-        <text x="820" y="696" class="svg-mono svg-small" fill="#231a12">{index} · WYPRODUKOWANO W POLSCE</text>
-      </g>
     </svg>
 
-    <Image
-      src={halftone}
-      alt=""
-      class="print-img"
-      style={photoStyle}
-      widths={photoWidths}
-      sizes={photoSizes}
-      layout="none"
-      loading="eager"
-      fetchpriority="high"
-    />
+    <div class="board board-mottle" style={`background-image:url(${mottle.src});clip-path:${silhouetteClip}`}></div>
+    <div class="board board-grain" style={`background-image:url(${grain.src});clip-path:${silhouetteClip}`}></div>
 
-    <div class="print" aria-hidden="true">
-      <p class="print-brand" data-brand data-brand-fit>TWOJA MARKA</p>
-      <p class="print-sub">Rozdzielacz do podłogówki z układem mieszającym</p>
-      <dl class="print-spec">
+    {/* Huber does not print on boxes: the brand comes only on the client's label and tape.
+        After the board layers, so the paper label gets no grain. */}
+    <div class="label" aria-hidden="true">
+      <p class="label-brand" data-brand data-brand-fit>TWOJA MARKA</p>
+      <p class="label-sub">Rozdzielacz do podłogówki z układem mieszającym</p>
+      <dl class="label-spec">
         <div><dt>Model</dt><dd>{product.code}</dd></div>
         <div><dt>Obwody</dt><dd>{row.circuits}</dd></div>
         <div><dt>Indeks</dt><dd>{index}</dd></div>
       </dl>
+      <svg class="label-code" viewBox={`0 0 ${bx} 40`} preserveAspectRatio="none">
+        {bars.map((b) => <rect x={b.x} y="0" width={b.w} height="40" />)}
+      </svg>
+      <p class="label-foot">{index} · Wyprodukowano w Polsce</p>
     </div>
-
-    {/* Above the print, so the grain breaks up the ink like flexo print on kraft. */}
-    <div class="board board-mottle" style={`background-image:url(${mottle.src});clip-path:${silhouetteClip}`}></div>
-    <div class="board board-grain" style={`background-image:url(${grain.src});clip-path:${silhouetteClip}`}></div>
 
     <svg class="art" viewBox={`0 0 ${VB.w} ${VB.h}`} aria-hidden="true">
       <defs>
-        <linearGradient id="seam-shade" x1="0" y1={topAt(0, 0.4)[1]} x2="0" y2={topAt(0, 0.6)[1]} gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#3a2612" stop-opacity="0"></stop>
-          <stop offset="0.5" stop-color="#3a2612" stop-opacity="0.16"></stop>
-          <stop offset="1" stop-color="#3a2612" stop-opacity="0"></stop>
-        </linearGradient>
-        <linearGradient id="tape-gloss-top" x1="0" y1={topAt(0, 0.38)[1]} x2="0" y2={topAt(0, 0.62)[1]} gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#fff" stop-opacity="0.05"></stop>
-          <stop offset="0.22" stop-color="#fff" stop-opacity="0.42"></stop>
-          <stop offset="0.4" stop-color="#fff" stop-opacity="0.06"></stop>
-          <stop offset="0.78" stop-color="#fff" stop-opacity="0.16"></stop>
+        {/* In the frame of a tape, so one gradient lights every strip across its width. */}
+        <linearGradient id="tape-gloss" x1="0" y1={-TAPE.w / 2} x2="0" y2={TAPE.w / 2} gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#fff" stop-opacity="0.1"></stop>
+          <stop offset="0.24" stop-color="#fff" stop-opacity="0.7"></stop>
+          <stop offset="0.42" stop-color="#fff" stop-opacity="0.08"></stop>
+          <stop offset="0.8" stop-color="#fff" stop-opacity="0.3"></stop>
           <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
         </linearGradient>
-        <linearGradient id="tape-sheen" x1="30" y1="0" x2="1174" y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#fff" stop-opacity="0"></stop>
-          <stop offset="0.3" stop-color="#fff" stop-opacity="0.22"></stop>
-          <stop offset="0.62" stop-color="#fff" stop-opacity="0"></stop>
-        </linearGradient>
-        <linearGradient id="tape-gloss-side" x1={sideAt(0.38, 0)[0]} y1="0" x2={sideAt(0.62, 0)[0]} y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#fff" stop-opacity="0"></stop>
-          <stop offset="0.3" stop-color="#fff" stop-opacity="0.26"></stop>
-          <stop offset="1" stop-color="#fff" stop-opacity="0.04"></stop>
-        </linearGradient>
+        {
+          tapes.flatMap((tape, t) =>
+            tape.faces.map((face, f) => (
+              <clipPath id={`tape-${t}-${f}`}>
+                <polygon points={pts(tapeOutline(face))}></polygon>
+              </clipPath>
+            )),
+          )
+        }
         <linearGradient id="fold-light" x1="0" y1="140" x2="0" y2="148" gradientUnits="userSpaceOnUse">
           <stop offset="0" stop-color="#fff" stop-opacity="0.2"></stop>
           <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
@@ -190,30 +161,48 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
           <polygon points={pts(silhouette)}></polygon>
         </clipPath>
         <clipPath id="sticker-clip">
-          <circle cx="104" cy="188" r="84"></circle>
+          <circle cx={stamp.x} cy={stamp.y} r={stamp.r}></circle>
         </clipPath>
+        {/* Cuts the drawing out around the tape and the sticker, with a small gap, so their print stays clear. */}
+        <mask id="drawing-mask" maskUnits="userSpaceOnUse" x="0" y="0" width={VB.w} height={VB.h}>
+          <rect width={VB.w} height={VB.h} fill="#fff"></rect>
+          {
+            tapes.flatMap((tape) =>
+              tape.faces.map((face) => (
+                <polygon points={pts(tapeOutline(face))} transform={face.m} class="cutout"></polygon>
+              )),
+            )
+          }
+          <circle cx={stamp.x} cy={stamp.y} r={stamp.r} class="cutout"></circle>
+        </mask>
         <filter id="sticker-shadow" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="1.5" dy="3" stdDeviation="2.2" flood-color="#2a1408" flood-opacity="0.35"></feDropShadow>
         </filter>
       </defs>
 
-      <polygon points={pts([topAt(0, 0.4), topAt(1, 0.4), topAt(1, 0.6), topAt(0, 0.6)])} fill="url(#seam-shade)"></polygon>
-      <line x1={topAt(0, 0.5)[0]} y1={topAt(0, 0.5)[1]} x2={topAt(1, 0.5)[0]} y2={topAt(1, 0.5)[1]} stroke="#4a321b" stroke-opacity="0.75" stroke-width="2.2"></line>
-      <line x1={topAt(0, 0.49)[0]} y1={topAt(0, 0.49)[1] + 1.6} x2={topAt(1, 0.49)[0]} y2={topAt(1, 0.49)[1] + 1.6} stroke="#f2d9b0" stroke-opacity="0.45"></line>
-
-      <g class="tape">
-        <polygon points={pts(tapeTop)} fill="#ecc994" opacity="0.4"></polygon>
-        <polygon points={pts(tapeTop)} fill="url(#tape-gloss-top)"></polygon>
-        <polygon points={pts(tapeTop)} fill="url(#tape-sheen)"></polygon>
-        <polygon points={pts(tapeSide)} fill="#d2a86f" opacity="0.4"></polygon>
-        <polygon points={pts(tapeSide)} fill="url(#tape-gloss-side)"></polygon>
-        <g fill="none" stroke-width="1">
-          <line x1={tapeTop[0][0]} y1={tapeTop[0][1]} x2={tapeTop[1][0]} y2={tapeTop[1][1]} stroke="#fff" stroke-opacity="0.4"></line>
-          <line x1={tapeTop[3][0]} y1={tapeTop[3][1]} x2={tapeTop[2][0]} y2={tapeTop[2][1]} stroke="#5a3d1f" stroke-opacity="0.2"></line>
-          <line x1={topAt(0, 0.44)[0]} y1={topAt(0, 0.44)[1]} x2={topAt(1, 0.44)[0]} y2={topAt(1, 0.44)[1]} stroke="url(#tape-sheen)" stroke-width="1.6"></line>
-          <polyline points={pts(tapeEnd)} stroke="#5a3d1f" stroke-opacity="0.3"></polyline>
-        </g>
-      </g>
+      {/* The seam strip goes on first, the cross strip over it. */}
+      {
+        tapes.map((tape, t) =>
+          tape.faces.map((face, f) => (
+            <g transform={face.m} class={`tape tape-${face.face}`}>
+              <polygon points={pts(tapeOutline(face))} class="tape-base"></polygon>
+              {t === 0 && face.face === 'top' && (
+                <line x1={face.from} y1="0" x2={face.to} y2="0" class="tape-groove"></line>
+              )}
+              <g clip-path={`url(#tape-${t}-${f})`} class="tape-ink">
+                {tapePrint(tape, face).map((s) => (
+                  <>
+                    <text x={s} y="0" dy="0.35em" text-anchor="middle" data-brand data-brand-fit-svg={TAPE.text}>TWOJA MARKA</text>
+                    <circle cx={s + TAPE.repeat / 2} cy="0" r="3"></circle>
+                  </>
+                ))}
+              </g>
+              <polygon points={pts(tapeOutline(face))} fill="url(#tape-gloss)"></polygon>
+              <polygon points={pts(tapeOutline(face))} class="tape-edge"></polygon>
+            </g>
+          )),
+        )
+      }
 
       <rect x={front[0][0]} y={front[0][1]} width={front[1][0] - front[0][0]} height="8" fill="url(#fold-light)"></rect>
       <g fill="none" stroke-linecap="round">
@@ -226,7 +215,7 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
 
       {/* The sticker wraps over the box edges, and the part on the lid faces the light. */}
       <g clip-path="url(#box-clip)" class="stamp">
-        <g transform="translate(104 188) rotate(-10)">
+        <g transform={`translate(${stamp.x} ${stamp.y}) rotate(-10)`}>
           <circle r="84" fill="#f26a21" filter="url(#sticker-shadow)"></circle>
           <circle r="75" fill="none" stroke="#161412" stroke-width="1.4" stroke-dasharray="2 3"></circle>
           <text y="4" text-anchor="middle" class="stamp-num">{products.length}</text>
@@ -237,6 +226,13 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
         </g>
         <polygon points={pts(top)} fill="#fff" opacity="0.16" clip-path="url(#sticker-clip)"></polygon>
         <line x1={front[0][0]} y1={front[0][1]} x2="200" y2={front[0][1]} stroke="#fff" stroke-opacity="0.35" clip-path="url(#sticker-clip)"></line>
+      </g>
+
+      {/* Not printed on the box. It sits above all box art. */}
+      <g mask="url(#drawing-mask)">
+        <g transform={photoTransform}>
+          <ManifoldDrawing />
+        </g>
       </g>
     </svg>
 
@@ -254,7 +250,7 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
       ))
     }
 
-    {/* A real button over the whole box: the print text stays decoration, the button has its own name. */}
+    {/* A real button over the whole box: the label and tape text stay decoration, the button has its own name. */}
     <button type="button" class="stage-btn" data-stage-btn aria-pressed="false">
       <span class="visually-hidden">Zajrzyj do środka pudełka z rozdzielaczem {product.code}</span>
     </button>
@@ -277,7 +273,7 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
     stage.setAttribute('data-js', '');
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
-    // Over the printed label column (from 62% of the width) the lenses close, so the brand stays readable.
+    // Over the label the lenses close, so the brand stays readable.
     const LABEL_ZONE = 0.62;
     const AUTO_RESUME_MS = 1800;
     const FOLLOW = [0.3, 0.22, 0.18, 0.15];
@@ -433,15 +429,6 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
     overflow: visible;
   }
 
-  .stage :global(.print-img) {
-    position: absolute;
-    max-width: none;
-    height: auto;
-    pointer-events: none;
-    mix-blend-mode: multiply;
-    opacity: 0.92;
-  }
-
   .board {
     position: absolute;
     inset: 0;
@@ -459,15 +446,48 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
     mix-blend-mode: soft-light;
   }
 
-  .svg-mono {
-    font-family: 'IBM Plex Mono', ui-monospace, monospace;
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
+  /* White polypropylene tape. Each face takes the light of the board under it. */
+  .tape-base {
+    fill: #f2ede4;
   }
 
-  .svg-small {
-    font-size: 12.5px;
+  .tape-front .tape-base {
+    fill: #e6dfd3;
+  }
+
+  .tape-side .tape-base {
+    fill: #c8bead;
+  }
+
+  .tape-groove {
+    stroke: #6b5843;
+    stroke-opacity: 0.22;
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .tape-ink {
+    fill: #1d1a17;
+    font-family: 'Archivo Subset', sans-serif;
+    font-stretch: 72%;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+
+  .cutout {
+    fill: #000;
+    stroke: #000;
+    stroke-width: 14;
+    stroke-linejoin: round;
+  }
+
+  .tape-edge {
+    fill: none;
+    stroke: #4a3520;
+    stroke-opacity: 0.28;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
   }
 
   .stamp {
@@ -500,59 +520,83 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
     opacity: 0;
   }
 
-  .print {
+  .label {
     position: absolute;
-    left: 67.2%;
-    top: 30%;
-    bottom: 22%;
-    width: 21.7%;
+    left: 66.6%;
+    top: 30.4%;
+    width: 22.6%;
     display: flex;
     flex-direction: column;
-    color: #231a12;
-    mix-blend-mode: multiply;
+    padding: 1.5cqw 1.5cqw 1.2cqw;
+    border-radius: 0.3cqw;
+    background: linear-gradient(170deg, #fbf9f4, #efeae1);
+    color: #1d1a17;
+    box-shadow:
+      0 0.08cqw 0.16cqw rgb(42 20 8 / 0.32),
+      0.2cqw 0.6cqw 1.2cqw -0.2cqw rgb(42 20 8 / 0.22);
+    /* Set on by hand. */
+    rotate: -0.7deg;
+    pointer-events: none;
   }
 
-  .print-brand {
+  .label-brand {
     font-family: 'Archivo Subset', sans-serif;
     font-stretch: 72%;
     font-weight: 800;
-    font-size: calc(6.4cqw * var(--fit, 1));
-    line-height: 0.92;
+    font-size: calc(5.4cqw * var(--fit, 1));
+    line-height: 1;
     letter-spacing: -0.01em;
     overflow: hidden;
   }
 
-  .print-sub {
-    margin-top: 1.4cqw;
+  .label-sub {
+    margin-top: 1.2cqw;
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
-    font-size: 1.35cqw;
+    font-size: 1.2cqw;
     font-weight: 600;
     line-height: 1.35;
     text-transform: uppercase;
     letter-spacing: 0.03em;
   }
 
-  .print-spec {
-    margin-top: auto;
+  .label-spec {
+    margin-top: 1.8cqw;
     border-top: 0.2cqw solid currentColor;
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
-    font-size: 1.3cqw;
+    font-size: 1.15cqw;
   }
 
-  .print-spec div {
+  .label-spec div {
     display: flex;
     justify-content: space-between;
     gap: 1cqw;
-    padding-block: 0.55cqw;
+    padding-block: 0.5cqw;
     border-bottom: 0.1cqw solid currentColor;
   }
 
-  .print-spec dt {
+  .label-spec dt {
     text-transform: uppercase;
   }
 
-  .print-spec dd {
+  .label-spec dd {
     font-weight: 600;
+  }
+
+  .label-code {
+    display: block;
+    width: 100%;
+    height: 3.4cqw;
+    margin-top: 1.3cqw;
+    fill: currentColor;
+  }
+
+  .label-foot {
+    margin-top: 0.5cqw;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.95cqw;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
   /* Open box: the full X-ray wipes in as a circle. Without JavaScript, hover shows it. */

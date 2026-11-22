@@ -15,13 +15,12 @@ function fitHtml(el: HTMLElement) {
   el.style.setProperty('--fit', String(Math.min(1, el.clientWidth / el.scrollWidth)));
 }
 
+// Scales the whole name, so a long name gets smaller but keeps its letter shapes.
 function fitSvg(el: SVGTextElement) {
   const max = Number(el.dataset.brandFitSvg);
-  el.removeAttribute('textLength');
-  if (el.getComputedTextLength() > max) {
-    el.setAttribute('textLength', String(max));
-    el.setAttribute('lengthAdjust', 'spacingAndGlyphs');
-  }
+  el.style.removeProperty('font-size');
+  const length = el.getComputedTextLength();
+  if (length > max) el.style.fontSize = `${(parseFloat(getComputedStyle(el).fontSize) * max) / length}px`;
 }
 
 function inquiryHref(email: string): string {

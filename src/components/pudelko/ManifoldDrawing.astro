@@ -1,0 +1,158 @@
+---
+// RW-EZMPTR manifold. All coordinates are source pixels of its photo, so the drawing lines up with the X-ray.
+// BoxStage places it with photoTransform.
+const circuits = Array.from({ length: 5 }, (_, i) => 582.5 + i * 107.4);
+
+type Box = { x: number; y: number; w: number; h: number };
+const nut = (x: number, y: number, w: number, h: number): Box => ({ x, y, w, h });
+const nuts: Box[] = [
+  nut(300, 185, 35, 81),
+  nut(476, 187, 28, 79),
+  nut(1068, 183, 22, 84),
+  nut(187, 562, 85, 33),
+  nut(187, 648, 83, 32),
+  nut(301, 690, 42, 87),
+  nut(460, 690, 40, 87),
+  nut(1068, 689, 26, 88),
+];
+// Threaded nipples: the circuit outlets under both bars and the two outlets of the mixing group.
+const threads: Box[] = [
+  ...circuits.map((c) => ({ x: c - 27.5, y: 268, w: 55, h: 39 })),
+  ...circuits.map((c) => ({ x: c - 26, y: 776, w: 52, h: 39 })),
+  { x: 192, y: 782, w: 71, h: 33 },
+  { x: 365, y: 770, w: 70, h: 42 },
+];
+const brackets = [614, 932].map((x) => ({ x, w: 44, cx: x + 22 }));
+const gauges = [
+  { cx: 227, cy: 203, r: 43 },
+  { cx: 397, cy: 726, r: 44 },
+];
+const cap = (c: number) => `M${c - 39} 690V658Q${c - 39} 630 ${c - 14} 630H${c + 14}Q${c + 39} 630 ${c + 39} 658V690`;
+const handle = (c: number) =>
+  `M${c - 37} 69V40Q${c - 37} 36 ${c - 33} 36H${c - 22}Q${c - 18} 36 ${c - 18} 40V52H${c + 18}V40Q${c + 18} 36 ${c + 22} 36` +
+  `H${c + 33}Q${c + 37} 36 ${c + 37} 40V69Z`;
+const body = (c: number) => `M${c - 27} 182V135L${c - 23} 131H${c + 23}L${c + 27} 135V182`;
+---
+
+<defs>
+  {/* The brackets clamp over the bars and the caps, so their lines stop at a bracket. */}
+  <mask id="behind-brackets" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="900">
+    <rect width="1600" height="900" fill="#fff"></rect>
+    {brackets.map((b) => <rect x={b.x} y="143" width={b.w} height="679" fill="#000" />)}
+  </mask>
+</defs>
+
+<g class="tube" mask="url(#behind-brackets)">
+  <rect x="524" y="181" width="544" height="87" rx="5"></rect>
+  <rect x="524" y="690" width="544" height="86" rx="5"></rect>
+  <rect x="506" y="189" width="18" height="73"></rect>
+  <rect x="502" y="696" width="22" height="74"></rect>
+  <rect x="335" y="198" width="141" height="56"></rect>
+  <path d="M270 166H300V246"></path>
+  <rect x="201" y="595" width="56" height="53"></rect>
+  <path d="M263 706H301M263 760H301M343 706H353M343 760H353M441 706H460M441 760H460"></path>
+
+  {nuts.map((n) => <rect x={n.x} y={n.y} width={n.w} height={n.h} rx="2" />)}
+  {threads.map((t) => <rect x={t.x} y={t.y} width={t.w} height={t.h} rx="2" />)}
+
+  {
+    circuits.map((c) => (
+      <>
+        <path d={handle(c)} />
+        <rect x={c - 12.5} y="69" width="25" height="50" />
+        <rect x={c - 19} y="119" width="38" height="12" />
+        <path d={body(c)} />
+        <path d={cap(c)} />
+      </>
+    ))
+  }
+
+  <rect x="1090" y="202" width="13" height="46"></rect>
+  <rect x="1094" y="708" width="13" height="50"></rect>
+</g>
+
+<g class="tube">
+  {brackets.map((b) => <rect x={b.x} y="143" width={b.w} height="679" rx="8" />)}
+
+  <path d="M1103 285V165H1158V285Z"></path>
+  <rect x="1107" y="150" width="45" height="15" rx="2"></rect>
+  <path d="M1106 285V328Q1106 338 1116 338H1140V285"></path>
+  <circle cx="1172" cy="319" r="36"></circle>
+  <path d="M1107 800V672H1162V800Z"></path>
+  <rect x="1110" y="657" width="45" height="15" rx="2"></rect>
+  <path d="M1109 800V842Q1109 852 1119 852H1144V800"></path>
+  <circle cx="1180" cy="840" r="36"></circle>
+
+  <rect x="158" y="246" width="144" height="84" rx="4"></rect>
+  <path d="M166.3 330A102 102 0 0 0 185.1 505M287.7 330A102 102 0 0 1 268.9 505"></path>
+  <path d="M185.1 505H138V530Q138 545 153 545H315Q330 545 330 530V505H268.9"></path>
+  <rect x="200" y="545" width="62" height="17"></rect>
+  <rect x="190" y="685" width="73" height="97" rx="3"></rect>
+  <rect x="115" y="700" width="75" height="85" rx="16"></rect>
+
+  {gauges.map((g) => <circle cx={g.cx} cy={g.cy} r={g.r} />)}
+</g>
+
+<g class="fine">
+  {gauges.map((g) => <circle cx={g.cx} cy={g.cy} r={g.r - 6} />)}
+  <g mask="url(#behind-brackets)">
+    {nuts.map((n) => <path d={`M${n.x + n.w * 0.28} ${n.y}V${n.y + n.h}M${n.x + n.w * 0.72} ${n.y}V${n.y + n.h}`} />)}
+    {
+      threads.map((t) => (
+        <path d={[0.25, 0.5, 0.75].map((f) => `M${t.x} ${t.y + t.h * f}H${t.x + t.w}`).join('')} />
+      ))
+    }
+    {circuits.map((c) => <path d={`M${c - 39} 678H${c + 39}`} />)}
+  </g>
+  <path d="M130 714V771M145 708V777M160 708V777M175 714V771"></path>
+  {
+    brackets.flatMap((b) => [
+      ...[160, 296, 662, 804].map((y) => <circle cx={b.cx} cy={y} r="8" />),
+      ...[390, 526].map((y) => <circle cx={b.cx} cy={y} r="9" />),
+    ])
+  }
+  <circle cx="152" cy="522" r="6"></circle>
+  <circle cx="312" cy="522" r="6"></circle>
+</g>
+
+<g class="fine center">
+  <path d="M290 224.5H1110M262 733H1110M229 552V800"></path>
+  {circuits.map((c) => <path d={`M${c} 24V318M${c} 618V828`} />)}
+  {gauges.map((g) => <path d={`M${g.cx - g.r - 10} ${g.cy}H${g.cx + g.r + 10}M${g.cx} ${g.cy - g.r - 10}V${g.cy + g.r + 10}`} />)}
+  <path d="M227 300V524M113 412H341"></path>
+  <path d="M1172 271V367M1124 319H1220M1180 792V888M1132 840H1228"></path>
+</g>
+
+<style>
+  g {
+    fill: none;
+    stroke: var(--color-warm-grey-700, #5b3423);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  g * {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .tube {
+    stroke-width: clamp(0.75px, 0.12cqw, 1.3px);
+  }
+
+  .fine {
+    stroke-width: clamp(0.5px, 0.07cqw, 0.8px);
+    stroke-opacity: 0.75;
+  }
+
+  .center {
+    stroke-dasharray: 14 3 2 3;
+    stroke-opacity: 0.6;
+  }
+
+  /* On a small box the fine lines run together, so only the outlines stay. */
+  @container (max-width: 600px) {
+    .fine {
+      display: none;
+    }
+  }
+</style>

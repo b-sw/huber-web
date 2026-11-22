@@ -72,27 +72,36 @@ mail app), → marks the main action that stays on the page. The button style (d
 | `src/components/oem/OemStack.astro` | Exploded isometric view of an OEM manifold: belka, obwody, wyposażenie, oznaczenie, opakowanie. Unfolds while it scrolls in. Hover, focus or tap lifts the layers above one layer. Themed with `--stack-*` custom properties. Data in `src/data/oem.ts` |
 | `src/components/heat/HeatLoops.astro` | Underfloor-heating loops behind one section. A warm spot drifts over the pipes by itself and follows the cursor. Use it where there is little text |
 | `src/scripts/reveal.ts`, `src/styles/reveal.css` | Blocks and headline words enter from a soft blur, once. Off under reduced motion. A failsafe shows content if the script never runs |
-| `src/scripts/brand.ts` | One brand input updates the box print, the stack plates, stickers and the inquiry e-mail |
+| `src/scripts/brand.ts` | One brand input updates the box tape and label, the stack plates, stickers and the inquiry e-mail |
 
 ## The box hero
 
-- A kraft carton shows a halftone print of the RW-EZMPTR manifold and the visitor's brand.
-- The carton is drawn in layers: board faces with light, flute stripes and printed ink, then grey height maps
-  blended over the board (soft-light), then tape, edges and the sticker. The height maps keep the board colour and
-  break up the ink, like flexo print on kraft. The sticker is clipped to the box outline, so it wraps over the edges.
+- A plain kraft carton with the visitor's brand on the client's own packing tape and label. Huber does not print on
+  boxes. OEM clients send their tape and stickers.
+- The tape closes the lid in a +: one strip on the flap seam, one across the middle. Each strip has a flat frame
+  (`tapes` in `geometry.ts`), and each face it covers maps that frame onto the drawing. So the brand print continues
+  over the box edges and ends in the zigzag cut of a tape dispenser.
+- A technical drawing of the manifold in palette brown lies over the plain front, like an overlay, so the box shows
+  what it holds. `ManifoldDrawing.astro` draws clean parts (bars, valves, caps, brackets, pump, gauges) with centre
+  lines. Its coordinates are measured in the pixels of the product photo, so the drawing and the X-ray line up. It
+  stops with a small gap around the tape and the orange sticker, so their print stays clear. On a small box only the
+  outlines show.
+- The carton is drawn in layers: board faces with light and flute stripes, then grey height maps blended over the
+  board (soft-light), then the paper label, the tape, edges, the orange sticker and the drawing on top. The orange
+  sticker is clipped to the box outline, so it wraps over the edges.
 - An X-ray spot drifts over the box by itself and shows the real manifold inside. A cursor takes over and leaves a
-  trail of four shrinking circles. Over the printed label the circles close, so the brand stays readable.
+  trail of four shrinking circles. Over the label the circles close, so the brand stays readable.
 - A transparent button covers the box. Click, tap, Enter or Space opens the whole box.
 - Under reduced motion nothing moves by itself. The button still opens the box.
-- The visitor types a brand name in the OEM section. It prints on the box, on the bar sticker, and in the subject of the
-  inquiry e-mail. `src/scripts/brand.ts` owns that value. Every other element only reads it.
+- The visitor types a brand name in the OEM section. It appears on the box tape and label, on the bar sticker, and in
+  the subject of the inquiry e-mail. `src/scripts/brand.ts` owns that value. Every other element only reads it.
 
 Performance: each circle is a small round window with its own copy of the X-ray (`XrayLayer.astro`). The windows move
 only with `transform`, so the browser composites them on the GPU and paints nothing per frame. The first version
 rebuilt a mask of 14 gradients on every frame and drew the cardboard grain with a live SVG noise filter. Both forced
 full repaints. The grain is now a 38 KB WebP tile plus a 1 KB tone map (`scripts/kraft-grain.py`). Both are static
 blend layers, so the lenses still paint nothing per frame. The loop stops when the box is off screen or
-the tab is hidden. `geometry.ts` holds the shared frame, so the print and the photo line up by construction.
+the tab is hidden. `geometry.ts` holds the shared frame, so the box and the photo line up by construction.
 
 ## Why static rendering
 
@@ -138,7 +147,8 @@ with huber.info.pl in search results.
 
 These claims are new or inferred. Check them before launch:
 
-- OEM scope: branding on the manifold bar, custom packaging, configurable equipment.
+- OEM scope: branding on the manifold bar, configurable equipment. Packaging is confirmed: a plain box with the
+  client's tape and stickers, no print.
 - "Wysyłka do hurtowni w całej Polsce" and export.
 - Contact uses phone and e-mail links. The OEM link opens an e-mail with a template. There is no form on purpose.
 - A privacy-policy page (the current site has none).
@@ -153,10 +163,9 @@ src/
   data/             company.ts, products.json (12 products scraped from the live site), products.ts, oem.ts, paths.ts
   scripts/          brand.ts (brand name), reveal.ts (scroll reveal)
   styles/           reset, Archivo subset @font-face, reveal
-  assets/           photos, product PNGs, halftone print, kraft grain, subset fonts
+  assets/           photos, product PNGs, kraft grain, subset fonts
 scripts/
   subset-fonts.py   cuts Archivo to Latin + Polish glyphs (173 KB → 51 KB)
-  halftone.py       renders the halftone print on the box (only RW-EZMPTR is used)
   kraft-grain.py    renders the cardboard grain tile and tone map
 ```
 
