@@ -11,7 +11,7 @@ import VariantNav from '../../components/VariantNav.astro';
 import Icon from '../../components/Icon.astro';
 import Logo from '../../components/Logo.astro';
 import BoxStage from '../../components/pudelko/BoxStage.astro';
-import OemStack from '../../components/oem/OemStack.astro';
+import ManifoldExploded from '../../components/oem/ManifoldExploded.astro';
 import HeatLoops from '../../components/heat/HeatLoops.astro';
 import Header from '../../components/pudelko-witryna/Header.astro';
 import Category from '../../components/pudelko-witryna/Category.astro';
@@ -164,9 +164,9 @@ const year = new Date().getFullYear();
             <span class="brand-label">Twoja marka</span>
             <input type="text" data-brand-input placeholder="wpisz nazwę" autocomplete="organization" spellcheck="false" />
           </label>
-          <p class="note">Nazwa pojawi się na warstwach, na zdjęciu belki niżej i na pudełku u góry strony.</p>
+          <p class="note">Nazwa pojawi się na rozdzielaczu, na zdjęciu belki niżej i na pudełku u góry strony.</p>
         </div>
-        <OemStack />
+        <ManifoldExploded />
       </div>
 
       <div class="oem-proof">
@@ -424,7 +424,7 @@ const year = new Date().getFullYear();
     font-family: var(--display);
     font-stretch: 72%;
     font-weight: 700;
-    font-size: clamp(44px, 6.4vw, 100px);
+    font-size: clamp(40px, 5vw, 76px);
     line-height: 0.82;
     letter-spacing: -0.01em;
     text-transform: uppercase;
@@ -709,24 +709,10 @@ const year = new Date().getFullYear();
     margin-top: clamp(32px, 4vw, 56px);
   }
 
-  .oem-stack-wrap {
-    position: relative;
-  }
-
+  /* Centered over the model, in the same column as the legend under it. */
   .brand-field {
-    margin-bottom: 32px;
-  }
-
-  /* The field sits above the layer labels, where the drawing leaves the column empty. */
-  @media (min-width: 960px) {
-    .brand-field {
-      position: absolute;
-      z-index: 1;
-      top: 0;
-      left: 58.333%;
-      right: 0;
-      margin: 0;
-    }
+    max-width: 34rem;
+    margin: 0 auto 32px;
   }
 
   .brand-line {
@@ -786,6 +772,7 @@ const year = new Date().getFullYear();
     font-size: 12px;
     line-height: 1.5;
     color: var(--ink-2);
+    text-wrap: pretty;
   }
 
   .oem-stack-wrap {
@@ -794,19 +781,11 @@ const year = new Date().getFullYear();
     --stack-line: color-mix(in oklab, var(--ink) 12%, transparent);
     --stack-line-strong: color-mix(in oklab, var(--ink) 32%, transparent);
     --stack-plate: var(--surface);
-    --stack-plate-edge: var(--line-2);
     --stack-accent: var(--kraft);
     --stack-accent-ink: var(--kraft-ink);
     --stack-shadow: color-mix(in oklab, var(--ink) 12%, transparent);
     --stack-mono: var(--mono);
-    --stack-display: 'Archivo Subset';
-    /* Room for the plates that lift away when a lower layer is chosen. */
     margin-top: clamp(32px, 5vw, 72px);
-  }
-
-  /* The stack widens its drawing on narrow screens. The reset caps svg at 100%, so lift the cap here. */
-  .oem-stack-wrap :global(.stack-art) {
-    max-width: none;
   }
 
   /* The second column starts on the same line as the layer labels and the brand field above. */
@@ -1002,7 +981,7 @@ const year = new Date().getFullYear();
     font-family: var(--display);
     font-stretch: 72%;
     font-weight: 700;
-    font-size: clamp(40px, 5.4vw, 80px);
+    font-size: clamp(40px, 5vw, 76px);
     line-height: 0.9;
     letter-spacing: -0.005em;
     font-variant-numeric: tabular-nums;
