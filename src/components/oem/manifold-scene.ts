@@ -1,9 +1,9 @@
 // Renders the exploded manifold and reports where each part sits on screen.
 // The page owns the labels. This module only draws, picks parts under the pointer and projects anchors.
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import type { PartId } from '../../data/manifold';
 import { buildManifold, type Anchor } from './manifold-model';
+import { studio } from './manifold-shading';
 
 export interface Frame {
   // Spread of the parts: 0 assembled, 1 fully apart.
@@ -62,7 +62,7 @@ export function mountManifold({ canvas, still, progress, onPick, onFrame }: Opti
 
   const scene = new THREE.Scene();
   const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.environment = pmrem.fromScene(studio(), 0.02, 0.1, 100, { size: 512 }).texture;
   pmrem.dispose();
   const key = new THREE.DirectionalLight(0xfff2e2, 1.6);
   key.position.set(-300, 500, 400);
@@ -95,6 +95,14 @@ export function mountManifold({ canvas, still, progress, onPick, onFrame }: Opti
   const corners = cornersOf(spread);
 
   const camera = new THREE.PerspectiveCamera(FOV, 1, 10, 6000);
+  // A highlight fades the other parts, which needs other shader variants. Compile them now, not on the first hover.
+  // The second pass fades the part that the first pass kept solid.
+  const [first, second] = new Set(model.pieces.map((piece) => piece.part));
+  for (const part of [first, second]) {
+    model.highlight(part);
+    renderer.compile(scene, camera);
+  }
+  model.highlight(null);
   let width = 1;
   let height = 1;
   let fill = 0.44;
