@@ -3,7 +3,7 @@
 New website for [huber.info.pl](https://www.huber.info.pl), a family manufacturer of underfloor-heating manifolds
 (rozdzielacze do podłogówki) from Nowa Wieś near Włocławek. It replaces the WordPress site.
 
-This first stage contains two home-page proposals. Both put the product range and the new OEM offer first.
+This first stage contains the home page. It puts the product range and the new OEM offer first.
 
 Preview: **https://b-sw.github.io/huber-web/** (every push to `main` deploys it).
 
@@ -24,45 +24,41 @@ npm run check     # type check
 
 | Path | What it is |
 | --- | --- |
-| `/` | Overview of the proposals |
-| `/warianty/pudelko-witryna/` | The box hero on a white shop-window page: logo in a notch, big product tiles |
-| `/warianty/pudelko-siatka/` | The box hero in a hairline grid (bestboy.dev style) |
+| `/` | The home page: the box hero in a hairline grid (bestboy.dev style) |
+| `/warianty/pudelko-siatka/` | Redirects to `/`. The chosen proposal had this preview address |
 
-Both pages use one background colour for the whole page, slightly rounded buttons and no contact forms. The header
-stays visible at all times and holds only section links. Earlier rounds were removed (copies are outside the repo).
-
-Two review tools sit on top of the design. Remove both when one direction is chosen:
-
-- `VariantNav`, the thin black bar at the top, switches between proposals.
-- `StylePicker`, the "Styl" button in that bar, switches the button style (Płaski, Wypukły, Uniesiony, Druk) and,
-  on the shop-window page, the headline highlight (Taśma, Marker, Płaskie). The choice sits on `<html>` as
-  `data-btn` and `data-tape`. When one style is chosen, move its rules into the pages and remove the picker.
+The page uses one background colour, slightly rounded buttons and no contact forms. The header stays visible at all
+times and holds only section links. The other proposals, the review bar and the style picker were removed. Git
+history keeps them.
 
 ## Colours
 
-`src/styles/palette.css` holds one toned warm grey ramp (hue 44) from
-[The 1-minute color system](https://simn.so/the-1-minute-color-system). Each page maps its colour roles to ramp steps:
-background 50, surfaces 100–150, lines 150–200, text 600–900, buttons 700 with 50 text. Only the headline tape and
-small brand marks use step 500, so text never takes the highlight colour. Every text step keeps at least 6.8:1
+`src/styles/palette.css` holds one toned orange ramp (hue 49) from
+[The 1-minute color system](https://simn.so/the-1-minute-color-system). The page maps its colour roles to ramp steps:
+background 50, surfaces 100–150, lines 150–200, text 550–900, buttons 600 with 50 text. Only small brand marks use
+step 500, so text never takes the highlight colour. Every text step keeps at least 5.8:1
 contrast on the background.
 
 The kraft box, the product photos and the orange sticker keep their real colours. They show physical objects.
 
 ## Buttons and links
 
-Both variants use three levels:
+The page uses three levels:
 
 | Level | Look | Used for |
 | --- | --- | --- |
-| Primary | Filled with step 700 | One main action per area: KONTAKT in the header, "Zobacz asortyment" in the hero, "Napisz zapytanie OEM" |
-| Secondary | Light outline that darkens on hover, same size as the primary | "Zapytaj o OEM", "Jak działa OEM", "Opisz, czego potrzebujesz", the menu button, and the small "Indeksy i wymiary" and "Zwiń tabelę" |
+| Primary | Filled with step 600 | One main action per area: "Zobacz asortyment" in the hero, "Napisz zapytanie OEM" |
+| Secondary | Light face with an edge that darkens on hover, same size as the primary | "Zapytaj o OEM", the menu button, and the small "Indeksy i wymiary" and "Zwiń tabelę" |
 | Tertiary | Text link, class `.t-link` from `src/styles/links.css` | Indeks toggles, product cards, map, phone and e-mail, "Do góry" |
 
 Buttons are 40px in the page and 36px in the header and for small secondary buttons. On phones they are 44px.
 A tertiary link has a light underline that turns solid on hover, and its arrow moves (`.t-link--out` moves it up
 and right). Hover never changes a background colour. Arrows: ↗ marks a link that leaves the page (product card, map,
-mail app), → marks the main action that stays on the page. The button style (depth and motion) comes from
-`StylePicker`.
+mail app), → marks the main action that stays on the page.
+
+`src/styles/buttons.css` owns the button colours, depth and motion. A button sits on a darker base, like a key. It
+rises on hover and sinks on press. An open catalog toggle stays pressed in. Each component keeps its own size and
+font.
 
 ## Shared parts
 
@@ -110,18 +106,18 @@ no JavaScript (the hero, catalog and brand field use small inline scripts). The 
 the current Apache hosting or any static host. If a page needs a server later (for example a contact form that sends
 email), add an Astro server adapter and render only that route on demand.
 
-Lighthouse, mobile, 21 Nov 2026 (live site vs the new pages served locally):
+Lighthouse, mobile, 21 Nov 2026 (live site vs the new page served locally):
 
-| | Live WordPress | Pudełko × Witryna | Pudełko × Siatka |
-| --- | --- | --- | --- |
-| Performance | 80 | 92 | 92 |
-| Accessibility | 96 | 100 | 100 |
-| Best practices | 73 | 100 | 100 |
-| SEO | 92 | 69* | 69* |
-| First contentful paint | 2.2 s | 0.8 s | 0.8 s |
-| Total blocking time | 410 ms | 0 ms | 30 ms |
-| Page weight | 2394 KiB | 579 KiB | 471 KiB |
-| Requests | 78 | 25 | 25 |
+| | Live WordPress | New home page |
+| --- | --- | --- |
+| Performance | 80 | 92 |
+| Accessibility | 96 | 100 |
+| Best practices | 73 | 100 |
+| SEO | 92 | 69* |
+| First contentful paint | 2.2 s | 0.8 s |
+| Total blocking time | 410 ms | 30 ms |
+| Page weight | 2394 KiB | 471 KiB |
+| Requests | 78 | 25 |
 
 \* The only failing SEO check is "page is blocked from indexing". The preview is `noindex` on purpose.
 
@@ -157,12 +153,12 @@ These claims are new or inferred. Check them before launch:
 
 ```
 src/
-  pages/            index and /warianty/* proposals
-  components/       Logo, Icon, VariantNav, StylePicker, pudelko/ (box hero), oem/, heat/, pudelko-witryna/, pudelko-siatka/
+  pages/            index.astro, the home page
+  components/       Logo, Icon, pudelko/ (box hero), oem/, heat/, pudelko-siatka/ (page sections)
   layouts/Base.astro  head tags, canonical, Open Graph, JSON-LD, noindex during the preview
   data/             company.ts, products.json (12 products scraped from the live site), products.ts, oem.ts, paths.ts
   scripts/          brand.ts (brand name), reveal.ts (scroll reveal)
-  styles/           reset, Archivo subset @font-face, reveal
+  styles/           reset, palette, buttons, links, Archivo subset @font-face, reveal
   assets/           photos, product PNGs, kraft grain, subset fonts
 scripts/
   subset-fonts.py   cuts Archivo to Latin + Polish glyphs (173 KB → 51 KB)

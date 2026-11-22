@@ -1,230 +1,1144 @@
 ---
+import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
+import '../styles/archivo-subset.css';
+import '../styles/reveal.css';
+import '../styles/palette.css';
+import '../styles/links.css';
+import '../styles/buttons.css';
+import { Image, getImage } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
 import Logo from '../components/Logo.astro';
-import { variants } from '../data/variants';
-import { withBase } from '../data/paths';
+import BoxStage from '../components/pudelko/BoxStage.astro';
+import ManifoldExploded from '../components/oem/ManifoldExploded.astro';
+import HeatLoops from '../components/heat/HeatLoops.astro';
+import Header, { type NavLink } from '../components/pudelko-siatka/Header.astro';
+import Label from '../components/pudelko-siatka/Label.astro';
+import Rule from '../components/pudelko-siatka/Rule.astro';
+import Range from '../components/pudelko-siatka/Range.astro';
+import Whose from '../components/pudelko-siatka/Whose.astro';
+import { company } from '../data/company';
+import { byMaterial, circuitRange, materials, productImage, productUrl, products } from '../data/products';
+import factory from '../assets/photos/factory.jpg';
 
-const audiences = [
+const TOTAL = 6;
+const all = circuitRange(products);
+const brass = circuitRange(byMaterial('mosiadz'));
+const inox = circuitRange(byMaterial('inox'));
+
+const links: NavLink[] = [
+  { id: 'asortyment', n: 2, label: 'Asortyment', long: 'Asortyment' },
+  { id: 'oem', n: 3, label: 'OEM', long: 'Pod Twoją marką (OEM)' },
+  { id: 'jak-to-dziala', n: 4, label: 'Jak to działa', long: 'Jak to działa' },
+  { id: 'o-firmie', n: 5, label: 'O firmie', long: 'O firmie' },
+];
+
+const steps = [
   {
-    name: 'Hurtownie instalacyjne',
-    note: 'Główny klient. Kupują w ilościach, cenią stałe dostawy i wsparcie techniczne.',
+    title: 'Konfiguracja',
+    text: `Wybierasz zestaw z katalogu albo opisujesz własny. Mosiądz albo inox, od ${all.min} do ${all.max} obwodów.`,
   },
+  { title: 'Oznaczenie', text: 'Na belce rozdzielacza umieszczamy oznaczenie Twojej marki zamiast naszego.' },
+  { title: 'Produkcja', text: 'Składamy rozdzielacze w naszym zakładzie w Nowej Wsi pod Włocławkiem.' },
   {
-    name: 'Instalatorzy',
-    note: 'Wybierają rozdzielacz na budowie lub przy ladzie w hurtowni. Szukają indeksu i wymiarów, często na telefonie.',
-  },
-  {
-    name: 'Inwestorzy i właściciele domów',
-    note: 'Nie kupują bezpośrednio, ale szukają w Google i proszą instalatora o konkretną markę.',
-  },
-  {
-    name: 'Marki OEM i dystrybutorzy z zagranicy',
-    note: 'Zamawiają konfiguracje pod własną marką. Potrzebują jasnego procesu i kontaktu handlowego.',
+    title: 'Opakowanie i dostawa',
+    text: 'Pudełka zaklejamy Twoją taśmą i Twoimi naklejkami. Dostarczamy terminowo, do sprzedaży pod Twoją marką.',
   },
 ];
+
+const facts = [
+  { k: 'Założona', v: String(company.foundingYear) },
+  { k: 'Siedziba', v: company.address.village },
+  { k: 'Produkcja', v: 'Rozdzielacze z mosiądzu i ze stali nierdzewnej' },
+  { k: 'Odbiorcy', v: 'Hurtownie w Polsce i za granicą' },
+];
+
+const barPhoto = await getImage({ src: productImage('rw-pt'), width: 1600, format: 'webp' });
+
+const itemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Rozdzielacze do ogrzewania podłogowego Huber',
+  itemListElement: products.map((p, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'Product',
+      name: `Rozdzielacz ${p.code}`,
+      description: p.title,
+      sku: p.code,
+      brand: { '@type': 'Brand', name: company.name },
+      material: materials[p.material].label,
+      url: productUrl(p.slug),
+    },
+  })),
+};
+
+const year = new Date().getFullYear();
 ---
 
 <Base
-  title="Huber – propozycje nowej strony"
-  description="Pięć wariantów strony głównej huber.info.pl do porównania."
-  path="/"
-  noindex
+  title="Rozdzielacze do podłogówki od producenta. OEM pod Twoją marką | Huber"
+  description={`Producent rozdzielaczy do ogrzewania podłogowego od ${company.foundingYear} roku. ${products.length} konfiguracji z mosiądzu i inoxu, ${all.min}–${all.max} obwodów, tabele indeksów. Nowość: produkcja OEM pod Twoją marką.`}
+  themeColor="#fff8f5"
+  ogImage={productImage('rw-ezmptr')}
+  jsonLd={[itemList]}
 >
-  <main class="page">
-    <header class="head">
-      <Logo height={26} />
-      <h1>Nowa strona huber.info.pl. Propozycje strony głównej.</h1>
-      <p>
-        Dwa warianty z kartonowym pudełkiem w nagłówku: asortyment i nowa oferta OEM na pierwszym planie, informacje o
-        firmie w tle. Przycisk „Kolory” w lewym dolnym rogu wariantu zmienia paletę barw. Każdy wariant używa prawdziwych
-        danych i zdjęć z obecnej strony.
-      </p>
-    </header>
+  <script is:inline slot="head">document.documentElement.classList.add('reveal-on');</script>
 
-    <section aria-labelledby="who">
-      <h2 id="who">Kto odwiedza stronę</h2>
-      <ul class="audiences" role="list">
-        {
-          audiences.map((a) => (
-            <li>
-              <strong>{a.name}</strong>
-              <span>{a.note}</span>
-            </li>
-          ))
-        }
-      </ul>
-    </section>
+  <div class="ps" id="top">
+    <div class="ps-frame" aria-hidden="true"></div>
 
-    <section aria-labelledby="variants">
-      <h2 id="variants">Warianty</h2>
-      <ol class="variants" role="list">
-        {
-          variants.map((v, i) => (
-            <li>
-              <a href={withBase(`/warianty/${v.slug}/`)} class="card">
-                <span class="swatches" aria-hidden="true">
-                  {v.palette.map((c) => (
-                    <span style={`background:${c}`} />
-                  ))}
-                </span>
-                <span class="num">Wariant {i + 1}</span>
-                <span class="name">{v.name}</span>
-                <span class="for">Dla: {v.audience}</span>
-                <span class="idea">{v.idea}</span>
-                <span class="fonts">Fonty: {v.fonts}</span>
-                <span class="open">Otwórz wariant →</span>
-              </a>
-            </li>
-          ))
-        }
-      </ol>
-    </section>
+    <Header links={links} />
 
-    <p class="note">Podgląd roboczy. Wyszukiwarki nie indeksują tych stron.</p>
-  </main>
+    <main>
+      <section class="hero" aria-labelledby="hero-h">
+        <div class="ps-wrap stage-cell">
+          <div class="hero-stage">
+            <BoxStage />
+          </div>
+        </div>
+
+        <div class="ps-rule"><Rule delay={500} /></div>
+
+        <div class="ps-wrap hero-head">
+          <Label n={1} total={TOTAL} text={`Producent rozdzielaczy od ${company.foundingYear}`} />
+          <div class="hero-row">
+            <h1 class="ps-h1" id="hero-h" data-reveal="words">
+              <span>Rozdzielacze do podłogówki.</span>{' '}
+              <span class="ps-tone">Pod Twoją marką.</span>
+            </h1>
+            <div class="hero-side" data-reveal style="--d: 260">
+              <div class="ps-btns">
+                <a class="ps-btn ps-btn--ink" href="#asortyment">
+                  Zobacz asortyment
+                  <Icon name="arrow-right" size={16} strokeWidth={2} />
+                </a>
+                <a class="ps-btn" href="#oem">Zapytaj o OEM</a>
+              </div>
+              <p class="hero-meta">
+                {products.length} konfiguracji · mosiądz i inox · <span class="nw">{all.min}–{all.max} obwodów</span><br />
+                Każdą wykonamy też pod Twoją marką.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps-sec" id="asortyment" aria-labelledby="asortyment-h">
+        <Rule wait />
+        <div class="ps-wrap">
+          <div class="ps-head">
+            <Label n={2} total={TOTAL} text="Asortyment" />
+            <div class="ps-split">
+              <h2 class="ps-h2" id="asortyment-h" data-reveal="words">
+                <span>{products.length} konfiguracji.</span>{' '}
+                <span class="ps-tone">Mosiądz i inox.</span>
+              </h2>
+              <p class="ps-lead" data-reveal style="--d: 150">
+                Mosiądz od {brass.min} do {brass.max} obwodów, inox od {inox.min} do {inox.max}. Inną konfigurację wykonamy
+                na zamówienie.
+              </p>
+            </div>
+          </div>
+          <Range />
+        </div>
+      </section>
+
+      <section class="ps-sec" id="oem" aria-labelledby="oem-h">
+        <Rule wait />
+        <div class="ps-wrap">
+          <div class="ps-head">
+            <Label n={3} total={TOTAL} text="OEM · Nowość" />
+            <div class="ps-split">
+              <h2 class="ps-h2" id="oem-h" data-reveal="words">
+                <span>Twoja marka na wierzchu.</span>{' '}
+                <span class="ps-tone">Nasza produkcja pod spodem.</span>
+              </h2>
+              <p class="ps-lead" data-reveal style="--d: 150">
+                Twoje oznaczenie trafia na belkę, a Twoja taśma i naklejki na pudełko.
+              </p>
+            </div>
+          </div>
+
+          <Whose />
+
+          <div class="stack-cell" data-reveal>
+            <ManifoldExploded />
+          </div>
+
+          <div class="proof">
+            <figure class="bar" data-reveal>
+              <div class="bar-crop">
+                <img
+                  src={barPhoto.src}
+                  alt="Zbliżenie belki rozdzielacza z miejscem na naklejkę marki"
+                  width="1600"
+                  height="900"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span class="bar-sticker"><span data-brand data-brand-fit>TWOJA MARKA</span></span>
+              </div>
+              <figcaption>Oznaczenie na belce. Tu pojawi się Twoja marka.</figcaption>
+            </figure>
+            <div class="ask">
+              <p class="ps-kicker" data-reveal>Zapytanie OEM</p>
+              <p class="ask-t" data-reveal style="--d: 80">Napisz, jakie zestawy i ilości Cię interesują.</p>
+              <p class="ask-p" data-reveal style="--d: 140">
+                Otworzy się e-mail z gotowym szablonem. Nazwa Twojej marki będzie w temacie wiadomości.
+              </p>
+              <div class="ask-cta" data-reveal style="--d: 200">
+                <a class="ps-btn ps-btn--ink" href={`mailto:${company.email}`} data-brand-mailto={company.email}>
+                  Napisz zapytanie OEM
+                  <Icon name="arrow-up-right" size={16} strokeWidth={2} />
+                </a>
+                <p class="ask-p">
+                  Albo zadzwoń: <a class="ask-tel t-link" href={company.phoneHref}>{company.phone}</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps-sec" id="jak-to-dziala" aria-labelledby="jak-h">
+        <Rule wait />
+        <div class="ps-wrap">
+          <div class="ps-head">
+            <Label n={4} total={TOTAL} text="Jak to działa" />
+            <div class="ps-split">
+              <h2 class="ps-h2" id="jak-h" data-reveal="words">
+                <span>Od katalogu do Twojego pudełka.</span>{' '}
+                <span class="ps-tone">W czterech krokach.</span>
+              </h2>
+              <p class="ps-lead" data-reveal style="--d: 150">
+                Na każdym etapie rozmawiasz bezpośrednio z producentem.
+              </p>
+            </div>
+          </div>
+
+          <div class="steps-wrap" data-steps>
+            <span class="steps-line" aria-hidden="true"></span>
+            <ol class="steps" role="list">
+              {
+                steps.map((s, i) => (
+                  <li class="step" data-step data-reveal style={`--d: ${i * 90}`}>
+                    <span class="step-n">{String(i + 1).padStart(2, '0')}</span>
+                    <h3 class="step-t">{s.title}</h3>
+                    <p class="step-p">{s.text}</p>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps-sec" id="o-firmie" aria-labelledby="o-firmie-h">
+        <Rule wait />
+        <div class="ps-wrap">
+          <div class="ps-head">
+            <Label n={5} total={TOTAL} text="O firmie" />
+            <div class="ps-split">
+              <h2 class="ps-h2" id="o-firmie-h" data-reveal="words">
+                <span>Rodzinna firma.</span>{' '}
+                <span class="ps-tone">Od {company.foundingYear} roku.</span>
+              </h2>
+              <p class="ps-lead" data-reveal style="--d: 150">
+                Obrabiamy metal i składamy rozdzielacze u siebie.
+              </p>
+            </div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-photo" data-reveal>
+              <Image
+                src={factory}
+                alt="Montaż mosiężnych belek rozdzielaczy w zakładzie Huber"
+                widths={[480, 720, 960, 1400]}
+                sizes="(min-width: 1000px) 660px, 100vw"
+              />
+            </div>
+            <dl class="facts">
+              {
+                facts.map((f, i) => (
+                  <div data-reveal style={`--d: ${i * 70}`}>
+                    <dt>{f.k}</dt>
+                    <dd>{f.v}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="ps-sec" id="kontakt" aria-labelledby="kontakt-h">
+        <Rule wait />
+        <div class="ps-wrap">
+          <div class="ps-head ps-head--loops">
+            <HeatLoops id="ps-loops" />
+            <Label n={6} total={TOTAL} text="Kontakt" />
+            <div class="ps-split">
+              <h2 class="ps-h2" id="kontakt-h" data-reveal="words">
+                <span>Zadzwoń albo napisz.</span>{' '}
+                <span class="ps-tone">Odpowiada producent.</span>
+              </h2>
+              <p class="ps-lead" data-reveal style="--d: 150">
+                Zapytaj o indeksy, dostępność albo produkcję pod Twoją marką.
+              </p>
+            </div>
+          </div>
+
+          <div class="contact">
+            <ul class="c-list" role="list">
+              <li data-reveal>
+                <a class="c-link" href={company.phoneHref}>
+                  <span class="c-k">Telefon</span>
+                  <span class="c-v t-link">{company.phone}</span>
+                  <Icon name="arrow-up-right" size={22} strokeWidth={1.5} />
+                </a>
+              </li>
+              <li data-reveal style="--d: 70">
+                <a class="c-link" href={`mailto:${company.email}`}>
+                  <span class="c-k">E-mail</span>
+                  <span class="c-v t-link">{company.email}</span>
+                  <Icon name="arrow-up-right" size={22} strokeWidth={1.5} />
+                </a>
+              </li>
+              <li class="c-addr" data-reveal style="--d: 140">
+                <span class="c-k">Adres</span>
+                <address>
+                  {company.name}, {company.address.street}<br />
+                  {company.address.village}, {company.address.postalCode} {company.address.city}
+                </address>
+                <a class="ps-arrow t-link t-link--out" href={company.mapUrl}>
+                  Mapa dojazdu
+                  <Icon name="arrow-up-right" size={15} strokeWidth={2} />
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="ps-sec foot">
+      <Rule wait />
+      <div class="ps-wrap foot-in">
+        <Logo ink="var(--ink)" paper="var(--bg)" height={20} />
+        <p>© {year} {company.name} · {company.tagline}</p>
+        <a class="t-link" href="#top">Do góry ↑</a>
+      </div>
+    </footer>
+  </div>
 </Base>
 
-<style>
-  :global(body) {
-    background: #f4f4f2;
-    color: #18181b;
-    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+<script>
+  import { initBrand } from '../scripts/brand';
+  import { initReveal } from '../scripts/reveal';
+
+  initBrand();
+  initReveal();
+
+  const wrap = document.querySelector<HTMLElement>('[data-steps]');
+  const steps = wrap ? [...wrap.querySelectorAll<HTMLElement>('[data-step]')] : [];
+  if (wrap && steps.length) {
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const set = (t: number) => {
+      wrap.style.setProperty('--t', t.toFixed(4));
+      const across = steps[0]!.offsetTop === steps[steps.length - 1]!.offsetTop;
+      steps.forEach((step) => {
+        const at = across ? (step.offsetLeft - steps[0]!.offsetLeft) / wrap.offsetWidth : step.offsetTop / wrap.offsetHeight;
+        step.toggleAttribute('data-lit', t > at + 0.01);
+      });
+    };
+    if (still) set(1);
+    else {
+      let queued = false;
+      const update = () => {
+        queued = false;
+        const rect = wrap.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const across = steps[0]!.offsetTop === steps[steps.length - 1]!.offsetTop;
+        const t = across ? (vh * 0.9 - rect.top) / (vh * 0.45) : (vh * 0.8 - rect.top) / rect.height;
+        set(Math.min(1, Math.max(0, t)));
+      };
+      const onScroll = () => {
+        if (!queued) {
+          queued = true;
+          requestAnimationFrame(update);
+        }
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      update();
+    }
+  }
+</script>
+
+<style is:global>
+  html {
+    background: var(--color-warm-grey-50);
   }
 
-  .page {
-    width: min(1120px, 100% - 2.5rem);
-    margin-inline: auto;
-    padding-block: 56px 72px;
-    display: grid;
-    gap: 56px;
+  html.ps-lock {
+    overflow: hidden;
   }
 
-  .head {
-    display: grid;
-    gap: 20px;
-    max-width: 760px;
+  body {
+    background: var(--color-warm-grey-50);
+    color: var(--color-warm-grey-900);
   }
 
-  h1 {
-    font-size: clamp(1.75rem, 4vw, 2.75rem);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    text-wrap: balance;
+  .ps {
+    --bg: var(--color-warm-grey-50);
+    --raised: color-mix(in oklab, var(--color-warm-grey-50) 40%, #fff);
+    --ink: var(--color-warm-grey-900);
+    --ink-2: var(--color-warm-grey-750);
+    --muted: var(--color-warm-grey-700);
+    --soft: var(--color-warm-grey-650);
+    --tone: var(--color-warm-grey-600);
+    --line: var(--color-warm-grey-150);
+    --line-2: var(--color-warm-grey-200);
+    --plus: var(--color-warm-grey-300);
+    --kraft: var(--color-warm-grey-500);
+    --kraft-ink: var(--color-warm-grey-700);
+    --action: var(--color-warm-grey-600);
+    --on-action: var(--color-warm-grey-50);
+    --action-edge: var(--color-warm-grey-800);
+    --ink-accent: var(--color-warm-grey-750);
+    --tone-accent: var(--color-warm-grey-550);
+    /* BoxStage draws its focus ring in --orange. */
+    --orange: var(--ink);
+    /* A 9px strip: the hairline on its middle row and a plus mark on each frame line. */
+    --rule:
+      linear-gradient(90deg, var(--plus) 9px, transparent 0 calc(100% - 9px), var(--plus) 0) center 4px /
+        calc(var(--frame) + 8px) 1px no-repeat,
+      linear-gradient(90deg, var(--plus) 1px, transparent 0 calc(100% - 1px), var(--plus) 0) center 0 / var(--frame)
+        9px no-repeat,
+      linear-gradient(var(--line), var(--line)) 0 4px / 100% 1px no-repeat;
+    /* The header draws its own copy of the frame lines with the same timing, so the two copies read as one line. */
+    --rail-in: 2200ms;
+    --rail-lag: 500ms;
+    --rule-in: 1700ms;
+    --ease-draw: cubic-bezier(0.65, 0, 0.25, 1);
+    --gutter: 10px;
+    --pad: 16px;
+    --frame: min(1200px, 100% - 2 * var(--gutter));
+    --hdr: 56px;
+    --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+    --mono: 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
+    position: relative;
+    overflow-x: clip;
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--bg);
   }
 
-  .head p {
-    font-size: 1.125rem;
-    color: #52525b;
-  }
-
-  h2 {
-    font-size: 0.8125rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: #71717a;
-    margin-bottom: 16px;
-  }
-
-  .audiences {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 12px;
-  }
-
-  .audiences li {
-    display: grid;
-    align-content: start;
-    gap: 6px;
-    padding: 18px;
-    background: #fff;
-    border: 1px solid #e4e4e7;
-    border-radius: 12px;
-  }
-
-  .audiences span {
-    color: #52525b;
-    font-size: 0.9375rem;
-  }
-
-  .variants {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 16px;
-  }
-
-  .card {
-    display: grid;
-    gap: 8px;
-    height: 100%;
-    padding: 24px;
-    background: #fff;
-    border: 1px solid #e4e4e7;
-    border-radius: 16px;
-    text-decoration: none;
-    transition:
-      transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
-      border-color 200ms ease;
-  }
-
-  .card:active {
-    transform: scale(0.99);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .card:hover {
-      transform: translateY(-2px);
-      border-color: #a1a1aa;
+  @media (min-width: 640px) {
+    .ps {
+      --gutter: 20px;
+      --pad: 24px;
     }
   }
 
-  .swatches {
+  @media (min-width: 900px) {
+    .ps {
+      --hdr: 64px;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .ps {
+      --gutter: 32px;
+      --pad: 40px;
+    }
+  }
+
+  .ps :focus-visible {
+    outline: 2px solid var(--ink-accent);
+    outline-offset: 3px;
+  }
+
+  .ps ::selection {
+    background: var(--ink);
+    color: var(--bg);
+  }
+
+  .ps-frame {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    width: var(--frame);
+    margin-inline: auto;
     display: flex;
-    margin-bottom: 8px;
+    justify-content: space-between;
+    align-items: flex-start;
+    pointer-events: none;
   }
 
-  .swatches span {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    box-shadow: 0 0 0 1px #e4e4e7;
+  /* Each frame line is one screen tall and sticks to the screen, so it reads as a full-height line. It draws inside the
+     screen even when the visitor scrolls during the intro. */
+  .ps-frame::before,
+  .ps-frame::after {
+    content: '';
+    position: sticky;
+    top: 0;
+    width: 1px;
+    height: 100lvh;
+    background: var(--line);
+    transform-origin: top;
   }
 
-  .swatches span + span {
-    margin-left: -8px;
+  .ps-wrap {
+    width: var(--frame);
+    margin-inline: auto;
   }
 
-  .num {
-    font-size: 0.8125rem;
-    color: #71717a;
+  /* The border keeps its 1px in the layout. A Rule paints the line. */
+  .ps-rule,
+  .ps-sec {
+    position: relative;
+    border-top: 1px solid transparent;
   }
 
-  .name {
-    font-size: 1.5rem;
-    font-weight: 650;
-    letter-spacing: -0.01em;
+  @media (prefers-reduced-motion: no-preference) {
+    .ps-frame::before,
+    .ps-frame::after {
+      animation: ps-rail var(--rail-in) var(--ease-draw) backwards;
+    }
+
+    .ps-frame::after {
+      animation-delay: var(--rail-lag);
+    }
   }
 
-  .for {
-    font-weight: 550;
+  @keyframes ps-rail {
+    from {
+      transform: scaleY(0);
+    }
   }
 
-  .idea {
-    color: #52525b;
+  .ps-sec {
+    scroll-margin-top: var(--hdr);
   }
 
-  .fonts {
-    font-size: 0.8125rem;
-    color: #71717a;
+  .ps-head {
+    padding: 56px var(--pad) 40px;
   }
 
-  .open {
-    margin-top: 8px;
+  .ps-split {
+    display: grid;
+    gap: 16px;
+    margin-top: 28px;
+  }
+
+  .ps-h1,
+  .ps-h2 {
     font-weight: 600;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
   }
 
-  .note {
-    font-size: 0.875rem;
-    color: #71717a;
+  .ps-h1 {
+    font-size: clamp(2.25rem, 1.3rem + 3vw, 3.5rem);
+    line-height: 1.02;
   }
+
+  .ps-h2 {
+    font-size: clamp(2rem, 1.3rem + 2.4vw, 3.25rem);
+    line-height: 1.04;
+  }
+
+  .ps-h1 > span,
+  .ps-h2 > span {
+    display: block;
+  }
+
+  .ps-tone {
+    color: var(--tone-accent);
+  }
+
+  .ps-lead {
+    max-width: 46ch;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+
+  .ps-kicker {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--soft);
+  }
+
+  .ps-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .ps-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .ps-btn svg {
+    transition: transform 200ms var(--ease);
+  }
+
+  @media (max-width: 639px) {
+    .ps-btns .ps-btn {
+      flex: 1 1 auto;
+      height: 44px;
+    }
+  }
+
+  .ps-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ps-btn:hover svg {
+      transform: translateX(2px);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .ps-head {
+      padding: 88px var(--pad) 56px;
+    }
+
+    .ps-split {
+      margin-top: 40px;
+    }
+  }
+</style>
+
+<style>
+  .hero-head {
+    padding: 28px var(--pad);
+  }
+
+  .hero-row {
+    display: grid;
+    gap: 24px;
+    margin-top: 24px;
+  }
+
+  .hero-side {
+    display: grid;
+    gap: 16px;
+    justify-items: start;
+  }
+
+  .hero-meta {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--soft);
+  }
+
+  .nw {
+    white-space: nowrap;
+  }
+
+  .stage-cell {
+    padding: 20px 6px 24px;
+  }
+
+  /* The box opens the page. It leaves room for the headline and the buttons on the first screen. */
+  .hero-stage {
+    width: min(100%, max(560px, calc((100svh - var(--hdr) - 252px) * 1200 / 760)));
+    margin-inline: auto;
+  }
+
+  @media (min-width: 640px) {
+    .stage-cell {
+      padding: 8px var(--pad) 28px;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .hero-row {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 48px;
+      margin-top: 20px;
+    }
+  }
+
+  .stack-cell {
+    --stack-ink: var(--ink);
+    --stack-muted: var(--soft);
+    --stack-line: var(--line-2);
+    --stack-line-strong: var(--plus);
+    --stack-plate: var(--raised);
+    --stack-accent: var(--kraft);
+    --stack-accent-ink: var(--kraft-ink);
+    --stack-shadow: color-mix(in oklab, var(--ink) 12%, transparent);
+    --stack-mono: 'Geist Mono Variable', ui-monospace, monospace;
+    padding: 32px var(--pad) 40px;
+    box-shadow: inset 0 1px 0 var(--line);
+  }
+
+  .proof {
+    display: grid;
+    box-shadow: inset 0 1px 0 var(--line);
+  }
+
+  .bar {
+    margin: 0;
+    padding: 24px var(--pad) 20px;
+  }
+
+  .bar-crop {
+    position: relative;
+    aspect-ratio: 544 / 232;
+    overflow: hidden;
+  }
+
+  .bar-crop img {
+    position: absolute;
+    width: 294.12%;
+    max-width: none;
+    height: auto;
+    left: -111.4%;
+    top: -47.41%;
+  }
+
+  .bar-sticker {
+    position: absolute;
+    left: 28.13%;
+    top: 42.24%;
+    width: 16.36%;
+    height: 12.07%;
+    display: grid;
+    place-items: center;
+    padding-inline: 3%;
+    border-radius: 3px;
+    background: #f7f7f5;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
+    container-type: inline-size;
+  }
+
+  .bar-sticker span {
+    width: 100%;
+    text-align: center;
+    font-family: 'Archivo Subset', sans-serif;
+    font-stretch: 72%;
+    font-weight: 800;
+    font-size: calc(18cqw * var(--fit, 1));
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    color: #161412;
+  }
+
+  .bar figcaption {
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--soft);
+  }
+
+  .ask {
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: 14px;
+    padding: 28px var(--pad) 40px;
+    box-shadow: inset 0 1px 0 var(--line);
+  }
+
+  .ask-t {
+    max-width: 22ch;
+    font-size: clamp(1.375rem, 1.1rem + 0.9vw, 1.75rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+
+  .ask-p {
+    max-width: 40ch;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .ask-cta {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+    margin-top: 6px;
+  }
+
+  .ask-tel {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (min-width: 1000px) {
+    .proof {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+
+    .bar {
+      padding: 32px var(--pad) 28px;
+    }
+
+    .ask {
+      padding: 40px var(--pad) 40px 40px;
+      box-shadow: inset 1px 0 0 var(--line);
+    }
+  }
+
+  .steps-wrap {
+    --t: 1;
+    position: relative;
+  }
+
+  .steps-line {
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    background: var(--ink-accent);
+    transform: scaleY(var(--t));
+    transform-origin: top;
+    pointer-events: none;
+  }
+
+  .steps {
+    display: grid;
+  }
+
+  .step {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 10px;
+    padding: 28px var(--pad) 32px;
+    box-shadow:
+      inset 0 1px 0 var(--line),
+      inset -1px 0 0 var(--line);
+  }
+
+  /* A square sits where the step's hairlines meet. */
+  .step::before {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    top: 0;
+    width: 7px;
+    height: 7px;
+    border: 1px solid var(--plus);
+    background: var(--bg);
+    transform: translate(-50%, -50%);
+    transition:
+      background-color 220ms ease,
+      border-color 220ms ease;
+  }
+
+  .step[data-lit]::before {
+    background: var(--ink-accent);
+    border-color: var(--ink-accent);
+  }
+
+  .step-n {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--soft);
+    transition: color 220ms ease;
+  }
+
+  .step[data-lit] .step-n {
+    color: var(--ink);
+  }
+
+  .step-t {
+    margin-top: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  .step-p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  @media (min-width: 700px) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .steps-line {
+      width: 100%;
+      height: 1px;
+      transform: scaleX(var(--t));
+      transform-origin: left;
+    }
+
+    .step {
+      padding: 36px 32px 40px;
+    }
+
+    .step:first-child {
+      padding-left: var(--pad);
+    }
+  }
+
+  .about-row {
+    display: grid;
+    box-shadow: inset 0 1px 0 var(--line);
+  }
+
+  .about-photo {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+  }
+
+  .about-photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    object-fit: cover;
+    transition:
+      clip-path 1100ms var(--ease),
+      transform 1400ms var(--ease);
+  }
+
+  /* The photo opens like a blind instead of the shared blur. */
+  :global(.reveal-on) .about-photo[data-reveal] {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+
+  :global(.reveal-live) .about-photo:not([data-shown]) img {
+    clip-path: inset(0 0 100% 0);
+    transform: scale(1.06);
+  }
+
+  .facts {
+    padding: 12px var(--pad) 28px;
+  }
+
+  .facts div {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .facts div:last-child {
+    border-bottom: 0;
+  }
+
+  .facts dt {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--soft);
+  }
+
+  .facts dd {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  @media (min-width: 1000px) {
+    .about-row {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+
+    .about-photo {
+      aspect-ratio: auto;
+      min-height: 400px;
+    }
+
+    .facts {
+      align-self: center;
+      padding: 28px var(--pad) 28px 40px;
+    }
+
+    .about-row .facts {
+      box-shadow: inset 1px 0 0 var(--line);
+      align-self: stretch;
+      display: grid;
+      align-content: center;
+    }
+  }
+
+  .contact {
+    display: grid;
+  }
+
+  .c-list {
+    box-shadow: inset 0 1px 0 var(--line);
+  }
+
+  .c-list li {
+    box-shadow: inset 0 -1px 0 var(--line);
+  }
+
+  .c-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px 16px;
+    padding: 22px var(--pad);
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .c-k {
+    grid-column: 1 / -1;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--soft);
+  }
+
+  .c-v {
+    font-size: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+    transform-origin: left center;
+  }
+
+  .c-link svg {
+    color: var(--soft);
+    transition:
+      transform 220ms var(--ease),
+      color 160ms ease;
+  }
+
+  .c-link:active .c-v {
+    transform: scale(0.98);
+  }
+
+  .c-addr {
+    display: grid;
+    justify-items: start;
+    gap: 8px;
+    padding: 22px var(--pad) 28px;
+  }
+
+  .c-addr address {
+    font-style: normal;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-2);
+  }
+
+  .c-list li.c-addr {
+    box-shadow: none;
+  }
+
+  /* The contact heading sits on the heating loops. They start under the label and fade out toward the text. */
+  .ps-head--loops {
+    position: relative;
+    overflow: hidden;
+    --loops-line: var(--line);
+    --loops-heat: #f26a21;
+  }
+
+  .ps-head--loops > :not([data-loops]) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .ps-head--loops :global(.loops[data-loops]) {
+    -webkit-mask-image:
+      linear-gradient(90deg, transparent 54%, #000 74%),
+      linear-gradient(180deg, transparent 110px, #000 190px, #000 calc(100% - 90px), transparent);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(90deg, transparent 54%, #000 74%),
+      linear-gradient(180deg, transparent 110px, #000 190px, #000 calc(100% - 90px), transparent);
+    mask-composite: intersect;
+  }
+
+  /* On narrow screens the text takes the full width, so the loops move to a band under it. */
+  @media (max-width: 899px) {
+    .ps-head--loops {
+      padding-bottom: 220px;
+    }
+
+    .ps-head--loops :global(.loops[data-loops]) {
+      -webkit-mask-image: linear-gradient(
+        180deg,
+        transparent calc(100% - 210px),
+        #000 calc(100% - 140px),
+        #000 calc(100% - 60px),
+        transparent
+      );
+      mask-image: linear-gradient(
+        180deg,
+        transparent calc(100% - 210px),
+        #000 calc(100% - 140px),
+        #000 calc(100% - 60px),
+        transparent
+      );
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .c-link:hover svg {
+      color: var(--ink);
+      transform: translate(3px, -3px);
+    }
+  }
+
+  .foot-in {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    padding: 28px var(--pad) 32px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
 </style>

@@ -60,14 +60,10 @@ const brandPart = parts.find((part) => part.side === 'brand')!;
   </div>
 
   <div class="mx-detail" id="mx-detail" aria-live="polite">
-    <p class="mx-legend">
-      <span class="mx-key" data-side="huber">Produkcja Huber</span>
-      <span class="mx-key" data-side="brand">Twoja marka</span>
-    </p>
-    <p class="mx-text mx-hint" data-detail="">Wskaż część na rysunku albo jej nazwę, aby zobaczyć opis.</p>
+    <p class="mx-hint" data-detail="">Wskaż część na rysunku albo jej nazwę, aby zobaczyć opis.</p>
     {
       parts.map((part) => (
-        <div class="mx-text" data-detail={part.id} hidden>
+        <div data-detail={part.id} hidden>
           <p class="mx-text-head">
             <span class="mx-n">{part.n}</span> {part.title}
           </p>
@@ -531,9 +527,8 @@ const brandPart = parts.find((part) => part.side === 'brand')!;
 
   .mx-detail {
     display: grid;
-    gap: 10px;
     max-width: 34rem;
-    margin: 28px auto 0;
+    margin: 6px auto 0;
   }
 
   .mx[data-3d] .mx-detail {
@@ -541,40 +536,12 @@ const brandPart = parts.find((part) => part.side === 'brand')!;
   }
 
   .mx[data-layout='wide'] .mx-detail {
-    min-height: 7.5em;
+    min-height: 5.5em;
   }
 
-  .mx:not([data-layout='wide']) .mx-text {
+  /* The list opens each description under its own row. */
+  .mx:not([data-layout='wide']) .mx-detail {
     display: none;
-  }
-
-  .mx-legend {
-    display: flex;
-    gap: 18px;
-    font-family: var(--stack-mono, ui-monospace, monospace);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--stack-muted, #6b6b70);
-  }
-
-  .mx-key::before {
-    content: '';
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    margin-right: 8px;
-    border-radius: 50%;
-    background: var(--stack-ink, #18181b);
-  }
-
-  .mx-key[data-side='brand']::before {
-    background: var(--stack-accent, #c69c6d);
-  }
-
-  .mx-text {
-    padding-top: 12px;
-    border-top: 1px solid var(--stack-line, rgb(24 24 27 / 0.14));
   }
 
   .mx-text-head {

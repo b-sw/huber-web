@@ -180,13 +180,7 @@ const { links } = Astro.props;
     align-items: center;
     justify-content: center;
     height: 40px;
-    border: 1px solid var(--line-2);
     border-radius: 6px;
-    background: transparent;
-    color: var(--ink);
-    transition:
-      transform 160ms var(--ease),
-      border-color 160ms ease;
   }
 
   .menu-btn {
@@ -194,10 +188,6 @@ const { links } = Astro.props;
     padding: 0 14px;
     font-size: 14px;
     font-weight: 500;
-  }
-
-  .sq:active {
-    transform: scale(0.97);
   }
 
   .bars {
@@ -236,10 +226,6 @@ const { links } = Astro.props;
   @media (hover: hover) and (pointer: fine) {
     .nav a:hover {
       color: var(--ink);
-    }
-
-    .sq:hover {
-      border-color: var(--ink-accent);
     }
   }
 
@@ -346,7 +332,7 @@ const { links } = Astro.props;
   const ind = header.querySelector<HTMLElement>('[data-ind]')!;
   const wide = matchMedia('(min-width: 900px)');
   // While the menu is open, the page behind it is inert, so Tab stays in the header and the menu.
-  const outside = () => Array.from(document.querySelectorAll<HTMLElement>('main, footer, .variant-nav'));
+  const outside = () => Array.from(document.querySelectorAll<HTMLElement>('main, footer'));
 
   function setMenu(open: boolean, returnFocus = false) {
     if (open) menu.style.setProperty('--menu-top', `${Math.max(0, header.getBoundingClientRect().bottom)}px`);

@@ -1,5 +1,4 @@
-/* Tertiary links in both variants: dark accent text with a light underline that turns solid on hover.
-   Each page keeps its own font and size. Add .t-link--out to an external link, so its arrow moves up and right. */
+/* Tertiary links. Each component keeps its own font and size. Add .t-link--out to an external link. */
 .t-link {
   color: var(--ink-accent);
   text-decoration-line: underline;

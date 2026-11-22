@@ -1,0 +1,61 @@
+/* Primary and secondary buttons: a darker base under the face, like a key. Based on PostHog's buttons.
+   Each component keeps its own size and font. This file owns the colours, depth and motion. */
+.ps-btn,
+.sq,
+.p-close,
+.c-toggle .face {
+  --b-face: var(--raised, var(--bg));
+  --b-text: var(--ink);
+  --b-edge: var(--line-2);
+  border: 1.5px solid var(--b-edge);
+  background: var(--b-face);
+  color: var(--b-text);
+  box-shadow: 0 2px 0 0 var(--b-edge);
+  transform: translateY(-2px);
+  transition:
+    transform 100ms ease-out,
+    box-shadow 100ms ease-out,
+    border-color 100ms ease-out;
+}
+
+.ps-btn--ink,
+.c-toggle[aria-expanded='true'] .face {
+  --b-face: var(--action);
+  --b-text: var(--on-action);
+  --b-edge: var(--action-edge);
+}
+
+:is(.ps-btn, .sq, .p-close):active,
+.c-toggle:active .face {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 0 var(--b-edge);
+}
+
+/* An open toggle stays pressed in, also under :active. Keep this rule after the :active rule. */
+.c-toggle[aria-expanded='true'] .face {
+  border-color: var(--b-face);
+  transform: none;
+  box-shadow: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :is(.ps-btn:not(.ps-btn--ink), .sq, .p-close):hover,
+  .cell:hover .c-toggle:not([aria-expanded='true']) .face {
+    --b-edge: var(--ink-accent);
+  }
+
+  :is(.ps-btn, .sq, .p-close):hover:not(:active),
+  .c-toggle:not([aria-expanded='true']):hover:not(:active) .face {
+    transform: translateY(-3px);
+    box-shadow: 0 3px 0 0 var(--b-edge);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-btn,
+  .sq,
+  .p-close,
+  .c-toggle .face {
+    transition-property: background-color, box-shadow, border-color;
+  }
+}

@@ -8,7 +8,6 @@ import {
   featureList,
   materials,
   productImage,
-  productUrl,
   type Material,
 } from '../../data/products';
 import { focusX } from './focus';
@@ -100,7 +99,6 @@ const pad = (x: number) => String(x).padStart(2, '0');
                 <div class="panel" id={`t-${p.slug}`} hidden="until-found" data-panel>
                   <div class="p-in">
                     <div class="p-head">
-                      <p class="p-kicker">Tabela indeksów</p>
                       <p class="p-code" tabindex="-1">
                         {p.code}
                       </p>
@@ -123,14 +121,13 @@ const pad = (x: number) => String(x).padStart(2, '0');
                           <thead>
                             <tr>
                               <th scope="col">Obwody</th>
-                              <th scope="col">L</th>
-                              <th scope="col">H</th>
-                              <th scope="col">G</th>
-                              {versions.map((v) => (
-                                <th scope="col" class="idx-h">
-                                  Indeks
-                                  {v && <span>{shortVersion(v)}</span>}
+                              {['L', 'H', 'G'].map((d) => (
+                                <th scope="col">
+                                  {d} <span class="unit">mm</span>
                                 </th>
+                              ))}
+                              {versions.map((v) => (
+                                <th scope="col">{v ? shortVersion(v) : 'Indeks'}</th>
                               ))}
                             </tr>
                           </thead>
@@ -145,6 +142,10 @@ const pad = (x: number) => String(x).padStart(2, '0');
                                   <td>
                                     <button class="idx" type="button" data-copy={x} aria-label={`Kopiuj indeks ${x}`}>
                                       {x}
+                                      <span class="idx-ico">
+                                        <Icon name="copy" size={14} />
+                                        <Icon name="check" size={14} strokeWidth={2.25} />
+                                      </span>
                                     </button>
                                   </td>
                                 ))}
@@ -154,16 +155,9 @@ const pad = (x: number) => String(x).padStart(2, '0');
                         </table>
                       </div>
                       <div class="p-foot">
-                        <p class="p-note">Wymiary L, H, G w mm. Kliknij indeks, żeby go skopiować.</p>
-                        <div class="p-actions">
-                          <a class="c-link t-link t-link--out" href={productUrl(p.slug)}>
-                            Karta produktu
-                            <Icon name="arrow-up-right" size={14} strokeWidth={2} />
-                          </a>
-                          <button class="p-close" type="button" data-close>
-                            Zwiń tabelę
-                          </button>
-                        </div>
+                        <button class="p-close" type="button" data-close>
+                          Zwiń tabelę
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -352,25 +346,9 @@ const pad = (x: number) => String(x).padStart(2, '0');
     gap: 10px;
     height: 36px;
     padding: 0 12px;
-    border: 1px solid var(--line-2);
     border-radius: 6px;
     font-size: 13.5px;
     font-weight: 500;
-    transition:
-      transform 160ms var(--ease),
-      border-color 160ms ease,
-      background-color 160ms ease,
-      color 160ms ease;
-  }
-
-  .c-toggle:active .face {
-    transform: scale(0.97);
-  }
-
-  .c-toggle[aria-expanded='true'] .face {
-    background: var(--action);
-    border-color: var(--action);
-    color: var(--on-action);
   }
 
   .plus-minus {
@@ -399,25 +377,10 @@ const pad = (x: number) => String(x).padStart(2, '0');
     transform: rotate(0deg);
   }
 
-  .c-link {
-    position: relative;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    min-height: 36px;
-    font-size: 13.5px;
-  }
-
   @media (hover: hover) and (pointer: fine) {
     .cell:hover .c-img img {
       transform: scale(1.04);
     }
-
-    .cell:hover .c-toggle:not([aria-expanded='true']) .face {
-      border-color: var(--ink-accent);
-    }
-
   }
 
   .panel {
@@ -450,6 +413,11 @@ const pad = (x: number) => String(x).padStart(2, '0');
     animation: panel-in 260ms var(--ease);
   }
 
+  /* The script hides the panel when this animation ends. */
+  .panel[data-closing] .p-in {
+    animation: panel-out 160ms var(--ease) forwards;
+  }
+
   .panel:not([hidden]) tbody tr {
     animation: row-in 280ms var(--ease) both;
     animation-delay: calc(var(--r) * 16ms + 60ms);
@@ -457,6 +425,13 @@ const pad = (x: number) => String(x).padStart(2, '0');
 
   @keyframes panel-in {
     from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  @keyframes panel-out {
+    to {
       opacity: 0;
       transform: translateY(-6px);
     }
@@ -476,7 +451,6 @@ const pad = (x: number) => String(x).padStart(2, '0');
   }
 
   .p-code {
-    margin-top: 6px;
     font-size: 28px;
     font-weight: 600;
     line-height: 1.1;
@@ -496,24 +470,30 @@ const pad = (x: number) => String(x).padStart(2, '0');
   }
 
   .p-list {
-    margin-top: 10px;
+    display: grid;
+    gap: 8px;
+    max-width: 52ch;
+    margin-top: 12px;
     font-size: 14px;
     line-height: 1.5;
     color: var(--ink-2);
+    text-wrap: pretty;
   }
 
   .p-list li {
     position: relative;
-    padding: 7px 0 7px 18px;
-    border-top: 1px solid var(--line);
+    padding-left: 18px;
   }
 
   .p-list li::before {
-    content: '+';
+    content: '';
     position: absolute;
-    left: 0;
-    font-family: var(--mono);
-    color: var(--soft);
+    left: 2px;
+    top: calc(0.75em - 2.5px);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--plus);
   }
 
   .p-main {
@@ -521,18 +501,34 @@ const pad = (x: number) => String(x).padStart(2, '0');
     min-width: 0;
   }
 
-  /* Only a wide table scrolls, and only sideways. Rows that slide in must not flash a vertical scrollbar. */
+  /* The card has no key edge like the buttons, because it is not pressable.
+     Only a wide table scrolls, and only sideways. Rows that slide in must not flash a vertical scrollbar.
+     A shade shows on each edge that has more table behind it. The two covers scroll with the table and hide a shade
+     at the end that the table reaches. */
   .p-scroll {
+    --shade: color-mix(in oklab, var(--ink) 12%, transparent);
     overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-x: contain;
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    background:
+      linear-gradient(to right, var(--raised) 40%, transparent) left / 24px 100% no-repeat local,
+      linear-gradient(to left, var(--raised) 40%, transparent) right / 24px 100% no-repeat local,
+      linear-gradient(to right, var(--shade), transparent) left / 12px 100% no-repeat,
+      linear-gradient(to left, var(--shade), transparent) right / 12px 100% no-repeat,
+      var(--raised);
   }
 
   .p-scroll:focus-visible {
     outline-offset: 2px;
   }
 
+  /* On a phone the cells sit closer, so every table shows its copy icons without a sideways scroll from 390px up. */
   table {
+    --cx: 5px;
+    --edge: 10px;
+    --ico-gap: 4px;
     width: 100%;
     border-collapse: collapse;
     font-family: var(--mono);
@@ -542,28 +538,38 @@ const pad = (x: number) => String(x).padStart(2, '0');
 
   th,
   td {
-    padding: 7px 14px 7px 0;
+    padding: 8px var(--cx);
     border-bottom: 1px solid var(--line);
     text-align: left;
     white-space: nowrap;
   }
 
+  th:first-child {
+    padding-left: var(--edge);
+  }
+
   th:last-child,
   td:last-child {
-    padding-right: 0;
+    padding-right: var(--edge);
+  }
+
+  tbody tr:last-child > * {
+    border-bottom: 0;
   }
 
   thead th {
     vertical-align: bottom;
+    padding-block: 10px;
     font-size: 12px;
-    font-weight: 400;
-    color: var(--soft);
+    font-weight: 500;
+    color: var(--muted);
     border-bottom-color: var(--line-2);
   }
 
-  .idx-h span {
-    display: block;
-    color: var(--ink-2);
+  .unit {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--tone);
   }
 
   tbody th {
@@ -575,15 +581,20 @@ const pad = (x: number) => String(x).padStart(2, '0');
   }
 
   .idx {
-    position: relative;
-    margin: -3px -6px;
-    padding: 3px 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ico-gap);
+    margin: -4px -6px;
+    padding: 4px 6px;
     border: 0;
+    border-radius: 4px;
     background: none;
     font: inherit;
     font-weight: 500;
     color: var(--ink);
-    transition: background-color 150ms ease;
+    transition:
+      background-color 150ms ease,
+      transform 150ms var(--ease);
   }
 
   .idx:focus-visible {
@@ -594,80 +605,77 @@ const pad = (x: number) => String(x).padStart(2, '0');
     transform: scale(0.97);
   }
 
-  .idx[data-copied]::after {
-    content: 'skopiowano';
-    position: absolute;
-    left: calc(100% + 8px);
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 11px;
-    font-weight: 400;
-    color: var(--muted);
+  /* Each state names the timing of the icon that arrives in it. */
+  .idx-ico {
+    display: grid;
+    color: var(--soft);
+    transition: color 150ms ease;
+  }
+
+  /* Without max-width: none, a narrow table squeezes the icon to a dot. */
+  .idx-ico :global(svg) {
+    grid-area: 1 / 1;
+    max-width: none;
+    opacity: 0;
+    transform: scale(0.4);
+    transition:
+      opacity 90ms ease,
+      transform 110ms ease;
+  }
+
+  .idx:not([data-copied]) .idx-ico :global(svg:first-child),
+  .idx[data-copied] .idx-ico :global(svg:last-child) {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 120ms ease 90ms,
+      transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1) 90ms;
   }
 
   @media (hover: hover) and (pointer: fine) {
     tbody tr:hover {
-      background: color-mix(in oklab, var(--ink) 3%, transparent);
+      background: var(--bg);
     }
 
     .idx:hover {
-      background: color-mix(in oklab, var(--ink) 8%, transparent);
+      background: var(--line);
+    }
+
+    .idx:hover .idx-ico {
+      color: var(--ink);
     }
   }
 
   /* After the hover rule, so a copied index stays dark under the cursor. */
-  .idx[data-copied] {
+  .idx[data-copied],
+  .idx[data-copied] .idx-ico {
     background: var(--action);
     color: var(--on-action);
   }
 
   .p-foot {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px 24px;
-    margin-top: 14px;
-  }
-
-  .p-note {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--soft);
-  }
-
-  .p-actions {
-    display: flex;
-    align-items: center;
-    gap: 20px;
+    justify-content: flex-end;
+    margin-top: 16px;
   }
 
   .p-close {
     height: 36px;
     padding: 0 14px;
-    border: 1px solid var(--line-2);
     border-radius: 6px;
-    background: transparent;
     font-size: 13.5px;
     font-weight: 500;
-    transition:
-      transform 160ms var(--ease),
-      border-color 160ms ease;
-  }
-
-  .p-close:active {
-    transform: scale(0.97);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .p-close:hover {
-      border-color: var(--ink-accent);
-    }
   }
 
   @media (min-width: 560px) {
     .grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    table {
+      --cx: 12px;
+      --edge: 16px;
+      --ico-gap: 8px;
     }
 
     /* Cells in one row share their row tracks, so the meta rules line up even when index lists differ in length. */
@@ -722,12 +730,23 @@ const pad = (x: number) => String(x).padStart(2, '0');
     const status = root.querySelector<HTMLElement>('[data-copy-status]');
     const toggleFor = (panel: HTMLElement) => root.querySelector<HTMLButtonElement>(`[aria-controls="${panel.id}"]`);
 
-    const setOpen = (panel: HTMLElement, open: boolean) => {
+    const mark = (panel: HTMLElement, open: boolean) => {
       const btn = toggleFor(panel);
-      if (open) panel.removeAttribute('hidden');
-      else panel.setAttribute('hidden', 'until-found');
       btn?.setAttribute('aria-expanded', String(open));
       btn?.closest('[data-cell]')?.toggleAttribute('data-open', open);
+    };
+
+    const setOpen = (panel: HTMLElement, open: boolean) => {
+      panel.removeAttribute('data-closing');
+      if (open) panel.removeAttribute('hidden');
+      else panel.setAttribute('hidden', 'until-found');
+      mark(panel, open);
+    };
+
+    const close = (panel: HTMLElement) => {
+      if (panel.hasAttribute('hidden')) return;
+      mark(panel, false);
+      panel.setAttribute('data-closing', '');
     };
 
     const openAlone = (panel: HTMLElement) => {
@@ -746,14 +765,17 @@ const pad = (x: number) => String(x).padStart(2, '0');
     root.querySelectorAll<HTMLButtonElement>('[data-toggle]').forEach((btn) => {
       const panel = document.getElementById(btn.getAttribute('aria-controls') ?? '');
       if (!panel) return;
-      btn.addEventListener('click', () => (panel.hasAttribute('hidden') ? openAlone(panel) : setOpen(panel, false)));
+      btn.addEventListener('click', () => (btn.getAttribute('aria-expanded') === 'true' ? close(panel) : openAlone(panel)));
     });
 
     root.querySelectorAll<HTMLElement>('[data-panel]').forEach((panel) => {
       // Find in page opens a hidden="until-found" panel by itself. Keep the button in sync.
       panel.addEventListener('beforematch', () => setOpen(panel, true));
+      panel.addEventListener('animationend', (e) => {
+        if (panel.hasAttribute('data-closing') && (e.target as Element).matches('.p-in')) setOpen(panel, false);
+      });
       panel.querySelector('[data-close]')?.addEventListener('click', () => {
-        setOpen(panel, false);
+        close(panel);
         toggleFor(panel)?.focus();
       });
     });
@@ -765,7 +787,7 @@ const pad = (x: number) => String(x).padStart(2, '0');
         at.closest<HTMLElement>('[data-panel]') ??
         document.getElementById(at.closest('[data-cell]')?.querySelector('[data-toggle]')?.getAttribute('aria-controls') ?? '');
       if (!panel || panel.hasAttribute('hidden')) return;
-      setOpen(panel, false);
+      close(panel);
       toggleFor(panel)?.focus();
     });
 

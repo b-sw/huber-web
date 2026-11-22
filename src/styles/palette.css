@@ -1,22 +1,22 @@
-/* Warm grey ramp (simn.so 1-minute colour system, hue 44). Pages map their colour roles to these steps. */
+/* Toned orange ramp (simn.so 1-minute colour system, hue 49). Pages map their colour roles to these steps. */
 :root {
-  --color-warm-grey-50: oklch(98.5% 0.009 44);
-  --color-warm-grey-100: oklch(93.7% 0.019 44);
-  --color-warm-grey-150: oklch(88.8% 0.028 44);
-  --color-warm-grey-200: oklch(84% 0.038 44);
-  --color-warm-grey-250: oklch(79.2% 0.047 44);
-  --color-warm-grey-300: oklch(74.3% 0.056 44);
-  --color-warm-grey-350: oklch(69.5% 0.066 44);
-  --color-warm-grey-400: oklch(64.7% 0.075 44);
-  --color-warm-grey-450: oklch(59.8% 0.085 44);
-  --color-warm-grey-500: oklch(55% 0.094 44);
-  --color-warm-grey-550: oklch(50.7% 0.088 44);
-  --color-warm-grey-600: oklch(46.3% 0.081 44);
-  --color-warm-grey-650: oklch(42% 0.075 44);
-  --color-warm-grey-700: oklch(37.7% 0.069 44);
-  --color-warm-grey-750: oklch(33.3% 0.063 44);
-  --color-warm-grey-800: oklch(29% 0.056 44);
-  --color-warm-grey-850: oklch(24.7% 0.05 44);
-  --color-warm-grey-900: oklch(20.3% 0.044 44);
-  --color-warm-grey-950: oklch(16% 0.038 44);
+  --color-warm-grey-50: oklch(98.5% 0.016 49);
+  --color-warm-grey-100: oklch(93.7% 0.032 49);
+  --color-warm-grey-150: oklch(88.8% 0.048 49);
+  --color-warm-grey-200: oklch(84% 0.064 49);
+  --color-warm-grey-250: oklch(79.2% 0.081 49);
+  --color-warm-grey-300: oklch(74.3% 0.097 49);
+  --color-warm-grey-350: oklch(69.5% 0.113 49);
+  --color-warm-grey-400: oklch(64.7% 0.129 49);
+  --color-warm-grey-450: oklch(59.8% 0.145 49);
+  --color-warm-grey-500: oklch(55% 0.161 49);
+  --color-warm-grey-550: oklch(50.7% 0.15 49);
+  --color-warm-grey-600: oklch(46.3% 0.14 49);
+  --color-warm-grey-650: oklch(42% 0.129 49);
+  --color-warm-grey-700: oklch(37.7% 0.118 49);
+  --color-warm-grey-750: oklch(33.3% 0.107 49);
+  --color-warm-grey-800: oklch(29% 0.097 49);
+  --color-warm-grey-850: oklch(24.7% 0.086 49);
+  --color-warm-grey-900: oklch(20.3% 0.075 49);
+  --color-warm-grey-950: oklch(16% 0.064 49);
 }
