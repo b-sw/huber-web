@@ -3,7 +3,8 @@
 .ps-btn,
 .sq,
 .p-close,
-.c-toggle .face {
+.c-toggle .face,
+.mx-key {
   --b-face: var(--raised, var(--bg));
   --b-text: var(--ink);
   --b-edge: var(--line-2);
@@ -19,20 +20,23 @@
 }
 
 .ps-btn--ink,
-.c-toggle[aria-expanded='true'] .face {
+.c-toggle[aria-expanded='true'] .face,
+.mx-option :checked + .mx-key {
   --b-face: var(--action);
   --b-text: var(--on-action);
   --b-edge: var(--action-edge);
 }
 
 :is(.ps-btn, .sq, .p-close):active,
-.c-toggle:active .face {
+.c-toggle:active .face,
+.mx-option:active .mx-key {
   transform: translateY(-1px);
   box-shadow: 0 1px 0 0 var(--b-edge);
 }
 
-/* An open toggle stays pressed in, also under :active. Keep this rule after the :active rule. */
-.c-toggle[aria-expanded='true'] .face {
+/* An open toggle and a checked key stay pressed in, also under :active. Keep this rule after the :active rule. */
+.c-toggle[aria-expanded='true'] .face,
+.mx-option :checked + .mx-key {
   border-color: var(--b-face);
   transform: none;
   box-shadow: none;
@@ -40,12 +44,14 @@
 
 @media (hover: hover) and (pointer: fine) {
   :is(.ps-btn:not(.ps-btn--ink), .sq, .p-close):hover,
-  .cell:hover .c-toggle:not([aria-expanded='true']) .face {
+  .cell:hover .c-toggle:not([aria-expanded='true']) .face,
+  .mx-option:hover :not(:checked) + .mx-key {
     --b-edge: var(--ink-accent);
   }
 
   :is(.ps-btn, .sq, .p-close):hover:not(:active),
-  .c-toggle:not([aria-expanded='true']):hover:not(:active) .face {
+  .c-toggle:not([aria-expanded='true']):hover:not(:active) .face,
+  .mx-option:hover:not(:active) :not(:checked) + .mx-key {
     transform: translateY(-3px);
     box-shadow: 0 3px 0 0 var(--b-edge);
   }
@@ -55,7 +61,8 @@
   .ps-btn,
   .sq,
   .p-close,
-  .c-toggle .face {
+  .c-toggle .face,
+  .mx-key {
     transition-property: background-color, box-shadow, border-color;
   }
 }

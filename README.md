@@ -65,10 +65,10 @@ font.
 | Part | What it does |
 | --- | --- |
 | `src/components/pudelko/BoxStage.astro` | The kraft box hero with the X-ray reveal (see below) |
-| `src/components/oem/OemStack.astro` | Exploded isometric view of an OEM manifold: belka, obwody, wyposażenie, oznaczenie, opakowanie. Unfolds while it scrolls in. Hover, focus or tap lifts the layers above one layer. Themed with `--stack-*` custom properties. Data in `src/data/oem.ts` |
+| `src/components/oem/ManifoldExploded.astro` | Exploded 3D manifold in the OEM section. The parts float apart while it scrolls in. On wide screens the labels stay still and their leader lines follow the floating parts. Hover, focus or tap highlights one part. A switch above the view swaps the brass RW-PT model and the stainless RWKO-PT model. `manifold-brass.ts` and `manifold-steel.ts` build the models from primitives measured on the product photos (the steel one also on the side drawing). `manifold-kit.ts` holds what both models share. `manifold-scene.ts` draws them and picks parts. Without WebGL the product photo shows. Themed with `--stack-*` custom properties. Part texts in `src/data/manifold.ts` |
 | `src/components/heat/HeatLoops.astro` | Underfloor-heating loops behind one section. A warm spot drifts over the pipes by itself and follows the cursor. Use it where there is little text |
 | `src/scripts/reveal.ts`, `src/styles/reveal.css` | Blocks and headline words enter from a soft blur, once. Off under reduced motion. A failsafe shows content if the script never runs |
-| `src/scripts/brand.ts` | One brand input updates the box tape and label, the stack plates, stickers and the inquiry e-mail |
+| `src/scripts/brand.ts` | One brand input updates the box tape and label, the sticker on the 3D manifold, the bar photo and the inquiry e-mail |
 
 ## The box hero
 
@@ -148,6 +148,10 @@ These claims are new or inferred. Check them before launch:
 - "Wysyłka do hurtowni w całej Polsce" and export.
 - Contact uses phone and e-mail links. The OEM link opens an e-mail with a template. There is no form on purpose.
 - A privacy-policy page (the current site has none).
+- The stainless RWKO-PT bracket: its two halves slide on each other, so the beam spacing changes. This comes from
+  the product photo and the height range of 308–403 mm. The 3D model and the part label "regulowany rozstaw" use it.
+- The flow range of the RWKO-PT rotameters. The live site gives none, so the Inox label names their position. The
+  brass label says "Do 2,6 albo 5 l/min".
 
 ## Project layout
 

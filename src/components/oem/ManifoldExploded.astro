@@ -1,25 +1,70 @@
 ---
 // Exploded 3D view of an OEM manifold: the parts float apart as the section scrolls in, each with its label.
 // The photo is the fallback when WebGL is missing. The labels then stay a plain list.
+// A switch above the view swaps the brass model and the stainless one.
 import { Image } from 'astro:assets';
-import { manifoldParts } from '../../data/manifold';
-import { productImage } from '../../data/products';
+import { manifoldParts, manifoldProducts, type ManifoldPart, type PartText } from '../../data/manifold';
+import { getProduct, materials, productImage, type Material } from '../../data/products';
 
 const parts = manifoldParts.map((part, i) => ({ ...part, n: i + 1 }));
 const brandPart = parts.find((part) => part.side === 'brand')!;
+const models = (Object.keys(manifoldProducts) as Material[]).map((material) => {
+  const product = getProduct(manifoldProducts[material]);
+  return { material, code: product.code, label: materials[material].label, image: productImage(product.slug) };
+});
+const shown = models[0].material;
+
+// Text that differs between the models is printed for each, and the root's data-model shows one of them.
+const texts = (part: ManifoldPart, key: keyof PartText) => {
+  const inox = part.inox?.[key];
+  return inox === undefined
+    ? [{ material: undefined, text: part[key] }]
+    : [
+        { material: 'mosiadz', text: part[key] },
+        { material: 'inox', text: inox },
+      ];
+};
 ---
 
-<div class="mx" data-manifold data-layout="list">
+<div class="mx" data-manifold data-layout="list" data-model={shown}>
+  <div class="mx-switch" role="radiogroup" aria-labelledby="mx-model-caption">
+    <span class="mx-caption" id="mx-model-caption">Materiał</span>
+    <span class="mx-keys">
+      {
+        models.map(({ material, label, code }) => (
+        <label class="mx-option">
+          <input
+            class="visually-hidden"
+            type="radio"
+            name="mx-model"
+            value={material}
+            checked={material === shown}
+            data-model-input
+          />
+          <span class="mx-key">
+            {label} <span class="mx-code">{code}</span>
+          </span>
+        </label>
+      ))
+      }
+    </span>
+  </div>
+
   <div class="mx-stage">
     <div class="mx-view" data-view>
-      <Image
-        class="mx-photo"
-        src={productImage('rw-pt')}
-        alt="Rozdzielacz z rotametrami, wkładkami termostatycznymi i trójnikami z odpowietrznikiem"
-        widths={[800, 1600]}
-        sizes="(min-width: 960px) 1100px, 100vw"
-        loading="lazy"
-      />
+      {
+        models.map(({ material, code, image }) => (
+          <Image
+            class="mx-photo"
+            data-for={material}
+            src={image}
+            alt={`Rozdzielacz ${code} z rotametrami, wkładkami termostatycznymi i trójnikami z odpowietrznikiem`}
+            widths={[800, 1600]}
+            sizes="(min-width: 960px) 1100px, 100vw"
+            loading="lazy"
+          />
+        ))
+      }
       <span class="mx-shadow" data-shadow aria-hidden="true"></span>
       <canvas
         class="mx-canvas"
@@ -50,9 +95,17 @@ const brandPart = parts.find((part) => part.side === 'brand')!;
                 <span class="mx-n">{part.n}</span>
                 <span class="mx-title">{part.title}</span>
               </span>
-              <span class="mx-short">{part.short}</span>
+              <span class="mx-short">
+                {texts(part, 'short').map(({ material, text }) => (
+                  <span data-for={material}>{text}</span>
+                ))}
+              </span>
             </button>
-            <p class="mx-more">{part.detail}</p>
+            <p class="mx-more">
+              {texts(part, 'detail').map(({ material, text }) => (
+                <span data-for={material}>{text}</span>
+              ))}
+            </p>
           </li>
         ))
       }
@@ -67,7 +120,11 @@ const brandPart = parts.find((part) => part.side === 'brand')!;
           <p class="mx-text-head">
             <span class="mx-n">{part.n}</span> {part.title}
           </p>
-          <p class="mx-text-body">{part.detail}</p>
+          <p class="mx-text-body">
+            {texts(part, 'detail').map(({ material, text }) => (
+              <span data-for={material}>{text}</span>
+            ))}
+          </p>
         </div>
       ))
     }
@@ -76,11 +133,14 @@ const brandPart = parts.find((part) => part.side === 'brand')!;
 
 <script>
   import type { PartId } from '../../data/manifold';
+  import type { Material } from '../../data/products';
   import type { Frame, ManifoldView } from './manifold-scene';
 
   const WIDE = 860;
-  const LABEL_GAP = 50;
+  const LABEL_GAP = 60;
   const LEADER_GAP = 36;
+  // Matches the fade-out of .mx[data-swap] in the styles below.
+  const SWAP_OUT = 140;
 
   document.querySelectorAll<HTMLElement>('[data-manifold]').forEach((root) => {
     const view = root.querySelector<HTMLElement>('[data-view]')!;
@@ -115,6 +175,27 @@ const brandPart = parts.find((part) => part.side === 'brand')!;
       scene?.highlight(part);
     };
 
+    // The model changes while the view is hidden. The view returns one frame later, after the new model is drawn.
+    // A newer click drops an older swap. Without a 3D scene, the photo and the texts switch at once.
+    let swap = 0;
+    root.querySelectorAll<HTMLInputElement>('[data-model-input]').forEach((input) =>
+      input.addEventListener('change', () => {
+        const next = input.value as Material;
+        const ticket = ++swap;
+        if (!scene) {
+          root.dataset.model = next;
+          return;
+        }
+        root.toggleAttribute('data-swap', true);
+        setTimeout(() => {
+          if (ticket !== swap) return;
+          root.dataset.model = next;
+          scene?.show(next);
+          requestAnimationFrame(() => ticket === swap && root.toggleAttribute('data-swap', false));
+        }, SWAP_OUT);
+      }),
+    );
+
     buttons.forEach((button) => {
       const part = button.dataset.part as PartId;
       button.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && select(part));
@@ -135,16 +216,35 @@ const brandPart = parts.find((part) => part.side === 'brand')!;
     };
 
     let wide = false;
+    let viewWidth = 0;
     let viewHeight = 0;
+    const rooms = { left: 0, right: 0 };
+    const edges = { left: 0, right: 0 };
     const measure = () => {
-      wide = view.clientWidth >= WIDE;
+      viewWidth = view.clientWidth;
+      wide = viewWidth >= WIDE;
       viewHeight = view.clientHeight;
       root.dataset.layout = wide ? 'wide' : 'compact';
       leaders.setAttribute('viewBox', `0 0 ${view.clientWidth} ${viewHeight}`);
       scene?.setFill(wide ? 0.42 : 0.86);
     };
 
-    const layout = ({ p, points, box, trail: [from, to] }: Frame) => {
+    let last: Frame | null = null;
+    const layout = (frame: Frame) => {
+      last = frame;
+      const { p, points, rest, box, trail: [from, to] } = frame;
+      if (wide) {
+        for (const column of ['left', 'right'] as const) {
+          edges[column] = column === 'left' ? box.left - LEADER_GAP : box.right + LEADER_GAP;
+          // When the view is only just wide enough, long labels wrap into the room beside the model.
+          const room = Math.round(column === 'left' ? edges[column] : viewWidth - edges[column]) - 4;
+          if (room === rooms[column]) continue;
+          rooms[column] = room;
+          labels.forEach((el) => el.dataset.column === column && el.style.setProperty('--room', `${room}px`));
+        }
+      }
+      // Read after the room and before the other writes. A label grows when it wraps.
+      const heights = new Map(wide ? [...labels].map(([id, el]) => [id, el.offsetHeight]) : []);
       root.style.setProperty('--p', p.toFixed(3));
       trail.setAttribute('x1', from.x.toFixed(1));
       trail.setAttribute('y1', from.y.toFixed(1));
@@ -157,15 +257,20 @@ const brandPart = parts.find((part) => part.side === 'brand')!;
         pin.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
       });
       if (!wide) return;
+      // Labels stay still. The leaders run from them to the floating parts.
       for (const column of ['left', 'right'] as const) {
         const items = [...labels]
           .filter(([, el]) => el.dataset.column === column)
-          .map(([id, el]) => ({ id, el, at: points.get(id)!, y: points.get(id)!.y }))
-          .sort((a, b) => a.at.y - b.at.y);
-        for (let i = 1; i < items.length; i++) items[i].y = Math.max(items[i].y, items[i - 1].y + LABEL_GAP);
-        const overflow = items[items.length - 1].y - (viewHeight - 20);
+          .map(([id, el]) => ({ id, el, at: points.get(id)!, y: rest.get(id)!.y }))
+          .sort((a, b) => a.y - b.y);
+        for (let i = 1; i < items.length; i++) {
+          const above = items[i - 1];
+          items[i].y = Math.max(items[i].y, above.y + Math.max(LABEL_GAP, heights.get(above.id)! + 12));
+        }
+        const last = items[items.length - 1];
+        const overflow = last.y + heights.get(last.id)! - viewHeight;
         if (overflow > 0) items.forEach((item) => (item.y -= overflow));
-        const edge = column === 'left' ? box.left - LEADER_GAP : box.right + LEADER_GAP;
+        const edge = edges[column];
         for (const { id, el, at, y } of items) {
           el.style.transform = `translate(${edge.toFixed(1)}px, ${y.toFixed(1)}px)`;
           const line = lines.get(id)!;
@@ -179,11 +284,18 @@ const brandPart = parts.find((part) => part.side === 'brand')!;
 
     const start = async () => {
       const { mountManifold } = await import('./manifold-scene');
-      scene = mountManifold({ canvas, still, progress, onPick: select, onFrame: layout });
-      if (!scene) return;
+      const material = root.dataset.model as Material;
+      scene = mountManifold({ canvas, still, material, progress, onPick: select, onFrame: layout });
+      if (!scene) {
+        root.toggleAttribute('data-photo', true);
+        return;
+      }
       root.toggleAttribute('data-3d', true);
       measure();
       new ResizeObserver(measure).observe(view);
+      // A label also changes size when the page fonts load. A still scene draws no new frame then.
+      const relabel = new ResizeObserver(() => last && layout(last));
+      labels.forEach((el) => relabel.observe(el));
       const syncBrand = () => scene?.setBrand(brandSource.textContent?.trim() || 'TWOJA MARKA');
       new MutationObserver(syncBrand).observe(brandSource, { childList: true, characterData: true, subtree: true });
       syncBrand();
@@ -210,8 +322,81 @@ const brandPart = parts.find((part) => part.side === 'brand')!;
     container-type: inline-size;
   }
 
+  .mx-switch {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px 10px;
+    margin-bottom: 4px;
+  }
+
+  .mx-keys {
+    display: flex;
+    gap: 10px;
+  }
+
+  .mx-caption {
+    margin-right: 4px;
+    font-family: var(--stack-mono, ui-monospace, monospace);
+    font-size: 12px;
+    color: var(--stack-muted, #6b6b70);
+  }
+
+  .mx-option {
+    position: relative;
+    cursor: pointer;
+  }
+
+  /* src/styles/buttons.css owns the colours, depth and motion. */
+  .mx-key {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 6px;
+    font-size: 13.5px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .mx-code {
+    font-family: var(--stack-mono, ui-monospace, monospace);
+    font-size: 12px;
+    opacity: 0.82;
+  }
+
+  .mx-option input:focus-visible + .mx-key {
+    outline: 2px solid var(--stack-accent, #c69c6d);
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 639px) {
+    .mx-key {
+      height: 44px;
+    }
+  }
+
+  .mx[data-model='mosiadz'] [data-for='inox'],
+  .mx[data-model='inox'] [data-for='mosiadz'] {
+    display: none;
+  }
+
   .mx-stage {
     position: relative;
+  }
+
+  /* A model swap fades the view out and back in. On wide screens the labels around it fade too. */
+  .mx-view,
+  .mx[data-layout='wide'] .mx-stage {
+    transition: opacity 220ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .mx[data-swap]:not([data-layout='wide']) .mx-view,
+  .mx[data-swap][data-layout='wide'] .mx-stage {
+    opacity: 0;
+    transition-duration: 140ms;
   }
 
   .mx-view {
@@ -221,6 +406,12 @@ const brandPart = parts.find((part) => part.side === 'brand')!;
 
   .mx[data-layout='wide'] .mx-view {
     aspect-ratio: 12 / 7;
+  }
+
+  /* Without WebGL the box takes the shape of the product photo. */
+  .mx[data-photo] .mx-view {
+    aspect-ratio: 16 / 9;
+    margin-top: 28px;
   }
 
   /* On a tablet the drawing would fill the screen and push the list below the fold. */
@@ -377,6 +568,11 @@ const brandPart = parts.find((part) => part.side === 'brand')!;
     border-top: 1px solid var(--stack-line, rgb(24 24 27 / 0.14));
   }
 
+  /* Room for the floor shadow under the model. */
+  .mx[data-layout='compact'] .mx-labels {
+    margin-top: 20px;
+  }
+
   .mx-label {
     border-bottom: 1px solid var(--stack-line, rgb(24 24 27 / 0.14));
     transition: opacity 200ms ease;
@@ -509,7 +705,7 @@ const brandPart = parts.find((part) => part.side === 'brand')!;
 
   .mx[data-layout='wide'] .mx-label button {
     width: max-content;
-    max-width: 300px;
+    max-width: min(300px, var(--room, 300px));
     padding: 0;
     /* Lift the label by half a title line, so the leader meets the title. */
     translate: 0 -0.8em;
