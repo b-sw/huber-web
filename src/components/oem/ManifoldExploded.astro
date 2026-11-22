@@ -24,6 +24,9 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
         { material: 'inox', text: inox },
       ];
 };
+
+// A sentence ends only before a capital letter, so an abbreviation such as "szt." does not end a line.
+const sentences = (text: string) => text.split(/(?<=[.!?])\s+(?=\p{Lu})/u);
 ---
 
 <div class="mx" data-manifold data-layout="list" data-model={shown}>
@@ -103,7 +106,13 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
             </button>
             <p class="mx-more">
               {texts(part, 'detail').map(({ material, text }) => (
-                <span data-for={material}>{text}</span>
+                <span data-for={material}>
+                  {sentences(text).map((line) => (
+                    <Fragment>
+                      <span class="mx-line">{line}</span>{' '}
+                    </Fragment>
+                  ))}
+                </span>
               ))}
             </p>
           </li>
@@ -122,7 +131,13 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
           </p>
           <p class="mx-text-body">
             {texts(part, 'detail').map(({ material, text }) => (
-              <span data-for={material}>{text}</span>
+              <span data-for={material}>
+                {sentences(text).map((line) => (
+                  <Fragment>
+                    <span class="mx-line">{line}</span>{' '}
+                  </Fragment>
+                ))}
+              </span>
             ))}
           </p>
         </div>
@@ -142,6 +157,7 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
 
   document.querySelectorAll<HTMLElement>('[data-manifold]').forEach((root) => {
     const view = root.querySelector<HTMLElement>('[data-view]')!;
+    const stage = view.parentElement!;
     const canvas = root.querySelector<HTMLCanvasElement>('[data-canvas]')!;
     const leaders = root.querySelector<SVGSVGElement>('[data-leaders]')!;
     const shadow = root.querySelector<HTMLElement>('[data-shadow]')!;
@@ -208,11 +224,19 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
     const edges = { left: 0, right: 0 };
     const measure = () => {
       viewWidth = view.clientWidth;
-      wide = viewWidth >= WIDE;
+      // The compact view can be narrower than the stage, so the stage picks the layout.
+      wide = stage.clientWidth >= WIDE;
       viewHeight = view.clientHeight;
       root.dataset.layout = wide ? 'wide' : 'compact';
       leaders.setAttribute('viewBox', `0 0 ${view.clientWidth} ${viewHeight}`);
       scene?.setFill(wide ? 0.42 : 0.86);
+      if (wide) return;
+      // A wide frame places each label inline. The compact list drops those places, so a later wide frame sets them again.
+      rooms.left = rooms.right = 0;
+      labels.forEach((el) => {
+        el.style.removeProperty('transform');
+        el.style.removeProperty('--room');
+      });
     };
 
     let last: Frame | null = null;
@@ -275,12 +299,14 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
       const material = root.dataset.model as Material;
       scene = mountManifold({ canvas, still, material, progress, onPick: select, onFrame: layout });
       if (!scene) {
+        sizing.disconnect();
+        root.dataset.layout = 'list';
+        root.style.removeProperty('--p');
         root.toggleAttribute('data-photo', true);
         return;
       }
       root.toggleAttribute('data-3d', true);
       measure();
-      new ResizeObserver(measure).observe(view);
       // A label also changes size when the page fonts load. A still scene draws no new frame then.
       const relabel = new ResizeObserver(() => last && layout(last));
       labels.forEach((el) => relabel.observe(el));
@@ -288,6 +314,14 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
       new MutationObserver(syncBrand).observe(brandSource, { childList: true, characterData: true, subtree: true });
       syncBrand();
     };
+
+    // The view takes its 3D shape before the scene loads, so the page does not jump and the photo does not show under
+    // the model. Until the first frame places the labels, --p 0 hides them.
+    measure();
+    const sizing = new ResizeObserver(measure);
+    sizing.observe(view);
+    sizing.observe(stage);
+    root.style.setProperty('--p', '0');
 
     const near = new IntersectionObserver(
       (entries) => {
@@ -407,7 +441,6 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
 
   .mx-photo {
     object-fit: contain;
-    transition: opacity 400ms ease;
   }
 
   .mx-canvas {
@@ -416,8 +449,8 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
     transition: opacity 500ms ease;
   }
 
-  .mx[data-3d] .mx-photo {
-    opacity: 0;
+  .mx:not([data-layout='list']) .mx-photo {
+    display: none;
   }
 
   .mx-shadow {
@@ -699,7 +732,7 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
 
   .mx-detail {
     display: grid;
-    max-width: 34rem;
+    max-width: 36rem;
     margin: 6px auto 0;
   }
 
@@ -717,8 +750,9 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
     transition: none;
   }
 
+  /* Room for the title and three sentence lines, so a hover does not move the page below. */
   .mx[data-layout='wide'] .mx-detail {
-    min-height: 5.5em;
+    min-height: 6.6em;
   }
 
   /* The list opens each description under its own row. */
@@ -737,5 +771,10 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
 
   .mx-text-body {
     margin-top: 6px;
+  }
+
+  .mx-line {
+    display: block;
+    text-wrap: balance;
   }
 </style>

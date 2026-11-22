@@ -1,0 +1,15 @@
+---
+import geist from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
+import geistExt from '@fontsource-variable/geist/files/geist-latin-ext-wght-normal.woff2?url';
+import geistMono from '@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url';
+import geistMonoExt from '@fontsource-variable/geist-mono/files/geist-mono-latin-ext-wght-normal.woff2?url';
+import plex400 from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url';
+import plex400Ext from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-ext-400-normal.woff2?url';
+import plex600 from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-600-normal.woff2?url';
+import plex600Ext from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-ext-600-normal.woff2?url';
+import archivo from '../assets/fonts/archivo-latin.woff2?url';
+
+const firstScreen = [geist, geistExt, geistMono, geistMonoExt, plex400, plex400Ext, plex600, plex600Ext, archivo];
+---
+
+{firstScreen.map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}

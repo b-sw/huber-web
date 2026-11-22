@@ -2,7 +2,7 @@
 import '../../styles/archivo-subset.css';
 import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/600.css';
-import { circuitRange, getProduct, products } from '../../data/products';
+import { circuitRange, configFloor, getProduct, products } from '../../data/products';
 import grain from '../../assets/textures/kraft-grain.webp';
 import mottle from '../../assets/textures/kraft-mottle.webp';
 import XrayLayer from './XrayLayer.astro';
@@ -218,7 +218,8 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
         <g transform={`translate(${stamp.x} ${stamp.y}) rotate(-10)`}>
           <circle r="84" fill="#f26a21" filter="url(#sticker-shadow)"></circle>
           <circle r="75" fill="none" stroke="#161412" stroke-width="1.4" stroke-dasharray="2 3"></circle>
-          <text y="4" text-anchor="middle" class="stamp-num">{products.length}</text>
+          <text y="-46" text-anchor="middle" class="stamp-label small">PONAD</text>
+          <text y="4" text-anchor="middle" class="stamp-num">{configFloor}</text>
           <text y="30" text-anchor="middle" class="stamp-label">KONFIGURACJI</text>
           <text y="50" text-anchor="middle" class="stamp-label small">{range.min}–{range.max} OBWODÓW</text>
           <circle r="84" fill="url(#sticker-gloss)"></circle>

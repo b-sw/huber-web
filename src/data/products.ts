@@ -33,6 +33,9 @@ export interface Product {
 
 export const products = data as Product[];
 
+// products.json lists only part of the range. Until it is complete, the page says "ponad" this many configurations.
+export const configFloor = 20;
+
 export const materials: Record<Material, { label: string; name: string; bar: string }> = {
   mosiadz: {
     label: 'Mosiądz',

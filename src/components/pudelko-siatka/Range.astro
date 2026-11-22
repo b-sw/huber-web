@@ -21,7 +21,7 @@ const plural = (n: number) => {
 
 const NBSP = ' ';
 const shortVersion = (v: string) => v.replace(/^Rotametry do /, '').replace(/^Zawór ESBE /, '');
-const bindLast = (text: string) => text.replace(/ (?=\S+$)/, NBSP);
+const dotted = (items: string[]) => items.map((item, i) => (i < items.length - 1 ? `${item}${NBSP}·` : item));
 const noBreakCount = (item: string) => item.replace(/ – (\d+) szt\./, `${NBSP}–${NBSP}$1${NBSP}szt.`);
 
 let n = 0;
@@ -41,7 +41,13 @@ const pad = (x: number) => String(x).padStart(2, '0');
             {materials[g.m].name}
           </h3>
           <p class="g-meta">
-            {g.list.length} {plural(g.list.length)} · {g.range.min}–{g.range.max} obwodów · {bindLast(materials[g.m].bar)}
+            {dotted([`${g.list.length} ${plural(g.list.length)}`, `${g.range.min}–${g.range.max} obwodów`, materials[g.m].bar]).map(
+              (item) => (
+                <Fragment>
+                  <span>{item}</span>{' '}
+                </Fragment>
+              ),
+            )}
           </p>
         </div>
 
@@ -76,7 +82,13 @@ const pad = (x: number) => String(x).padStart(2, '0');
                   <h4 class="c-code" id={`c-${p.slug}`}>
                     {p.code}
                   </h4>
-                  <p class="c-feat">{featureList(p).join(`${NBSP}· `)}</p>
+                  <p class="c-feat">
+                    {dotted(featureList(p)).map((item) => (
+                      <Fragment>
+                        <span>{item}</span>{' '}
+                      </Fragment>
+                    ))}
+                  </p>
                   <dl class="c-meta">
                     {ranges.map((x) => (
                       <div>
@@ -176,7 +188,7 @@ const pad = (x: number) => String(x).padStart(2, '0');
   .g-head {
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 6px 24px;
     padding: 20px var(--pad);
@@ -184,9 +196,10 @@ const pad = (x: number) => String(x).padStart(2, '0');
   }
 
   .g-title {
-    font-size: 17px;
+    font-size: 20px;
     font-weight: 600;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
   }
 
   .g-meta {
@@ -280,6 +293,12 @@ const pad = (x: number) => String(x).padStart(2, '0');
     font-size: 12.5px;
     line-height: 1.5;
     color: var(--ink-2);
+  }
+
+  /* A dotted list breaks only between items. */
+  .g-meta > span,
+  .c-feat > span {
+    display: inline-block;
   }
 
   .c-meta {
@@ -697,9 +716,13 @@ const pad = (x: number) => String(x).padStart(2, '0');
       margin: 12px 0 18px;
     }
 
+    .c-code,
+    .g-title {
+      font-size: 22px;
+    }
+
     .c-code {
       margin-top: 0;
-      font-size: 22px;
     }
   }
 

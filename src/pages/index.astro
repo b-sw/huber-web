@@ -8,6 +8,7 @@ import '../styles/links.css';
 import '../styles/buttons.css';
 import { Image, getImage } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+import FontPreload from '../components/FontPreload.astro';
 import Icon from '../components/Icon.astro';
 import Logo from '../components/Logo.astro';
 import BoxStage from '../components/pudelko/BoxStage.astro';
@@ -19,32 +20,25 @@ import Rule from '../components/pudelko-siatka/Rule.astro';
 import Range from '../components/pudelko-siatka/Range.astro';
 import Whose from '../components/pudelko-siatka/Whose.astro';
 import { company } from '../data/company';
-import { byMaterial, circuitRange, materials, productImage, productUrl, products } from '../data/products';
+import { circuitRange, configFloor, materials, productImage, productUrl, products } from '../data/products';
 import factory from '../assets/photos/factory.jpg';
 
 const TOTAL = 6;
+const CONFIGS = `Ponad ${configFloor} konfiguracji`;
 const all = circuitRange(products);
-const brass = circuitRange(byMaterial('mosiadz'));
-const inox = circuitRange(byMaterial('inox'));
 
 const links: NavLink[] = [
   { id: 'asortyment', n: 2, label: 'Asortyment', long: 'Asortyment' },
-  { id: 'oem', n: 3, label: 'OEM', long: 'Pod Twoją marką (OEM)' },
-  { id: 'jak-to-dziala', n: 4, label: 'Jak to działa', long: 'Jak to działa' },
+  { id: 'oem', n: 3, label: 'OEM', long: 'OEM' },
+  { id: 'jak-pracujemy', n: 4, label: 'Jak pracujemy', long: 'Jak pracujemy' },
   { id: 'o-firmie', n: 5, label: 'O firmie', long: 'O firmie' },
 ];
 
 const steps = [
-  {
-    title: 'Konfiguracja',
-    text: `Wybierasz zestaw z katalogu albo opisujesz własny. Mosiądz albo inox, od ${all.min} do ${all.max} obwodów.`,
-  },
-  { title: 'Oznaczenie', text: 'Na belce rozdzielacza umieszczamy oznaczenie Twojej marki zamiast naszego.' },
-  { title: 'Produkcja', text: 'Składamy rozdzielacze w naszym zakładzie w Nowej Wsi pod Włocławkiem.' },
-  {
-    title: 'Opakowanie i dostawa',
-    text: 'Pudełka zaklejamy Twoją taśmą i Twoimi naklejkami. Dostarczamy terminowo, do sprzedaży pod Twoją marką.',
-  },
+  { title: 'Konfiguracja', text: 'Wybierasz konfigurację z katalogu lub własną spersonalizowaną.' },
+  { title: 'Projekt i branding', text: 'Przygotowujemy ofertę, dokumentację, projekt grafiki, etykiet i naklejek.' },
+  { title: 'Produkcja', text: 'Wdrażamy produkcję w naszym zakładzie w Nowej Wsi pod Włocławkiem.' },
+  { title: 'Dostawa', text: 'Kompletujemy zamówienie i organizujemy terminową wysyłkę.' },
 ];
 
 const facts = [
@@ -80,11 +74,12 @@ const year = new Date().getFullYear();
 
 <Base
   title="Rozdzielacze do podłogówki od producenta. OEM pod Twoją marką | Huber"
-  description={`Producent rozdzielaczy do ogrzewania podłogowego od ${company.foundingYear} roku. ${products.length} konfiguracji z mosiądzu i inoxu, ${all.min}–${all.max} obwodów, tabele indeksów. Nowość: produkcja OEM pod Twoją marką.`}
+  description={`Producent rozdzielaczy do ogrzewania podłogowego od ${company.foundingYear} roku. ${CONFIGS} z mosiądzu i inoxu, ${all.min}–${all.max} obwodów, tabele indeksów. Produkcja OEM pod Twoją marką.`}
   themeColor="#fff8f5"
   ogImage={productImage('rw-ezmptr')}
   jsonLd={[itemList]}
 >
+  <FontPreload slot="head" />
   <script is:inline slot="head">document.documentElement.classList.add('reveal-on');</script>
 
   <div class="ps" id="top">
@@ -118,8 +113,8 @@ const year = new Date().getFullYear();
                 <a class="ps-btn" href="#oem">Zapytaj o OEM</a>
               </div>
               <p class="hero-meta">
-                {products.length} konfiguracji · mosiądz i inox · <span class="nw">{all.min}–{all.max} obwodów</span><br />
-                Każdą wykonamy też pod Twoją marką.
+                {CONFIGS}<br />
+                Mosiądz i inox · {all.min}–{all.max} obwodów
               </p>
             </div>
           </div>
@@ -133,12 +128,12 @@ const year = new Date().getFullYear();
             <Label n={2} total={TOTAL} text="Asortyment" />
             <div class="ps-split">
               <h2 class="ps-h2" id="asortyment-h" data-reveal="words">
-                <span>{products.length} konfiguracji.</span>{' '}
+                <span>{CONFIGS}.</span>{' '}
                 <span class="ps-tone">Mosiądz i inox.</span>
               </h2>
-              <p class="ps-lead" data-reveal style="--d: 150">
-                Mosiądz od {brass.min} do {brass.max} obwodów, inox od {inox.min} do {inox.max}. Inną konfigurację wykonamy
-                na zamówienie.
+              <p class="ps-lead ps-lines" data-reveal style="--d: 150">
+                <span>Od {all.min} do {all.max} obwodów.</span>{' '}
+                <span>Inne konfiguracje wykonamy pod&nbsp;Twoje spersonalizowane zamówienie.</span>
               </p>
             </div>
           </div>
@@ -150,15 +145,12 @@ const year = new Date().getFullYear();
         <Rule wait />
         <div class="ps-wrap">
           <div class="ps-head">
-            <Label n={3} total={TOTAL} text="OEM · Nowość" />
+            <Label n={3} total={TOTAL} text="OEM" />
             <div class="ps-split">
               <h2 class="ps-h2" id="oem-h" data-reveal="words">
                 <span>Twoja marka na wierzchu.</span>{' '}
                 <span class="ps-tone">Nasza produkcja pod spodem.</span>
               </h2>
-              <p class="ps-lead" data-reveal style="--d: 150">
-                Twoje oznaczenie trafia na belkę, a Twoja taśma i naklejki na pudełko.
-              </p>
             </div>
           </div>
 
@@ -181,13 +173,17 @@ const year = new Date().getFullYear();
                 />
                 <span class="bar-sticker"><span data-brand data-brand-fit>TWOJA MARKA</span></span>
               </div>
-              <figcaption>Oznaczenie na belce. Tu pojawi się Twoja marka.</figcaption>
+              <figcaption class="ps-lines">
+                <span>Oznaczenie na belce.</span>{' '}
+                <span>Tu pojawi się Twoja marka.</span>
+              </figcaption>
             </figure>
             <div class="ask">
               <p class="ps-kicker" data-reveal>Zapytanie OEM</p>
               <p class="ask-t" data-reveal style="--d: 80">Napisz, jakie zestawy i ilości Cię interesują.</p>
-              <p class="ask-p" data-reveal style="--d: 140">
-                Otworzy się e-mail z gotowym szablonem. Nazwa Twojej marki będzie w temacie wiadomości.
+              <p class="ask-p ps-lines" data-reveal style="--d: 140">
+                <span>Otworzy się e-mail z gotowym szablonem.</span>{' '}
+                <span>Nazwa Twojej marki będzie w temacie wiadomości.</span>
               </p>
               <div class="ask-cta" data-reveal style="--d: 200">
                 <a class="ps-btn ps-btn--ink" href={`mailto:${company.email}`} data-brand-mailto={company.email}>
@@ -203,14 +199,15 @@ const year = new Date().getFullYear();
         </div>
       </section>
 
-      <section class="ps-sec" id="jak-to-dziala" aria-labelledby="jak-h">
+      <section class="ps-sec" id="jak-pracujemy" aria-labelledby="jak-h">
         <Rule wait />
         <div class="ps-wrap">
           <div class="ps-head">
-            <Label n={4} total={TOTAL} text="Jak to działa" />
+            <Label n={4} total={TOTAL} text="Jak pracujemy" />
             <div class="ps-split">
               <h2 class="ps-h2" id="jak-h" data-reveal="words">
-                <span>Od katalogu do Twojego pudełka.</span>{' '}
+                <span>Od naszego katalogu</span>{' '}
+                <span>lub Twojej koncepcji do produkcji.</span>{' '}
                 <span class="ps-tone">W czterech krokach.</span>
               </h2>
               <p class="ps-lead" data-reveal style="--d: 150">
@@ -247,7 +244,7 @@ const year = new Date().getFullYear();
                 <span class="ps-tone">Od {company.foundingYear} roku.</span>
               </h2>
               <p class="ps-lead" data-reveal style="--d: 150">
-                Obrabiamy metal i składamy rozdzielacze u siebie.
+                Produkujemy rozdzielacze u siebie.
               </p>
             </div>
           </div>
@@ -286,8 +283,9 @@ const year = new Date().getFullYear();
                 <span>Zadzwoń albo napisz.</span>{' '}
                 <span class="ps-tone">Odpowiada producent.</span>
               </h2>
-              <p class="ps-lead" data-reveal style="--d: 150">
-                Zapytaj o indeksy, dostępność albo produkcję pod Twoją marką.
+              <p class="ps-lead ps-lines" data-reveal style="--d: 150">
+                <span>Zapytaj o naszą standardową ofertę.</span>{' '}
+                <span>Lub o spersonalizowaną produkcję pod Twoją marką.</span>
               </p>
             </div>
           </div>
@@ -557,8 +555,17 @@ const year = new Date().getFullYear();
   }
 
   .ps-h1 > span,
-  .ps-h2 > span {
+  .ps-h2 > span,
+  .ps-lines > span {
     display: block;
+  }
+
+  .ps-lines > span {
+    text-wrap: balance;
+  }
+
+  .ps p {
+    text-wrap: pretty;
   }
 
   .ps-tone {
@@ -566,11 +573,10 @@ const year = new Date().getFullYear();
   }
 
   .ps-lead {
-    max-width: 46ch;
+    max-width: 60ch;
     font-size: 17px;
     line-height: 1.6;
     color: var(--muted);
-    text-wrap: pretty;
   }
 
   .ps-kicker {
@@ -658,10 +664,6 @@ const year = new Date().getFullYear();
     font-size: 12px;
     line-height: 1.7;
     color: var(--soft);
-  }
-
-  .nw {
-    white-space: nowrap;
   }
 
   .stage-cell {
@@ -778,6 +780,7 @@ const year = new Date().getFullYear();
     font-weight: 600;
     letter-spacing: -0.03em;
     line-height: 1.2;
+    text-wrap: balance;
   }
 
   .ask-p {
@@ -899,7 +902,8 @@ const year = new Date().getFullYear();
     }
   }
 
-  @media (min-width: 1000px) {
+  /* Four steps in a row need about 220px of text each. */
+  @media (min-width: 1200px) {
     .steps {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
