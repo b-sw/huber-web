@@ -139,8 +139,6 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
   const WIDE = 860;
   const LABEL_GAP = 60;
   const LEADER_GAP = 36;
-  // Matches the fade-out of .mx[data-swap] in the styles below.
-  const SWAP_OUT = 140;
 
   document.querySelectorAll<HTMLElement>('[data-manifold]').forEach((root) => {
     const view = root.querySelector<HTMLElement>('[data-view]')!;
@@ -175,24 +173,12 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
       scene?.highlight(part);
     };
 
-    // The model changes while the view is hidden. The view returns one frame later, after the new model is drawn.
-    // A newer click drops an older swap. Without a 3D scene, the photo and the texts switch at once.
-    let swap = 0;
+    // The scene animates the swap and reports the model on screen.
     root.querySelectorAll<HTMLInputElement>('[data-model-input]').forEach((input) =>
       input.addEventListener('change', () => {
         const next = input.value as Material;
-        const ticket = ++swap;
-        if (!scene) {
-          root.dataset.model = next;
-          return;
-        }
-        root.toggleAttribute('data-swap', true);
-        setTimeout(() => {
-          if (ticket !== swap) return;
-          root.dataset.model = next;
-          scene?.show(next);
-          requestAnimationFrame(() => ticket === swap && root.toggleAttribute('data-swap', false));
-        }, SWAP_OUT);
+        if (scene) scene.show(next);
+        else root.dataset.model = next;
       }),
     );
 
@@ -232,7 +218,9 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
     let last: Frame | null = null;
     const layout = (frame: Frame) => {
       last = frame;
-      const { p, points, rest, box, trail: [from, to] } = frame;
+      const { material, swapping, p, points, rest, box, trail: [from, to] } = frame;
+      if (root.dataset.model !== material) root.dataset.model = material;
+      root.toggleAttribute('data-swapping', swapping);
       if (wide) {
         for (const column of ['left', 'right'] as const) {
           edges[column] = column === 'left' ? box.left - LEADER_GAP : box.right + LEADER_GAP;
@@ -385,18 +373,6 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
 
   .mx-stage {
     position: relative;
-  }
-
-  /* A model swap fades the view out and back in. On wide screens the labels around it fade too. */
-  .mx-view,
-  .mx[data-layout='wide'] .mx-stage {
-    transition: opacity 220ms cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  .mx[data-swap]:not([data-layout='wide']) .mx-view,
-  .mx[data-swap][data-layout='wide'] .mx-stage {
-    opacity: 0;
-    transition-duration: 140ms;
   }
 
   .mx-view {
@@ -729,6 +705,16 @@ const texts = (part: ManifoldPart, key: keyof PartText) => {
 
   .mx[data-3d] .mx-detail {
     opacity: var(--reveal);
+  }
+
+  /* The hint is the same for both models, so it stays while the parts swap. */
+  .mx[data-swapping] .mx-detail {
+    opacity: 1;
+  }
+
+  /* During a swap the dots leave with their labels, without the lag of the hover dimming. */
+  .mx[data-swapping] .mx-pin {
+    transition: none;
   }
 
   .mx[data-layout='wide'] .mx-detail {

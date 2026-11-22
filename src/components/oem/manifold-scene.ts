@@ -9,6 +9,10 @@ import { studio } from './manifold-shading';
 import { buildSteel } from './manifold-steel';
 
 export interface Frame {
+  // The model on screen. It can lag behind the switch while the parts fold.
+  material: Material;
+  // A swap runs, from the first fold until the parts settle again.
+  swapping: boolean;
   // Spread of the parts: 0 assembled, 1 fully apart.
   p: number;
   points: Map<PartId, Point>;
@@ -42,6 +46,7 @@ interface Options {
 }
 
 interface Staged {
+  material: Material;
   model: ManifoldModel;
   pieces: Map<THREE.Object3D, Piece>;
   zones: Map<string, { part: PartId; members: { object: THREE.Object3D; corners: THREE.Vector3[] }[] }>;
@@ -55,6 +60,10 @@ const BUILDERS: Record<Material, () => ManifoldModel> = { mosiadz: buildBrass, i
 const YAW = THREE.MathUtils.degToRad(-24);
 const PITCH = THREE.MathUtils.degToRad(9);
 const FOV = 22;
+const SWAP_TURN = THREE.MathUtils.degToRad(16);
+// A swap folds the parts slowly at first and fastest as they meet, so the model changes at full speed.
+// The new parts spread on the mirrored curve in the same time, so the change has no snap.
+const FOLD_MS = 300;
 // How far outside a zone, in CSS px, the pointer still picks it.
 const HIT_PAD = 16;
 
@@ -90,6 +99,7 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
   const restCamera = camera.clone();
 
   const staged = new Map<Material, Staged>();
+  const warmup = new THREE.WebGLRenderTarget(1, 1);
   const stage = (material: Material): Staged => {
     const known = staged.get(material);
     if (known) return known;
@@ -107,7 +117,7 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
       zones.set(piece.zone, zone);
     }
 
-    // Frame the manifold by its fully spread size, so the camera never moves while the parts travel.
+    // Frame the manifold by its fully spread size, so the camera stays put while the parts travel on scroll.
     for (const piece of model.pieces) {
       piece.object.position.copy(piece.home).add(piece.offset);
       piece.object.rotation.copy(piece.rest);
@@ -124,10 +134,15 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
       renderer.compile(scene, camera);
     }
     model.highlight(null);
+    // Draw it once off screen, so its first frame on screen does not upload every buffer and texture.
+    renderer.setRenderTarget(warmup);
+    renderer.render(scene, camera);
+    renderer.setRenderTarget(null);
     scene.remove(model.root);
     model.ready.then(request);
 
     const built = {
+      material,
       model,
       pieces: new Map(model.pieces.map((piece) => [piece.object, piece])),
       zones,
@@ -141,6 +156,11 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
 
   let shown = stage(material);
   scene.add(shown.model.root);
+  let pending: Staged | null = null;
+  let swing = 0;
+  let fold: { start: number; p: number; swing: number } | null = null;
+  let spread: { start: number } | null = null;
+  let swapping = false;
   let brand = '';
   let selected: PartId | null = null;
 
@@ -148,6 +168,8 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
   let height = 1;
   let fill = 0.44;
   let distance = 1000;
+  const easedCenter = new THREE.Vector3();
+  let easedDistance = distance;
 
   const fit = () => {
     const { size } = shown;
@@ -155,6 +177,13 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
     const byHeight = (size.y * 0.5) / (tan * 0.9);
     const byWidth = (Math.max(size.x, size.z) * 0.5) / (tan * camera.aspect * fill);
     distance = Math.max(byHeight, byWidth) + size.z * 0.5;
+  };
+
+  // A new size or layout frames the model at once. Only a swap eases into the new framing.
+  const refit = () => {
+    fit();
+    easedDistance = distance;
+    easedCenter.copy(shown.center);
   };
 
   const resize = () => {
@@ -165,7 +194,7 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
       lens.aspect = width / height;
       lens.updateProjectionMatrix();
     }
-    fit();
+    refit();
     request();
   };
 
@@ -193,12 +222,11 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
     target.scale.setScalar(1 + (piece.grow - 1) * p);
   };
 
-  const aim = (lens: THREE.PerspectiveCamera, turn: number, tilt: number) => {
-    const { center } = shown;
+  const aim = (lens: THREE.PerspectiveCamera, turn: number, tilt: number, center: THREE.Vector3, far: number) => {
     lens.position.set(
-      center.x + distance * Math.sin(turn) * Math.cos(tilt),
-      center.y + distance * Math.sin(tilt),
-      center.z + distance * Math.cos(turn) * Math.cos(tilt),
+      center.x + far * Math.sin(turn) * Math.cos(tilt),
+      center.y + far * Math.sin(tilt),
+      center.z + far * Math.cos(turn) * Math.cos(tilt),
     );
     lens.lookAt(center);
     lens.updateMatrixWorld();
@@ -207,8 +235,8 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
   const pose = (t: number) => {
     for (const piece of shown.model.pieces) settle(piece, piece.object, t, still ? 0 : p);
     const sway = still ? 0 : Math.sin(t * 0.25) * THREE.MathUtils.degToRad(2.5);
-    aim(camera, yaw + sway, pitch);
-    aim(restCamera, YAW, PITCH);
+    aim(camera, yaw + sway + swing * SWAP_TURN, pitch, easedCenter, easedDistance);
+    aim(restCamera, YAW, PITCH, shown.center, distance);
   };
 
   const anchorOnScreen = ({ object, point }: Anchor) => toScreen(object.localToWorld(point.clone()));
@@ -236,21 +264,68 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
       box.top = Math.min(box.top, y);
       box.bottom = Math.max(box.bottom, y);
     }
-    onFrame({ p, points, rest, box, trail: [anchorOnScreen(model.trail[0]), anchorOnScreen(model.trail[1])] });
+    const trail: [Point, Point] = [anchorOnScreen(model.trail[0]), anchorOnScreen(model.trail[1])];
+    onFrame({ material: shown.material, swapping, p, points, rest, box, trail });
   };
 
+  const swap = () => {
+    scene.remove(shown.model.root);
+    shown = pending!;
+    pending = null;
+    scene.add(shown.model.root);
+    if (brand) shown.model.setBrand(brand);
+    shown.model.highlight(selected);
+    fit();
+  };
+
+  let before = 0;
   const frame = (now: number) => {
     raf = 0;
-    const target = still ? 1 : progress();
-    p += (target - p) * 0.12;
-    if (Math.abs(target - p) < 0.0005) p = target;
-    yaw += (aimYaw - yaw) * 0.06;
-    pitch += (aimPitch - pitch) * 0.06;
+    // Easing rates are per frame at 60 fps. A slower or faster screen gets the same timing.
+    const frames = before ? Math.min(now - before, 100) / (1000 / 60) : 1;
+    before = now;
+    const ease = (rate: number) => 1 - Math.pow(1 - rate, frames);
+    if (pending) {
+      // The fold starts on the first frame, so a slow click handler does not skip its start.
+      fold ??= { start: now, p, swing };
+      spread = null;
+      swapping = true;
+      const t = Math.min(1, (now - fold.start) / (FOLD_MS * Math.max(0.5, fold.p)));
+      p = fold.p * (1 - t * t);
+      swing = fold.swing + (1 - fold.swing) * t * t;
+      if (t === 1) {
+        swap();
+        spread = { start: now };
+      }
+    } else {
+      fold = null;
+      const target = still ? 1 : progress();
+      // The camera turns back to its start angle while the parts spread, so only the material changes at the swap.
+      if (spread) {
+        const t = Math.min(1, (now - spread.start) / FOLD_MS);
+        p = target * (1 - (1 - t) * (1 - t));
+        swing = (1 - t) * (1 - t);
+        if (t === 1) spread = null;
+      } else {
+        p += (target - p) * ease(0.12);
+        if (Math.abs(target - p) < 0.0005) p = target;
+        swing -= swing * ease(0.12);
+      }
+      if (!spread && Math.abs(target - p) < 0.02) swapping = false;
+    }
+    easedCenter.lerp(shown.center, ease(0.12));
+    easedDistance += (distance - easedDistance) * ease(0.12);
+    yaw += (aimYaw - yaw) * ease(0.06);
+    pitch += (aimPitch - pitch) * ease(0.06);
     pose(now / 1000);
     renderer.render(scene, camera);
     report();
-    if (running()) request();
+    if (running() || pending) request();
   };
+
+  // Build the other models while the page is idle, so the first swap starts without a pause.
+  const whenIdle = (run: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(run) : setTimeout(run, 1500));
+  whenIdle(() => (Object.keys(BUILDERS) as Material[]).forEach(stage));
 
   function request() {
     if (!raf) raf = requestAnimationFrame(frame);
@@ -342,18 +417,18 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
     setFill(value) {
       if (value === fill) return;
       fill = value;
-      fit();
+      refit();
       request();
     },
     show(material) {
       const next = stage(material);
-      if (next === shown) return;
-      scene.remove(shown.model.root);
-      shown = next;
-      scene.add(shown.model.root);
-      if (brand) shown.model.setBrand(brand);
-      shown.model.highlight(selected);
-      fit();
+      // Choosing the model on screen again before the parts fold together spreads them back.
+      pending = next === shown ? null : next;
+      if (still && pending) {
+        swap();
+        swing = 0;
+        refit();
+      }
       request();
     },
   };
