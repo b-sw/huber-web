@@ -1,5 +1,5 @@
 // Single owner of the visitor's OEM brand name.
-// Inputs write to it. Printed labels, the bar sticker and the inquiry e-mail link read from it.
+// Inputs write to it. Printed labels and the bar sticker read from it.
 
 const PLACEHOLDER = 'TWOJA MARKA';
 const MAX_LENGTH = 24;
@@ -23,22 +23,6 @@ function fitSvg(el: SVGTextElement) {
   if (length > max) el.style.fontSize = `${(parseFloat(getComputedStyle(el).fontSize) * max) / length}px`;
 }
 
-function inquiryHref(email: string): string {
-  const subject = brand ? `Zapytanie OEM – ${brand}` : 'Zapytanie OEM';
-  const body = [
-    'Dzień dobry,',
-    '',
-    `interesuje nas produkcja rozdzielaczy pod marką ${brand || '…'}.`,
-    '',
-    'Zestawy i liczba obwodów:',
-    'Ilości:',
-    'Termin:',
-    '',
-    'Pozdrawiam',
-  ].join('\n');
-  return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}
-
 function render() {
   const text = printedBrand();
   document.querySelectorAll<HTMLElement | SVGTextElement>('[data-brand]').forEach((el) => {
@@ -46,9 +30,6 @@ function render() {
   });
   document.querySelectorAll<HTMLElement>('[data-brand-fit]').forEach(fitHtml);
   document.querySelectorAll<SVGTextElement>('[data-brand-fit-svg]').forEach(fitSvg);
-  document.querySelectorAll<HTMLAnchorElement>('[data-brand-mailto]').forEach((link) => {
-    link.href = inquiryHref(link.dataset.brandMailto!);
-  });
 }
 
 export function initBrand() {

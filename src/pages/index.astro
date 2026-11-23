@@ -26,6 +26,18 @@ import factory from '../assets/photos/factory.jpg';
 const TOTAL = 6;
 const CONFIGS = `Ponad ${configFloor} konfiguracji`;
 const all = circuitRange(products);
+const inquiry = [
+  'Dzień dobry,',
+  '',
+  'interesuje nas produkcja rozdzielaczy pod naszą marką.',
+  '',
+  'Zestawy i liczba obwodów:',
+  'Ilości:',
+  'Termin:',
+  '',
+  'Pozdrawiam',
+].join('\n');
+const inquiryHref = `mailto:${company.email}?subject=${encodeURIComponent('Zapytanie OEM')}&body=${encodeURIComponent(inquiry)}`;
 
 const links: NavLink[] = [
   { id: 'asortyment', n: 2, label: 'Asortyment', long: 'Asortyment' },
@@ -117,7 +129,10 @@ const year = new Date().getFullYear();
                   Zobacz asortyment
                   <Icon name="arrow-right" size={16} strokeWidth={2} />
                 </a>
-                <a class="ps-btn" href="#oem">Zapytaj o OEM</a>
+                <a class="ps-btn" href={inquiryHref}>
+                  Zapytaj o OEM
+                  <Icon name="arrow-up-right" size={16} strokeWidth={2} />
+                </a>
               </div>
               <p class="hero-meta">
                 {CONFIGS}<br />
@@ -194,12 +209,9 @@ const year = new Date().getFullYear();
                 <span>Napisz, jakie rozdzielacze</span>{' '}
                 <span>i ilości Cię interesują.</span>
               </p>
-              <p class="ask-p ps-lines" data-reveal style="--d: 140">
-                <span>Otworzy się e-mail z gotowym szablonem.</span>{' '}
-                <span>Nazwa Twojej marki będzie w temacie wiadomości.</span>
-              </p>
+              <p class="ask-p" data-reveal style="--d: 140">Otworzy się e-mail z gotowym szablonem.</p>
               <div class="ask-cta" data-reveal style="--d: 200">
-                <a class="ps-btn ps-btn--ink" href={`mailto:${company.email}`} data-brand-mailto={company.email}>
+                <a class="ps-btn ps-btn--ink" href={inquiryHref}>
                   Napisz zapytanie OEM
                   <Icon name="arrow-up-right" size={16} strokeWidth={2} />
                 </a>
@@ -306,10 +318,7 @@ const year = new Date().getFullYear();
                 <span>Zadzwoń albo napisz.</span>{' '}
                 <span class="ps-tone">Odpowiada producent.</span>
               </h2>
-              <p class="ps-lead ps-lines" data-reveal style="--d: 150">
-                <span>Zapytaj o naszą standardową ofertę.</span>{' '}
-                <span>Lub o spersonalizowaną produkcję pod Twoją marką.</span>
-              </p>
+              <p class="ps-lead" data-reveal style="--d: 150">Zapytaj o ofertę.</p>
             </div>
           </div>
 
