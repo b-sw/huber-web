@@ -180,13 +180,12 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
         </filter>
       </defs>
 
-      {/* The seam strip goes on first, the cross strip over it. */}
       {
         tapes.map((tape, t) =>
           tape.faces.map((face, f) => (
             <g transform={face.m} class={`tape tape-${face.face}`}>
               <polygon points={pts(tapeOutline(face))} class="tape-base"></polygon>
-              {t === 0 && face.face === 'top' && (
+              {face.face === 'top' && (
                 <line x1={face.from} y1="0" x2={face.to} y2="0" class="tape-groove"></line>
               )}
               <g clip-path={`url(#tape-${t}-${f})`} class="tape-ink">
@@ -450,10 +449,6 @@ const contents = ['rozdzielacz RW-EZMPTR, 5 obwodów', 'pompa WILO Yonos PARA', 
   /* White polypropylene tape. Each face takes the light of the board under it. */
   .tape-base {
     fill: #f2ede4;
-  }
-
-  .tape-front .tape-base {
-    fill: #e6dfd3;
   }
 
   .tape-side .tape-base {

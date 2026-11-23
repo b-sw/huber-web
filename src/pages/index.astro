@@ -32,6 +32,7 @@ const links: NavLink[] = [
   { id: 'oem', n: 3, label: 'OEM', long: 'OEM' },
   { id: 'jak-pracujemy', n: 4, label: 'Jak pracujemy', long: 'Jak pracujemy' },
   { id: 'o-firmie', n: 5, label: 'O firmie', long: 'O firmie' },
+  { id: 'kontakt', n: 6, label: 'Kontakt', long: 'Kontakt' },
 ];
 
 const steps = [
@@ -46,6 +47,12 @@ const facts = [
   { k: 'Siedziba', v: company.address.village },
   { k: 'Produkcja', v: 'Rozdzielacze z mosiądzu i ze stali nierdzewnej' },
   { k: 'Odbiorcy', v: 'Hurtownie w Polsce i za granicą' },
+];
+
+const values = [
+  'Stabilny partner',
+  'Powtarzalna jakość wyrobów',
+  'Kompleksowe wsparcie od specyfikacji do realizacji',
 ];
 
 const barPhoto = await getImage({ src: productImage('rw-pt'), width: 1600, format: 'webp' });
@@ -183,7 +190,10 @@ const year = new Date().getFullYear();
             </figure>
             <div class="ask">
               <p class="ps-kicker" data-reveal>Zapytanie OEM</p>
-              <p class="ask-t" data-reveal style="--d: 80">Napisz, jakie zestawy i ilości Cię interesują.</p>
+              <p class="ask-t ps-lines" data-reveal style="--d: 80">
+                <span>Napisz, jakie rozdzielacze</span>{' '}
+                <span>i ilości Cię interesują.</span>
+              </p>
               <p class="ask-p ps-lines" data-reveal style="--d: 140">
                 <span>Otworzy się e-mail z gotowym szablonem.</span>{' '}
                 <span>Nazwa Twojej marki będzie w temacie wiadomości.</span>
@@ -210,7 +220,7 @@ const year = new Date().getFullYear();
             <div class="ps-split">
               <h2 class="ps-h2" id="jak-h" data-reveal="words">
                 <span>Od naszego katalogu</span>{' '}
-                <span>lub Twojej koncepcji do produkcji.</span>{' '}
+                <span>do Twojej koncepcji.</span>{' '}
                 <span class="ps-tone">W czterech krokach.</span>
               </h2>
               <p class="ps-lead" data-reveal style="--d: 150">
@@ -272,6 +282,16 @@ const year = new Date().getFullYear();
               }
             </dl>
           </div>
+
+          <ul class="values" role="list">
+            {
+              values.map((v, i) => (
+                <li data-reveal style={`--d: ${i * 70}`}>
+                  {v}
+                </li>
+              ))
+            }
+          </ul>
         </div>
       </section>
 
@@ -718,30 +738,31 @@ const year = new Date().getFullYear();
     padding: 24px var(--pad) 20px;
   }
 
+  /* The supply bar of rw-pt.png: x 490–1250, y 0–396 of 1600×900. The sticker covers the HUBER label at x 759–848, y 208–236. */
   .bar-crop {
     position: relative;
-    aspect-ratio: 544 / 232;
+    aspect-ratio: 760 / 396;
     overflow: hidden;
   }
 
   .bar-crop img {
     position: absolute;
-    width: 294.12%;
+    width: 210.53%;
     max-width: none;
     height: auto;
-    left: -111.4%;
-    top: -47.41%;
+    left: -64.47%;
+    top: 0;
   }
 
   .bar-sticker {
     position: absolute;
-    left: 28.13%;
-    top: 42.24%;
-    width: 16.36%;
-    height: 12.07%;
+    left: 35.39%;
+    top: 52.53%;
+    width: 11.71%;
+    height: 7.07%;
     display: grid;
     place-items: center;
-    padding-inline: 3%;
+    padding-inline: 2.15%;
     border-radius: 3px;
     background: #f7f7f5;
     box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
@@ -1010,6 +1031,38 @@ const year = new Date().getFullYear();
       align-self: stretch;
       display: grid;
       align-content: center;
+    }
+  }
+
+  .values {
+    display: grid;
+  }
+
+  .values li {
+    padding: 16px var(--pad) 18px;
+    box-shadow:
+      inset 0 1px 0 var(--line),
+      inset -1px 0 0 var(--line);
+    font-size: clamp(1.25rem, 1.05rem + 0.6vw, 1.625rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  /* The first two cells share the photo's width, so the second divider continues the line between photo and facts.
+     The third cell lines its text up with the facts. */
+  @media (min-width: 1000px) {
+    .values {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 7fr) minmax(0, 10fr);
+    }
+
+    .values li {
+      padding: 36px 40px 40px;
+    }
+
+    .values li:first-child {
+      padding-left: var(--pad);
     }
   }
 

@@ -17,14 +17,14 @@ export const silhouette: Pt[] = [topAt(0, 0), topAt(0, 1), topAt(1, 1), sideAt(1
 export const back = { x: F.x + D.x, y: F.y + D.y, w: F.w, h: F.h };
 export const frontRect = F;
 
-// Packing tape in a + over the lid: one strip on the flap seam, one across the middle.
+// Packing tape on the flap seam of the lid, over the edge onto the side.
 // Each strip has a flat frame: x runs along the tape, y across it. A face maps that frame onto the view box,
 // so the printed brand continues over the box edges.
 // The real lid depth in front-face pixels. D is how the camera sees it.
 const DEPTH = 265;
 export const TAPE = { w: 64, tab: 176, repeat: 260, text: 160 };
 
-export type TapeFace = { face: 'top' | 'front' | 'side'; m: string; from: number; to: number; cut: boolean };
+export type TapeFace = { face: 'top' | 'side'; m: string; from: number; to: number; cut: boolean };
 export type Tape = { anchor: number; faces: TapeFace[] };
 
 const k = { x: D.x / DEPTH, y: D.y / DEPTH };
@@ -43,13 +43,6 @@ export const tapes: Tape[] = [
         to: F.w + TAPE.tab,
         cut: true,
       },
-    ],
-  },
-  {
-    anchor: DEPTH + TAPE.tab / 2,
-    faces: [
-      { face: 'top', m: matrix(-k.x, -k.y, -1, 0, F.x + mid + D.x, F.y + D.y), from: 0, to: DEPTH, cut: false },
-      { face: 'front', m: matrix(0, 1, -1, 0, F.x + mid, F.y - DEPTH), from: DEPTH, to: DEPTH + TAPE.tab, cut: true },
     ],
   },
 ];

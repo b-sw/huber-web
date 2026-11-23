@@ -102,8 +102,8 @@ export function circuitRange(list: Product[]): { min: number; max: number } {
 export function featureList(p: Product): string[] {
   const f = p.features;
   const list: string[] = [];
-  if (f.mixingUnit) list.push('układ mieszający z pompą WILO');
   if (f.flowMeters) list.push('przepływomierze');
+  if (f.mixingUnit) list.push('układ mieszający z pompą WILO');
   if (f.thermostaticInserts) list.push('wkładki termostatyczne');
   if (f.shutOffValves) list.push('zawory odcinające');
   if (f.pex) list.push('złączki PEX');
