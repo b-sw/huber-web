@@ -68,7 +68,7 @@ font.
 | `src/components/oem/ManifoldExploded.astro` | Exploded 3D manifold in the OEM section. The parts float apart while it scrolls in. On wide screens the labels stay still and their leader lines follow the floating parts. Hover, focus or tap highlights one part. A switch above the view swaps the brass RW-PT model and the stainless RWKO-PT model: the parts fold together while the camera turns, the model changes, and the parts spread again. `manifold-brass.ts` and `manifold-steel.ts` build the models from primitives measured on the product photos (the steel one also on the side drawing). `manifold-kit.ts` holds what both models share. `manifold-scene.ts` draws them and picks parts. Without WebGL the product photo shows. Themed with `--stack-*` custom properties. Part texts in `src/data/manifold.ts` |
 | `src/components/heat/HeatLoops.astro` | Underfloor-heating loops behind one section. A warm spot drifts over the pipes by itself and follows the cursor. Use it where there is little text |
 | `src/scripts/reveal.ts`, `src/styles/reveal.css` | Blocks and headline words enter from a soft blur, once. Off under reduced motion. A failsafe shows content if the script never runs |
-| `src/scripts/brand.ts` | One brand input updates the box tape and label, the sticker on the 3D manifold, the bar photo and the inquiry e-mail |
+| `src/scripts/brand.ts` | One brand input updates the box tape and label, the sticker on the 3D manifold and the bar photo |
 
 ## The box hero
 
@@ -89,8 +89,8 @@ font.
   trail of four shrinking circles. Over the label the circles close, so the brand stays readable.
 - A transparent button covers the box. Click, tap, Enter or Space opens the whole box.
 - Under reduced motion nothing moves by itself. The button still opens the box.
-- The visitor types a brand name in the OEM section. It appears on the box tape and label, on the bar sticker, and in
-  the subject of the inquiry e-mail. `src/scripts/brand.ts` owns that value. Every other element only reads it.
+- The visitor types a brand name in the OEM section. It appears on the box tape and label and on the bar sticker.
+  `src/scripts/brand.ts` owns that value. Every other element only reads it.
 
 Performance: each circle is a small round window with its own copy of the X-ray (`XrayLayer.astro`). The windows move
 only with `transform`, so the browser composites them on the GPU and paints nothing per frame. The first version

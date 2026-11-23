@@ -29,13 +29,19 @@ const all = circuitRange(products);
 const inquiry = [
   'Dzień dobry,',
   '',
-  'interesuje nas produkcja rozdzielaczy pod naszą marką.',
+  'Interesuje nas oferta produkcyjna rozdzielaczy pod marką ….',
   '',
-  'Zestawy i liczba obwodów:',
+  'Konfiguracja:',
+  '',
+  'Liczba obwodów:',
+  '',
   'Ilości:',
+  '',
   'Termin:',
   '',
-  'Pozdrawiam',
+  'Tel. kontaktowy:',
+  '',
+  'Pozdrawiam,',
 ].join('\n');
 const inquiryHref = `mailto:${company.email}?subject=${encodeURIComponent('Zapytanie OEM')}&body=${encodeURIComponent(inquiry)}`;
 
