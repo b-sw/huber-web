@@ -7,7 +7,9 @@ import {
   circuitRange,
   featureList,
   materials,
+  productDrawing,
   productImage,
+  type Dimension,
   type Material,
 } from '../../data/products';
 import { focusX } from './focus';
@@ -30,6 +32,11 @@ const groups = (['mosiadz', 'inox'] as Material[]).map((m) => {
   return { m, range: circuitRange(list), list: list.map((p) => ({ p, n: ++n })) };
 });
 const pad = (x: number) => String(x).padStart(2, '0');
+
+const dimStyle = (d: Dimension) => {
+  const [start, size, across] = d.axis === 'x' ? ['left', 'width', 'top'] : ['top', 'height', 'left'];
+  return `${start}: ${d.from}%; ${size}: ${(d.to - d.from).toFixed(2)}%;${d.at === undefined ? '' : ` ${across}: ${d.at}%;`}`;
+};
 ---
 
 <div class="range" data-range>
@@ -57,6 +64,7 @@ const pad = (x: number) => String(x).padStart(2, '0');
             const firstRow = p.rows[0]!;
             const lastRow = p.rows[p.rows.length - 1]!;
             const versions = p.variants.length > 0 ? p.variants : [''];
+            const drawing = productDrawing(p.slug);
             const ranges = versions.map((v, j) => ({
               name: v ? shortVersion(v) : 'Indeksy',
               range: `${firstRow.indexes[j]}–${lastRow.indexes[j]}`,
@@ -115,6 +123,25 @@ const pad = (x: number) => String(x).padStart(2, '0');
                         {p.code}
                       </p>
                       <p class="p-title">{p.title}</p>
+                    </div>
+                    <div class:list={['p-fig', { 'p-fig--side': drawing.dims.some((d) => d.axis === 'y' && d.at === undefined) }]}>
+                      <Image
+                        src={drawing.image}
+                        alt={`Rysunek techniczny ${p.code} z wymiarami z tabeli`}
+                        widths={[360, 540, 780, 960]}
+                        sizes="(min-width: 1240px) 390px, (min-width: 900px) 32vw, 100vw"
+                      />
+                      {drawing.dims.map((d) => (
+                        <span
+                          class:list={['dim', `dim--${d.axis}`, { 'dim--in': d.at !== undefined, 'dim--short': d.to - d.from < 15 }]}
+                          style={dimStyle(d)}
+                          aria-hidden="true"
+                        >
+                          <i />
+                          <b>{d.label}</b>
+                          <i />
+                        </span>
+                      ))}
                     </div>
                     <div class="p-inc">
                       <p class="p-kicker">W zestawie</p>
@@ -414,6 +441,7 @@ const pad = (x: number) => String(x).padStart(2, '0');
     display: grid;
     grid-template-areas:
       'head'
+      'fig'
       'main'
       'inc';
     gap: 28px;
@@ -426,6 +454,151 @@ const pad = (x: number) => String(x).padStart(2, '0');
 
   .p-inc {
     grid-area: inc;
+  }
+
+  /* The drawing is transparent line art. Its dimensions are HTML, so the letters keep one size on every screen.
+     The margins hold the dimensions that sit outside the drawing. */
+  .p-fig {
+    --dim-room: 24px;
+    grid-area: fig;
+    position: relative;
+    align-self: start;
+    margin-bottom: var(--dim-room);
+  }
+
+  .p-fig--side {
+    margin-right: var(--dim-room);
+  }
+
+  .p-fig img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Each line ends in an arrow and a short tick. The letter sits in a gap in the middle of the line. */
+  .dim {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1;
+    color: var(--tone-accent);
+  }
+
+  .dim b {
+    font-weight: 500;
+  }
+
+  .dim i {
+    position: relative;
+    flex: 1;
+    background: currentColor;
+  }
+
+  .dim i::before,
+  .dim::before,
+  .dim::after {
+    content: '';
+    position: absolute;
+    background: currentColor;
+  }
+
+  .dim--x {
+    height: 11px;
+    transform: translateY(-50%);
+  }
+
+  .dim--x:not(.dim--in) {
+    top: calc(100% + var(--dim-room) / 2);
+  }
+
+  .dim--x i {
+    height: 1px;
+  }
+
+  .dim--x i::before {
+    top: -3px;
+    width: 6px;
+    height: 7px;
+  }
+
+  .dim--x i:first-child::before {
+    left: 0;
+    clip-path: polygon(0 50%, 100% 0, 100% 100%);
+  }
+
+  .dim--x i:last-child::before {
+    right: 0;
+    clip-path: polygon(100% 50%, 0 0, 0 100%);
+  }
+
+  .dim--x::before,
+  .dim--x::after {
+    top: 0;
+    bottom: 0;
+    width: 1px;
+  }
+
+  .dim--y {
+    flex-direction: column;
+    width: 11px;
+    transform: translateX(-50%);
+  }
+
+  .dim--y:not(.dim--in) {
+    left: calc(100% + var(--dim-room) / 2);
+  }
+
+  .dim--y i {
+    width: 1px;
+  }
+
+  .dim--y i::before {
+    left: -3px;
+    width: 7px;
+    height: 6px;
+  }
+
+  .dim--y i:first-child::before {
+    top: 0;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  }
+
+  .dim--y i:last-child::before {
+    bottom: 0;
+    clip-path: polygon(50% 100%, 0 0, 100% 0);
+  }
+
+  .dim--y::before,
+  .dim--y::after {
+    left: 0;
+    right: 0;
+    height: 1px;
+  }
+
+  .dim::before {
+    left: 0;
+    top: 0;
+  }
+
+  .dim::after {
+    right: 0;
+    bottom: 0;
+  }
+
+  /* A short dimension has no room for its letter, so the letter sits under one unbroken line. */
+  .dim--short {
+    gap: 0;
+  }
+
+  .dim--short b {
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .panel:not([hidden]) .p-in {
@@ -729,9 +902,10 @@ const pad = (x: number) => String(x).padStart(2, '0');
   @media (min-width: 900px) {
     .p-in {
       grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
-      grid-template-rows: auto 1fr;
+      grid-template-rows: auto auto 1fr;
       grid-template-areas:
         'head main'
+        'fig main'
         'inc main';
       gap: 24px 56px;
       padding: 36px var(--pad) 40px;

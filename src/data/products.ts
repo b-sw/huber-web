@@ -1,5 +1,6 @@
 import type { ImageMetadata } from 'astro';
 import data from './products.json';
+import drawingData from './drawings.json';
 import { company } from './company';
 
 export type Material = 'mosiadz' | 'inox';
@@ -61,6 +62,26 @@ export function productImage(slug: string): ImageMetadata {
   const image = images[`../assets/products/${slug}.png`];
   if (!image) throw new Error(`Missing product image for ${slug}`);
   return image.default;
+}
+
+// scripts/drawings.py writes the drawings and their dimensions. Positions are percent of the drawing.
+// A dimension without `at` sits outside the drawing: below it for the x axis, on its right for the y axis.
+export interface Dimension {
+  label: string;
+  axis: 'x' | 'y';
+  from: number;
+  to: number;
+  at?: number;
+}
+
+const drawings = import.meta.glob<{ default: ImageMetadata }>('../assets/drawings/*.png', { eager: true });
+const dimensions = drawingData as Record<string, Dimension[]>;
+
+export function productDrawing(slug: string): { image: ImageMetadata; dims: Dimension[] } {
+  const image = drawings[`../assets/drawings/${slug}.png`];
+  const dims = dimensions[slug];
+  if (!image || !dims) throw new Error(`Missing technical drawing for ${slug}`);
+  return { image: image.default, dims };
 }
 
 export function byMaterial(material: Material): Product[] {
