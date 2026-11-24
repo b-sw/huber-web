@@ -8,14 +8,29 @@ import '../styles/reset.css';
 interface Props {
   title: string;
   description: string;
+  // Link previews can use their own wording. Each one falls back to the page title and description.
+  ogTitle?: string;
+  ogDescription?: string;
   path?: string;
   themeColor?: string;
   noindex?: boolean;
   ogImage?: ImageMetadata;
+  ogImageAlt?: string;
   jsonLd?: Record<string, unknown>[];
 }
 
-const { title, description, path = '/', themeColor = '#ffffff', noindex = false, ogImage, jsonLd = [] } = Astro.props;
+const {
+  title,
+  description,
+  ogTitle = title,
+  ogDescription = description,
+  path = '/',
+  themeColor = '#ffffff',
+  noindex = false,
+  ogImage,
+  ogImageAlt,
+  jsonLd = [],
+} = Astro.props;
 
 const canonical = new URL(path, Astro.site);
 const og = ogImage ? await getImage({ src: ogImage, width: 1200, format: 'jpg' }) : undefined;
@@ -58,13 +73,25 @@ const website = {
     {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content={themeColor} />
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pl_PL" />
     <meta property="og:site_name" content={company.name} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDescription} />
     <meta property="og:url" content={canonical} />
-    {og && <meta property="og:image" content={new URL(og.src, Astro.site)} />}
+    {
+      og && (
+        <>
+          <meta property="og:image" content={new URL(og.src, Astro.site)} />
+          <meta property="og:image:type" content="image/jpeg" />
+          <meta property="og:image:width" content={String(og.attributes.width)} />
+          <meta property="og:image:height" content={String(og.attributes.height)} />
+          {ogImageAlt && <meta property="og:image:alt" content={ogImageAlt} />}
+          <meta name="twitter:card" content="summary_large_image" />
+        </>
+      )
+    }
     <script type="application/ld+json" set:html={JSON.stringify([website, organization, ...jsonLd])} />
     <slot name="head" />
   </head>

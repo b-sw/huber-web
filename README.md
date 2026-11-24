@@ -140,6 +140,10 @@ the live site as the original.
   rebuilt at `/produkty/<slug>/`, remove the matching redirect.
 - Every page has a title, meta description, canonical URL, Open Graph tags and JSON-LD (Organization, ItemList of
   products). The old WordPress site had no meta description, no H1 and no structured data.
+- Link previews use `src/assets/og/home.png`, a 1200×630 screenshot of the hero with the lens open over the
+  manifold. The page gives previews a shorter title and description than Google gets. After a visible change to the
+  hero, run `npm run build && node scripts/og-image.mjs`, then build again. The script also draws
+  `public/apple-touch-icon.png` from the favicon. It needs Google Chrome (or `CHROME_PATH`).
 - `src/middleware.ts` keeps Polish one-letter words (w, z, i, o, a, u) from ending a line.
 
 ## Content to confirm with Huber
@@ -166,10 +170,11 @@ src/
   data/             company.ts, products.json (12 products scraped from the live site), products.ts, oem.ts, paths.ts
   scripts/          brand.ts (brand name), reveal.ts (scroll reveal)
   styles/           reset, palette, buttons, links, Archivo subset @font-face, reveal
-  assets/           photos, product PNGs, kraft grain, subset fonts
+  assets/           photos, product PNGs, kraft grain, subset fonts, og (link preview)
 scripts/
   subset-fonts.py   cuts Archivo to Latin + Polish glyphs (173 KB → 51 KB)
   kraft-grain.py    renders the cardboard grain tile and tone map
+  og-image.mjs      screenshots the hero for link previews and draws the touch icon
 ```
 
 The Python scripts need Pillow, and fontTools with brotli. Run them from the repo root.

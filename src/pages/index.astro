@@ -22,6 +22,7 @@ import Whose from '../components/pudelko-siatka/Whose.astro';
 import { company } from '../data/company';
 import { circuitRange, configFloor, materials, productImage, products } from '../data/products';
 import factory from '../assets/photos/factory.jpg';
+import ogHome from '../assets/og/home.png';
 
 const TOTAL = 6;
 const CONFIGS = `Ponad ${configFloor} konfiguracji`;
@@ -99,8 +100,11 @@ const year = new Date().getFullYear();
 <Base
   title={`${company.name} – ${company.tagline.toLowerCase()}`}
   description={`Producent rozdzielaczy do ogrzewania podłogowego od ${company.foundingYear} roku. ${CONFIGS} z mosiądzu i inoxu, ${all.min}–${all.max} obwodów, tabele indeksów. Produkcja OEM pod Twoją marką.`}
+  ogTitle={`${company.name} – rozdzielacze do podłogówki od ${company.foundingYear} roku`}
+  ogDescription={`${CONFIGS} z mosiądzu i inoxu, ${all.min}–${all.max} obwodów. Produkujemy też pod marką hurtowni (OEM).`}
   themeColor="#fff8f5"
-  ogImage={productImage('rw-ezmptr')}
+  ogImage={ogHome}
+  ogImageAlt="Kartonowe pudełko z etykietą „Twoja marka”. Przez okienko widać mosiężny rozdzielacz. Pod pudełkiem hasło: Rozdzielacze do podłogówki. Pod Twoją marką."
   jsonLd={[itemList]}
 >
   <FontPreload slot="head" />
