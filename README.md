@@ -146,6 +146,23 @@ the live site as the original.
   `public/apple-touch-icon.png` from the favicon. It needs Google Chrome (or `CHROME_PATH`).
 - `src/middleware.ts` keeps Polish one-letter words (w, z, i, o, a, u) from ending a line.
 
+## Analytics
+
+`src/components/PostHog.astro` loads PostHog (EU Cloud) on every page. It runs in cookieless mode: it sets no cookies
+and writes nothing to browser storage, so the site needs no consent banner. PostHog counts visitors with a daily hash on
+its servers. Because of this, a returning visitor counts as new each day, and there is no session replay and no GeoIP.
+The PostHog project must keep **Settings › Web analytics › Cookieless tracking** on, or PostHog drops every event.
+
+The build reads the token and host from `.env` (not in git):
+
+```sh
+PUBLIC_POSTHOG_PROJECT_TOKEN=phc_…
+PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
+```
+
+Only a production build with both values includes the script. `npm run dev` and the GitHub Pages preview send nothing.
+Run `npm run deploy` from a checkout that has the `.env` file.
+
 ## Content to confirm with Huber
 
 These claims are new or inferred. Check them before launch:
@@ -166,7 +183,7 @@ These claims are new or inferred. Check them before launch:
 src/
   pages/            index.astro, the home page
   components/       Logo, Icon, pudelko/ (box hero), oem/, heat/, pudelko-siatka/ (page sections)
-  layouts/Base.astro  head tags, canonical, Open Graph, JSON-LD, noindex during the preview
+  layouts/Base.astro  head tags, canonical, Open Graph, JSON-LD, noindex during the preview, PostHog
   data/             company.ts, products.json (12 products scraped from the live site), products.ts, oem.ts, paths.ts
   scripts/          brand.ts (brand name), reveal.ts (scroll reveal)
   styles/           reset, palette, buttons, links, Archivo subset @font-face, reveal
