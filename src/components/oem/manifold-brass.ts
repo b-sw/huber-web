@@ -1,4 +1,4 @@
-// A five-circuit RW-PT manifold built from primitives, measured from the product photo.
+// A five-circuit RW-PT manifold built from primitives, measured from the product photo and photos of its parts.
 // Units are millimetres. x runs along the beams, y points up, z points at the viewer.
 import * as THREE from 'three';
 import { toCreasedNormals } from 'three/addons/utils/BufferGeometryUtils.js';
@@ -7,6 +7,7 @@ import {
   assemble,
   bentBar,
   cylinder,
+  fluted,
   memo,
   place,
   placeX,
@@ -14,9 +15,11 @@ import {
   ridged,
   sBend,
   stack,
+  turned,
   type Anchor,
   type ManifoldModel,
 } from './manifold-kit';
+import { flowMeter, meterScaleMaterial, nipple, oRing, thermostaticInsert, type NippleShape } from './manifold-parts';
 
 const R = 20;
 // Seen end on, the beam is round at the front and back and flat on top and bottom for the outlets.
@@ -33,15 +36,27 @@ const BAR_OFFSET = R + 4;
 const WALL_Z = SUPPLY_Z - BAR_OFFSET - 12;
 const depth = (y: number) => (y > 0 ? SUPPLY_Z : RETURN_Z);
 const OUTLETS = [-100, -50, 0, 50, 100];
+// The parts on the outlets seat on the outlet bosses.
+const SEAT = FLAT_Y + 1;
 const BRACKETS = [-75, 75];
 const TEE_X = END + 28;
+const TEE_HALF = 24;
+// The tee arm screws into the beam end, so both have one bore.
+const BORE = 13.5;
+const bore = () => memo('bore', () => new THREE.CircleGeometry(BORE, 40));
+// The drain outlet points out to the right and at the viewer, a little down.
+const DRAIN_TURN = 0.7;
+const DRAIN_TILT = 0.25;
 
 const SPREAD = 24;
 const GAP = 30;
+// A part with a long stem lifts further, until the stem clears the beam by this much.
+const CLEAR = 16;
+const NIPPLE: NippleShape = { hex: [14, 5.6], neck: [11.6, 4.5], thread: [13.2, 8.5] };
 const TEE_OUT = 46;
 const BRACKET_BACK = 70;
 // The sticker leaves the beam and floats in the open space between the beams, bigger and turned to the viewer.
-const STICKER_AWAY = new THREE.Vector3(0, -108, 50);
+const STICKER_AWAY = new THREE.Vector3(0, -96, 50);
 const STICKER_GROW = 2.6;
 const STICKER_SPIN = -0.35;
 
@@ -102,52 +117,89 @@ const wrapped = (w: number, h: number, r: number) =>
     return geometry;
   });
 
-const handle = () =>
-  memo('handle', () => {
-    const s = new THREE.Shape();
-    s.moveTo(-4.5, 0);
-    s.lineTo(4.5, 0);
-    s.lineTo(4.5, 5);
-    s.lineTo(15.5, 5);
-    s.quadraticCurveTo(17.5, 5, 17.5, 7);
-    s.lineTo(17.5, 14);
-    s.lineTo(11, 14);
-    s.lineTo(10, 9.5);
-    s.lineTo(-10, 9.5);
-    s.lineTo(-11, 14);
-    s.lineTo(-17.5, 14);
-    s.lineTo(-17.5, 7);
-    s.quadraticCurveTo(-17.5, 5, -15.5, 5);
-    s.lineTo(-4.5, 5);
-    s.closePath();
-    const geometry = new THREE.ExtrudeGeometry(s, {
-      depth: 8,
-      bevelEnabled: true,
-      bevelThickness: 0.8,
-      bevelSize: 0.6,
-      bevelSegments: 2,
-      curveSegments: 6,
-    });
-    geometry.translate(0, 0, -4);
-    return geometry;
+const teeBody = () =>
+  memo('tee body', () =>
+    turned(
+      [
+        [0, -TEE_HALF],
+        [9.8, -TEE_HALF],
+        [10.8, -TEE_HALF + 1],
+        [10.8, -14],
+        [10, -12],
+        [10, 12],
+        [10.8, 14],
+        [10.8, TEE_HALF - 1],
+        [9.8, TEE_HALF],
+        [0, TEE_HALF],
+      ],
+      48,
+      false,
+    ),
+  );
+
+// Plastic, a little narrower and rounded at the far end.
+const drainBody = () =>
+  memo('drain body', () =>
+    turned(
+      [
+        [0, -6.5],
+        [5, -6.5],
+        [7.2, -5.9],
+        [8.4, -4.4],
+        [8.8, -2.5],
+        [9.9, 6.5],
+        [0, 6.5],
+      ],
+      40,
+      false,
+    ),
+  );
+
+const drainNeck = () =>
+  memo('drain neck', () =>
+    turned(
+      [
+        [0, -5.5],
+        [6.5, -5.5],
+        [8.8, 5.5],
+        [0, 5.5],
+      ],
+      32,
+      false,
+    ),
+  );
+
+// A flat strap beside the body and the outlet. It runs from the collar past the far end and loops back to the cap.
+const drainStrap = () =>
+  memo('drain strap', () => {
+    const path = new THREE.CurvePath<THREE.Vector3>();
+    path.add(new THREE.LineCurve3(new THREE.Vector3(0, 6, 0.4), new THREE.Vector3(0, -9, 0.4)));
+    path.add(
+      new THREE.CubicBezierCurve3(
+        new THREE.Vector3(0, -9, 0.4),
+        new THREE.Vector3(0, -21, 1),
+        new THREE.Vector3(0, -22, 17),
+        new THREE.Vector3(0, -12.6, 21),
+      ),
+    );
+    return new THREE.TubeGeometry(path, 48, 2.2, 8, false).scale(0.25, 1, 1);
   });
 
 export function buildBrass(): ManifoldModel {
-  const { add, paint, label, sticker, slot, finish } = assemble();
+  const { add, paint, track, label, sticker, slot, finish } = assemble();
 
   const beam = (part: PartId, y: number, text: string, color: string) => {
     const m = paint(part);
     const g = new THREE.Group();
     g.position.set(0, y, depth(y));
     placeX(g, beamBody(), m('brass'), 0);
-    const bore = place(g, memo('bore', () => new THREE.CircleGeometry(13, 40)), m('bore'), -END - 0.05);
-    bore.rotation.y = -Math.PI / 2;
-    const ring = place(g, memo('o-ring', () => new THREE.TorusGeometry(FLAT_Y - 3.5, 1.4, 12, 48)), m('black'), END + 0.4);
-    ring.rotation.y = Math.PI / 2;
+    for (const side of [-1, 1]) {
+      place(g, bore(), m('bore'), side * (END + 0.05)).rotation.y = (side * Math.PI) / 2;
+    }
     for (const x of OUTLETS) {
       for (const side of [1, -1]) {
-        place(g, cylinder(10.5, 4, 32), m('brass'), x, side * (FLAT_Y - 1));
-        place(g, cylinder(7, 0.4, 32), m('bore'), x, side * (FLAT_Y + 1.05));
+        place(g, cylinder(12, 4, 32), m('brass'), x, side * (FLAT_Y - 1));
+        place(g, cylinder(9.3, 0.4, 32), m('bore'), x, side * (FLAT_Y + 1.05));
       }
     }
     place(g, wrapped(26, 10, R + 0.3), label(part, text, color), -END + 24);
@@ -164,49 +216,24 @@ export function buildBrass(): ManifoldModel {
   add('oznaczenie', brandGroup, STICKER_AWAY, { grow: STICKER_GROW, spin: STICKER_SPIN });
   place(supply, wrapped(45, 15, R + 0.2), slot, 0).userData.part = 'oznaczenie';
 
+  const scale = track('rotametry', meterScaleMaterial());
   const flowmeters = OUTLETS.map((x) => {
-    const m = paint('rotametry');
-    const g = new THREE.Group();
-    g.position.set(x, SUPPLY_Y + FLAT_Y - 3, SUPPLY_Z);
-    const top = stack(g, 0, 1, [
-      [prism(11, 11, 4, 6), m('brass'), 4],
-      [cylinder(14, 3), m('black'), 3],
-      [prism(12.5, 13.5, 14, 12), m('black'), 14],
-      [cylinder(10, 4), m('black'), 4],
-      [cylinder(8, 3), m('red'), 3],
-    ]);
-    place(g, cylinder(4.6, 24, 32), m('glass'), 0, top + 12);
-    place(g, cylinder(1.4, 24, 16), m('chrome'), 0, top + 12);
-    place(g, cylinder(3.6, 2.5, 24), m('red'), 0, top + 8);
-    place(g, handle(), m('red'), 0, top + 24);
-    return add('rotametry', g, new THREE.Vector3(0, SPREAD + GAP, 0));
+    const { group, reach } = flowMeter(paint('rotametry'), scale);
+    group.position.set(x, SUPPLY_Y + SEAT, SUPPLY_Z);
+    return add('rotametry', group, new THREE.Vector3(0, SPREAD + CLEAR + reach, 0));
   });
 
   const caps = OUTLETS.map((x) => {
-    const m = paint('wkladki');
-    const g = new THREE.Group();
-    g.position.set(x, RETURN_Y + FLAT_Y - 3, RETURN_Z);
-    stack(g, 0, 1, [
-      [prism(11.5, 11.5, 4, 6), m('chrome'), 4],
-      [cylinder(13, 2), m('chrome'), 2],
-      [prism(16.5, 16.5, 18, 8), m('blue'), 18],
-      [prism(11, 16.5, 6, 8), m('blue'), 6],
-    ]);
-    g.rotation.y = Math.PI / 8;
-    return add('wkladki', g, new THREE.Vector3(0, -SPREAD + GAP, 0));
+    const { group, reach } = thermostaticInsert(paint('wkladki'));
+    group.position.set(x, RETURN_Y + SEAT, RETURN_Z);
+    return add('wkladki', group, new THREE.Vector3(0, -SPREAD + CLEAR + reach, 0));
   });
 
   const nipples = [SUPPLY_Y, RETURN_Y].flatMap((y) =>
     OUTLETS.map((x) => {
-      const m = paint('przylacza');
-      const g = new THREE.Group();
-      g.position.set(x, y - FLAT_Y + 3, depth(y));
-      const end = stack(g, 0, -1, [
-        [prism(13, 13, 6, 6), m('brass'), 6],
-        [ridged(12, 13, 1.6, 1), m('brass'), 13],
-      ]);
-      place(g, cylinder(8.5, 0.4, 32), m('bore'), 0, end - 0.1);
-      return add('przylacza', g, new THREE.Vector3(0, (y > 0 ? SPREAD : -SPREAD) - GAP, 0), { zone: `przylacza ${y}` });
+      const group = nipple(paint('przylacza'), 'brass', NIPPLE);
+      group.position.set(x, y - SEAT, depth(y));
+      return add('przylacza', group, new THREE.Vector3(0, (y > 0 ? SPREAD : -SPREAD) - GAP, 0), { zone: `przylacza ${y}` });
     }),
   );
 
@@ -250,63 +277,80 @@ export function buildBrass(): ManifoldModel {
   const tees = [SUPPLY_Y, RETURN_Y].map((y) => {
     const shift = y > 0 ? SPREAD : -SPREAD;
 
+    // The 1″ side arm screws into the beam end. Its O-ring seals against the end face.
     const m = paint('trojnik');
     const tee = new THREE.Group();
     tee.position.set(TEE_X, y, depth(y));
-    placeX(tee, cylinder(17.5, 12), m('brass'), END + 6 - TEE_X);
-    placeX(tee, cylinder(10, 12), m('brass'), END + 17 - TEE_X);
-    placeX(tee, prism(12.5, 12.5, 7, 6), m('brass'), END + 19 - TEE_X);
-    place(tee, cylinder(13, 44), m('brass'));
-    stack(tee, 22, 1, [
-      [prism(15, 15, 6, 6), m('brass'), 6],
-      [cylinder(9.5, 9), m('brass'), 9],
-    ]);
-    stack(tee, -22, -1, [[prism(15, 15, 9, 6), m('brass'), 9]]);
+    place(tee, teeBody(), m('cast'));
+    for (const side of [1, -1]) place(tee, cylinder(7.4, 0.4, 32), m('bore'), 0, side * (TEE_HALF + 0.05));
+    placeX(tee, prism(11, 11, 10, 6), m('cast'), END + 16.8 - TEE_X);
+    placeX(tee, prism(19, 19, 8, 6), m('brass'), END + 7.8 - TEE_X);
+    placeX(tee, ridged(16.6, 12, 2.3, 1.4), m('brass'), END - 2.2 - TEE_X);
+    const ring = place(tee, memo('tee o-ring', () => new THREE.TorusGeometry(16, 1.9, 12, 48)), m('black'), END + 1.9 - TEE_X);
+    ring.rotation.y = Math.PI / 2;
+    place(tee, bore(), m('bore'), END - 8.25 - TEE_X).rotation.y = -Math.PI / 2;
     add('trojnik', tee, new THREE.Vector3(TEE_OUT, shift, 0), { zone: `trojnik ${y}` });
 
     const v = paint('odpowietrznik');
     const vent = new THREE.Group();
-    vent.position.set(TEE_X, y + 37, depth(y));
-    stack(vent, 0, -1, [[ridged(8, 6, 1.4, 0.8), v('brass'), 6]]);
+    vent.position.set(TEE_X, y + TEE_HALF, depth(y));
+    stack(vent, 0, -1, [
+      [ridged(8.3, 8.5, 1.3, 0.6), v('brass'), 8.5],
+      [cylinder(2.2, 2, 16), v('black'), 2],
+      [cylinder(4.4, 2, 24), v('black'), 2],
+    ]);
+    place(vent, oRing(8.6, 0.9), v('black'), 0, -1);
     stack(vent, 0, 1, [
-      [ridged(15.5, 10, 1.2, 0.5), v('brass'), 10],
-      [cylinder(13.5, 24), v('brass'), 24],
-      [ridged(17, 8, 1.2, 0.5), v('brass'), 8],
-      [cylinder(3.6, 9, 24), v('black'), 9],
+      [prism(10, 10, 13.8, 6), v('brass'), 13.8],
+      [cylinder(11.5, 36), v('brass'), 36],
+      [cylinder(12.8, 2), v('brass'), 2],
+      [fluted(13.1, 0.35, 8.5, 90), v('brass'), 8.5],
+      [cylinder(12.6, 1.5), v('brass'), 1.5],
+      [prism(4.8, 5.8, 9, 18), v('black'), 9],
+      [cylinder(4.2, 1.2, 24), v('black'), 1.2],
     ]);
     add('odpowietrznik', vent, new THREE.Vector3(TEE_OUT, shift + GAP, 0), { zone: `odpowietrznik ${y}` });
 
     const drain = new THREE.Group();
-    drain.position.set(TEE_X, y - 31, depth(y));
-    stack(drain, 0, 1, [[ridged(8, 6, 1.4, 0.8), m('brass'), 6]]);
-    stack(drain, 0, -1, [[cylinder(12.5, 16), m('black'), 16]]);
-    const angle = -0.6;
-    const dir = new THREE.Vector3(Math.cos(angle), Math.sin(angle), 0);
-    const pivot = new THREE.Vector3(0, -9, 0);
-    for (const [geometry, material, at] of [
-      [cylinder(8, 18), m('black'), 14],
-      [ridged(11, 6, 1.2, 0.5), m('brass'), 25],
+    drain.position.set(TEE_X, y - TEE_HALF, depth(y));
+    stack(drain, 0, 1, [[ridged(8.3, 7, 1.3, 0.6), m('brass'), 7]]);
+    place(drain, oRing(8.6, 0.9), m('black'), 0, 1);
+    const body = stack(drain, 0, -1, [
+      [prism(10.7, 10.7, 7, 6), m('brass'), 7],
+      [cylinder(10.2, 3), m('black'), 3],
+      [drainBody(), m('black'), 13],
+      [prism(1.7, 1.7, 3.5, 6), m('brass'), 3.5],
+    ]);
+    const outlet = new THREE.Group();
+    outlet.position.y = body + 11;
+    outlet.rotation.y = DRAIN_TURN;
+    drain.add(outlet);
+    const dir = new THREE.Vector3(0, -Math.sin(DRAIN_TILT), Math.cos(DRAIN_TILT));
+    for (const [geometry, at] of [
+      [drainNeck(), 14.5],
+      [fluted(12.7, 0.6, 8, 26), 23.5],
+      [cylinder(3.7, 5.5, 24), 30.25],
     ] as const) {
-      const mesh = place(drain, geometry, material);
-      mesh.position.copy(pivot).addScaledVector(dir, at);
-      mesh.rotation.z = angle - Math.PI / 2;
+      const mesh = place(outlet, geometry, m('black'));
+      mesh.position.copy(dir).multiplyScalar(at);
+      mesh.rotation.x = Math.PI / 2 + DRAIN_TILT;
     }
-    place(drain, cylinder(2.4, 8, 16), m('brass'), -2, -20);
+    place(outlet, drainStrap(), m('black'), -10.5);
     add('trojnik', drain, new THREE.Vector3(TEE_OUT, shift - GAP, 0), { zone: `trojnik ${y}` });
 
     return { tee, vent, drain };
   });
 
   const anchors: Record<PartId, Anchor> = {
-    rotametry: { object: flowmeters[0], point: new THREE.Vector3(-17.5, 56, 0) },
-    odpowietrznik: { object: tees[0].vent, point: new THREE.Vector3(17, 28, 0) },
+    rotametry: { object: flowmeters[0], point: new THREE.Vector3(-14.3, 12, 0) },
+    odpowietrznik: { object: tees[0].vent, point: new THREE.Vector3(11.5, 32, 0) },
     zasilanie: { object: supply, point: new THREE.Vector3(-END, 0, 8) },
     oznaczenie: { object: brandGroup, point: new THREE.Vector3(27, 0, R + 0.4) },
     uchwyty: { object: brackets[0], point: new THREE.Vector3(-8, -10, WALL_Z + 1.2) },
     wkladki: { object: caps[0], point: new THREE.Vector3(-16.5, 12, 0) },
     powrot: { object: ret, point: new THREE.Vector3(-END, 0, 8) },
-    trojnik: { object: tees[1].tee, point: new THREE.Vector3(13, 0, 0) },
-    przylacza: { object: nipples[OUTLETS.length], point: new THREE.Vector3(-12, -14, 0) },
+    trojnik: { object: tees[1].tee, point: new THREE.Vector3(10, 0, 0) },
+    przylacza: { object: nipples[OUTLETS.length], point: new THREE.Vector3(-13.2, -14.5, 0) },
   };
 
   const edge = new THREE.Vector3(0, R * Math.sin(7.5 / R), R * Math.cos(7.5 / R));

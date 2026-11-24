@@ -36,6 +36,7 @@ export interface ManifoldModel {
 
 export type Finish =
   | 'brass'
+  | 'cast'
   | 'zinc'
   | 'chrome'
   | 'steel'
@@ -52,6 +53,10 @@ const FINISHES: Record<Finish, [THREE.MeshPhysicalMaterialParameters, Surface]> 
   brass: [
     { color: 0xe8b85e, metalness: 1, roughness: 0.2 },
     { size: 7, stretch: 6, rough: 0.07, tone: 0.07, bump: 0.05 },
+  ],
+  cast: [
+    { color: 0xc99a57, metalness: 1, roughness: 0.52 },
+    { size: 0.7, stretch: 1, rough: 0.16, tone: 0.1, bump: 0.03 },
   ],
   zinc: [
     { color: 0xd2cdc2, metalness: 1, roughness: 0.26, side: THREE.DoubleSide },
@@ -79,9 +84,10 @@ const FINISHES: Record<Finish, [THREE.MeshPhysicalMaterialParameters, Surface]> 
     { color: 0x1c46c2, metalness: 0, roughness: 0.42, clearcoat: 0.45, clearcoatRoughness: 0.22 },
     { size: 5, stretch: 1, rough: 0.08, tone: 0.04, bump: 0.01 },
   ],
+  // Matte, with a fine grain like the insert caps.
   navy: [
-    { color: 0x0f1c66, metalness: 0, roughness: 0.4, clearcoat: 0.45, clearcoatRoughness: 0.2 },
-    { size: 5, stretch: 1, rough: 0.08, tone: 0.04, bump: 0.01 },
+    { color: 0x0f1c66, metalness: 0, roughness: 0.62, clearcoat: 0.1, clearcoatRoughness: 0.5 },
+    { size: 0.8, stretch: 1, rough: 0.1, tone: 0.05, bump: 0.012 },
   ],
   glass: [
     { color: 0xdfe9ee, metalness: 0, roughness: 0.04, transparent: true, opacity: 0.22, depthWrite: false },
@@ -254,6 +260,23 @@ export const ridged = (r: number, h: number, pitch: number, depth: number) =>
     }
     points.push(new THREE.Vector2(r - depth, h), new THREE.Vector2(0, h));
     const geometry = new THREE.LatheGeometry(points, 48);
+    geometry.translate(0, -h / 2, 0);
+    return geometry;
+  });
+
+// Knurled and ribbed rings: a star-shaped section stood along y. Flat faces keep each rib sharp.
+export const fluted = (r: number, cut: number, h: number, count: number) =>
+  memo(`fluted ${r} ${cut} ${h} ${count}`, () => {
+    const shape = new THREE.Shape();
+    for (let k = 0; k < count * 2; k++) {
+      const a = (k / (count * 2)) * Math.PI * 2;
+      const radius = k % 2 ? r - cut : r;
+      if (k) shape.lineTo(radius * Math.cos(a), radius * Math.sin(a));
+      else shape.moveTo(radius, 0);
+    }
+    shape.closePath();
+    const geometry = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false });
+    geometry.rotateX(-Math.PI / 2);
     geometry.translate(0, -h / 2, 0);
     return geometry;
   });
