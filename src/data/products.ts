@@ -1,7 +1,6 @@
 import type { ImageMetadata } from 'astro';
 import data from './products.json';
 import drawingData from './drawings.json';
-import { company } from './company';
 
 export type Material = 'mosiadz' | 'inox';
 export type Vent = 'auto' | 'manual' | 'none';
@@ -109,10 +108,4 @@ export function featureList(p: Product): string[] {
   if (f.pex) list.push('złączki PEX');
   list.push(ventLabels[f.vent]);
   return list;
-}
-
-// Product detail pages are not rebuilt yet, so link to the live WordPress pages.
-// The new site keeps the same paths, so this becomes `/produkty/${slug}/` at launch.
-export function productUrl(slug: string): string {
-  return `${company.liveSite}/produkty/${slug}/`;
 }

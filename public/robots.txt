@@ -1,3 +1,4 @@
-# Preview build: keep the variants out of search results until launch.
 User-agent: *
-Disallow: /
+Allow: /
+
+Sitemap: https://www.huber.info.pl/sitemap.xml

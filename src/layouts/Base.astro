@@ -15,9 +15,7 @@ interface Props {
   jsonLd?: Record<string, unknown>[];
 }
 
-// Preview stage: no page is indexed, so this copy never competes with huber.info.pl in search. Turn off at launch.
-const PREVIEW = true;
-const { title, description, path = '/', themeColor = '#ffffff', noindex = PREVIEW, ogImage, jsonLd = [] } = Astro.props;
+const { title, description, path = '/', themeColor = '#ffffff', noindex = false, ogImage, jsonLd = [] } = Astro.props;
 
 const canonical = new URL(path, Astro.site);
 const og = ogImage ? await getImage({ src: ogImage, width: 1200, format: 'jpg' }) : undefined;

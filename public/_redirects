@@ -1,0 +1,11 @@
+# Pages of the old WordPress site. They now live as sections of the home page.
+/o-nas /#o-firmie 301
+/o-nas/ /#o-firmie 301
+/kontakt /#kontakt 301
+/kontakt/ /#kontakt 301
+/produkty /#asortyment 301
+/produkty/* /#asortyment 301
+/produkty_cat/* /#asortyment 301
+/author/* / 301
+/feed/ / 301
+/comments/feed/ / 301

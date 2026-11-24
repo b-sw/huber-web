@@ -20,7 +20,7 @@ import Rule from '../components/pudelko-siatka/Rule.astro';
 import Range from '../components/pudelko-siatka/Range.astro';
 import Whose from '../components/pudelko-siatka/Whose.astro';
 import { company } from '../data/company';
-import { circuitRange, configFloor, materials, productImage, productUrl, products } from '../data/products';
+import { circuitRange, configFloor, materials, productImage, products } from '../data/products';
 import factory from '../assets/photos/factory.jpg';
 
 const TOTAL = 6;
@@ -89,7 +89,6 @@ const itemList = {
       sku: p.code,
       brand: { '@type': 'Brand', name: company.name },
       material: materials[p.material].label,
-      url: productUrl(p.slug),
     },
   })),
 };

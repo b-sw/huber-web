@@ -5,7 +5,7 @@ New website for [huber.info.pl](https://www.huber.info.pl), a family manufacture
 
 This first stage contains the home page. It puts the product range and the new OEM offer first.
 
-Preview: **https://b-sw.github.io/huber-web/** (every push to `main` deploys it).
+Live: **https://www.huber.info.pl** on Cloudflare Workers. Preview: **https://b-sw.github.io/huber-web/**.
 
 ## Run it
 
@@ -26,6 +26,7 @@ npm run check     # type check
 | --- | --- |
 | `/` | The home page: the box hero in a hairline grid (bestboy.dev style) |
 | `/warianty/pudelko-siatka/` | Redirects to `/`. The chosen proposal had this preview address |
+| Old WordPress pages | `public/_redirects` sends `/o-nas/`, `/kontakt/`, `/produkty/…` and others to sections of `/` |
 
 The page uses one background colour, slightly rounded buttons and no contact forms. The header stays visible at all
 times and holds only section links. The other proposals, the review bar and the style picker were removed. Git
@@ -119,24 +120,26 @@ Lighthouse, mobile, 21 Nov 2026 (live site vs the new page served locally):
 | Page weight | 2394 KiB | 471 KiB |
 | Requests | 78 | 25 |
 
-\* The only failing SEO check is "page is blocked from indexing". The preview is `noindex` on purpose.
+\* Measured on the preview, which was `noindex`. That was the only failing SEO check.
 
 ## Deployment
 
+The live site is the `huber-web` Worker on Cloudflare (`wrangler.jsonc`). It serves `dist/` as static assets on
+`www.huber.info.pl`. `npm run deploy` builds and deploys it with Wrangler. Cloudflare Workers Builds can deploy every
+push to `main`. The bare `huber.info.pl` stays on the az.pl server, which hosts the e-mail and redirects to `www`.
+
 `.github/workflows/deploy.yml` type-checks, builds and publishes `dist/` to GitHub Pages on every push to `main`.
 GitHub Pages serves the site from `/huber-web/`, so the workflow sets `BASE_PATH`. Internal links go through
-`withBase()` in `src/data/paths.ts`.
+`withBase()` in `src/data/paths.ts`. Every page has a canonical URL on `www.huber.info.pl`, so search engines treat
+the live site as the original.
 
-The preview is `noindex` (`PREVIEW` in `src/layouts/Base.astro`, plus `public/robots.txt`), so this copy never competes
-with huber.info.pl in search results.
+## SEO
 
-## SEO checklist for launch
-
-- Set `PREVIEW = false` in `src/layouts/Base.astro` and replace `public/robots.txt`. Add a sitemap.
-- Keep the old URLs (`/o-nas/`, `/produkty/`, `/produkty/rw-pt/`, `/kontakt/`). `trailingSlash: 'always'` already matches them.
-  Add 301 redirects for anything that changes.
+- `public/robots.txt` allows all crawlers and points to `public/sitemap.xml`. Add new pages to the sitemap.
+- The old WordPress URLs redirect with 301 to sections of the home page (`public/_redirects`). When a product page is
+  rebuilt at `/produkty/<slug>/`, remove the matching redirect.
 - Every page has a title, meta description, canonical URL, Open Graph tags and JSON-LD (Organization, ItemList of
-  products). The current site has no meta description, no H1 and no structured data.
+  products). The old WordPress site had no meta description, no H1 and no structured data.
 - `src/middleware.ts` keeps Polish one-letter words (w, z, i, o, a, u) from ending a line.
 
 ## Content to confirm with Huber
