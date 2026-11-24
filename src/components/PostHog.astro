@@ -1,24 +1,19 @@
 ---
-// Builds without the token (dev, the GitHub Pages preview) send nothing.
-const token = import.meta.env.PUBLIC_POSTHOG_PROJECT_TOKEN;
-const host = import.meta.env.PUBLIC_POSTHOG_HOST;
-const enabled = import.meta.env.PROD && token && host;
-// `npm run preview` and other copies of the build must not send data either.
+// Public project token: it only sends events, and every visitor's browser gets it anyway.
+const token = 'phc_D6apuhUDFqijzUfMwNZPQSH5HP8txE7LSjY6JkJKEdxL';
+const host = 'https://eu.i.posthog.com';
+// Dev, `npm run preview` and the GitHub Pages preview must not send data.
 const siteHost = Astro.site?.hostname;
 ---
 
-{
-  enabled && (
-    <script is:inline define:vars={{ token, host, siteHost }}>
-      if (location.hostname === siteHost) {
-        !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],Object.defineProperty(u,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e}}),Object.defineProperty(u.people,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(){return u.toString(1)+".people (stub)"}}),o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagResult reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-        // No cookies or storage, so the site needs no consent banner. The project must keep cookieless tracking on.
-        posthog.init(token, {
-          api_host: host,
-          defaults: '2026-08-30',
-          cookieless_mode: 'always',
-        });
-      }
-    </script>
-  )
-}
+<script is:inline define:vars={{ token, host, siteHost }}>
+  if (location.hostname === siteHost) {
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],Object.defineProperty(u,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e}}),Object.defineProperty(u.people,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(){return u.toString(1)+".people (stub)"}}),o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagResult reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    // No cookies or storage, so the site needs no consent banner. The project must keep cookieless tracking on.
+    posthog.init(token, {
+      api_host: host,
+      defaults: '2026-08-30',
+      cookieless_mode: 'always',
+    });
+  }
+</script>

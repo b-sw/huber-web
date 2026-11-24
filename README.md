@@ -153,17 +153,9 @@ and writes nothing to browser storage, so the site needs no consent banner. Post
 its servers. Because of this, a returning visitor counts as new each day, and there is no session replay and no GeoIP.
 The PostHog project must keep **Settings › Web analytics › Cookieless tracking** on, or PostHog drops every event.
 
-The build reads the token and host from `.env` (not in git):
-
-```sh
-PUBLIC_POSTHOG_PROJECT_TOKEN=phc_…
-PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
-```
-
-Only a production build with both values includes the script. `npm run dev` and the GitHub Pages preview send nothing.
-In the browser, the script starts only on the `site` host from `astro.config.mjs` (`www.huber.info.pl`). So
-`npm run preview` on localhost and any other copy of the build send nothing too.
-Run `npm run deploy` from a checkout that has the `.env` file.
+The token and host are constants in the component. The token is public: it only sends events, and every visitor's
+browser gets it in the page source. The script starts only on the `site` host from `astro.config.mjs`
+(`www.huber.info.pl`), so `npm run dev`, `npm run preview` and the GitHub Pages preview send nothing.
 
 ## Content to confirm with Huber
 
