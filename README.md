@@ -161,6 +161,8 @@ PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
 ```
 
 Only a production build with both values includes the script. `npm run dev` and the GitHub Pages preview send nothing.
+In the browser, the script starts only on the `site` host from `astro.config.mjs` (`www.huber.info.pl`). So
+`npm run preview` on localhost and any other copy of the build send nothing too.
 Run `npm run deploy` from a checkout that has the `.env` file.
 
 ## Content to confirm with Huber
