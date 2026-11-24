@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "huber-web",
+  "compatibility_date": "2026-11-01",
+  // Static site: the Worker only serves the Astro build output.
+  "assets": {
+    "directory": "./dist"
+  }
+}
