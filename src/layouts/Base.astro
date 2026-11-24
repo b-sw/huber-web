@@ -37,6 +37,14 @@ const organization = {
     addressCountry: company.address.country,
   },
 };
+
+const website = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: company.name,
+  alternateName: `${company.name} Rozdzielacze`,
+  url: `${company.liveSite}/`,
+};
 ---
 
 <!doctype html>
@@ -57,7 +65,7 @@ const organization = {
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     {og && <meta property="og:image" content={new URL(og.src, Astro.site)} />}
-    <script type="application/ld+json" set:html={JSON.stringify([organization, ...jsonLd])} />
+    <script type="application/ld+json" set:html={JSON.stringify([website, organization, ...jsonLd])} />
     <slot name="head" />
   </head>
   <body>

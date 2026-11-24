@@ -97,7 +97,7 @@ const year = new Date().getFullYear();
 ---
 
 <Base
-  title="Rozdzielacze do podłogówki od producenta. OEM pod Twoją marką | Huber"
+  title={`${company.name} – ${company.tagline.toLowerCase()}`}
   description={`Producent rozdzielaczy do ogrzewania podłogowego od ${company.foundingYear} roku. ${CONFIGS} z mosiądzu i inoxu, ${all.min}–${all.max} obwodów, tabele indeksów. Produkcja OEM pod Twoją marką.`}
   themeColor="#fff8f5"
   ogImage={productImage('rw-ezmptr')}
@@ -360,7 +360,7 @@ const year = new Date().getFullYear();
       </section>
     </main>
 
-    <footer class="ps-sec foot">
+    <footer class="ps-sec foot" data-nosnippet>
       <Rule wait />
       <div class="ps-wrap foot-in">
         <Logo ink="var(--ink)" paper="var(--bg)" height={20} />
