@@ -2,6 +2,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "huber-web",
   "compatibility_date": "2026-11-01",
+  // Cloudflare creates the DNS record and certificate for the custom domain.
+  // The bare huber.info.pl stays on the az.pl server, which hosts the e-mail.
+  "routes": [{ "pattern": "www.huber.info.pl", "custom_domain": true }],
   // Static site: the Worker only serves the Astro build output.
   "assets": {
     "directory": "./dist"
