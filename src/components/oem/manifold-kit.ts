@@ -84,10 +84,10 @@ const FINISHES: Record<Finish, [THREE.MeshPhysicalMaterialParameters, Surface]> 
     { color: 0x1c46c2, metalness: 0, roughness: 0.42, clearcoat: 0.45, clearcoatRoughness: 0.22 },
     { size: 5, stretch: 1, rough: 0.08, tone: 0.04, bump: 0.01 },
   ],
-  // Matte, with a fine grain like the insert caps.
+  // Matte, with a fine grain like the real insert caps.
   navy: [
     { color: 0x0f1c66, metalness: 0, roughness: 0.62, clearcoat: 0.1, clearcoatRoughness: 0.5 },
-    { size: 0.8, stretch: 1, rough: 0.1, tone: 0.05, bump: 0.012 },
+    { size: 0.5, stretch: 1, rough: 0.06, tone: 0.015, bump: 0.006 },
   ],
   glass: [
     { color: 0xdfe9ee, metalness: 0, roughness: 0.04, transparent: true, opacity: 0.22, depthWrite: false },

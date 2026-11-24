@@ -354,7 +354,6 @@ export function buildSteel(): ManifoldModel {
     );
     place(tee, body, m('nickel'));
     const bottom = stack(tee, -21.8, -1, [[prism(12.6, 12.6, 7.7, 6), m('nickel'), 7.7]]);
-    // The openings: the arm into the beam end, the top for the vent and the bottom for the drain valve.
     place(tee, bore(), m('socket'), 141 - 0.05 - TEE_X).rotation.y = -Math.PI / 2;
     place(tee, cylinder(8, 0.4, 32), m('socket'), 0, 21.85);
     place(tee, cylinder(7.2, 0.4, 32), m('socket'), 0, bottom - 0.05);

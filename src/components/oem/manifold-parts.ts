@@ -1,4 +1,4 @@
-// Parts that both manifolds share: the flow meters, the thermostatic inserts and the circuit nipples.
+// Parts that both manifolds share.
 // Units are millimetres. Each part stands along y with y = 0 on its seat. The flow meter and the insert reach down into
 // the beam, the nipple reaches up into it.
 import * as THREE from 'three';
@@ -42,7 +42,6 @@ const meterNut = () =>
 const meterScale = () =>
   memo('meter scale', () => new THREE.CylinderGeometry(7.4, 7.4, 20, 12, 1, true, -0.55, 1.1));
 
-// The posts between the cage windows, one at the front.
 const meterPosts = () =>
   memo('meter posts', () =>
     mergeGeometries(
@@ -90,7 +89,7 @@ const threadSteps = (crest: number, root: number, pitch: number, y0: number, y1:
   return points;
 };
 
-// Hollow, as the water runs through it. The ¾″ end opens in a cone for the pipe fitting.
+// The ¾″ end opens in a cone for the pipe fitting.
 const nippleTube = ({ hex: [, hexH], neck: [neckR, neckH], thread: [crest, threadH] }: NippleShape) =>
   memo(`nipple tube ${hexH} ${neckR} ${neckH} ${crest} ${threadH}`, () => {
     const end = -(hexH + neckH + threadH);
@@ -140,7 +139,7 @@ const nippleHex = ([r, h]: NippleShape['hex']) =>
     ),
   );
 
-// The scale printed on the tube. Each model tracks its own material, so a highlight can fade it.
+// A new material on each call: each model tracks its own, so a highlight can fade it.
 export function meterScaleMaterial() {
   const { texture } = stickerTexture(104, 256, (ctx) => {
     ctx.fillStyle = '#1c1d22';
@@ -156,7 +155,6 @@ export function meterScaleMaterial() {
   return new THREE.MeshStandardMaterial({ map: texture, transparent: true, depthWrite: false, roughness: 0.5 });
 }
 
-// A red nut with two tabs holds the clear tube. Under the thread, a brass cage and a red valve stem go into the beam.
 export function flowMeter(m: Paint, scale: THREE.Material): Part {
   const group = new THREE.Group();
   const tip = stack(group, 0, -1, [
@@ -177,7 +175,7 @@ export function flowMeter(m: Paint, scale: THREE.Material): Part {
     [meterNut(), m('red'), 19],
     [cylinder(7.4, 7.7, 32), m('red'), 7.7],
   ]);
-  // The tabs point across the corners, so they show from the front and clear the bracket clamps.
+  // The tabs point diagonally, so they show from the front and clear the bracket clamps.
   place(group, memo('meter tabs', () => new THREE.BoxGeometry(7, 2.2, 40).rotateY(Math.PI / 4)), m('red'), 0, 2.7);
   stack(group, top, 1, [
     [cylinder(7.3, 26.2, 32), m('glass'), 26.2],
@@ -190,7 +188,6 @@ export function flowMeter(m: Paint, scale: THREE.Material): Part {
   return { group, reach: -tip };
 }
 
-// A navy cap on a brass flange. Under the thread, the valve stem with its seal disk goes into the beam.
 export function thermostaticInsert(m: Paint): Part {
   const group = new THREE.Group();
   const tip = stack(group, 0, -1, [
@@ -214,7 +211,7 @@ export function thermostaticInsert(m: Paint): Part {
   return { group, reach: -tip };
 }
 
-// A ½″ thread with an O-ring goes into the beam. Under the hex, a ¾″ thread takes the loop.
+// ½″ into the beam, ¾″ for the loop.
 export function nipple(m: Paint, finish: Finish, shape: NippleShape) {
   const group = new THREE.Group();
   place(group, nippleTube(shape), m(finish));

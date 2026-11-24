@@ -137,7 +137,6 @@ const teeBody = () =>
     ),
   );
 
-// Plastic, a little narrower and rounded at the far end.
 const drainBody = () =>
   memo('drain body', () =>
     turned(
@@ -277,7 +276,7 @@ export function buildBrass(): ManifoldModel {
   const tees = [SUPPLY_Y, RETURN_Y].map((y) => {
     const shift = y > 0 ? SPREAD : -SPREAD;
 
-    // The 1″ side arm screws into the beam end. Its O-ring seals against the end face.
+    // The O-ring seals against the beam end face.
     const m = paint('trojnik');
     const tee = new THREE.Group();
     tee.position.set(TEE_X, y, depth(y));
