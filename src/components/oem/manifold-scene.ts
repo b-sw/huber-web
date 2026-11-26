@@ -5,7 +5,7 @@ import type { PartId } from '../../data/manifold';
 import type { Material } from '../../data/products';
 import { buildBrass } from './manifold-brass';
 import type { Anchor, ManifoldModel, Piece } from './manifold-kit';
-import { studio } from './manifold-shading';
+import { studioEnvironment } from './manifold-shading';
 import { buildSteel } from './manifold-steel';
 
 export interface Frame {
@@ -77,7 +77,7 @@ const cornersOf = (box: THREE.Box3) =>
       ),
   );
 
-export function mountManifold({ canvas, still, material, progress, onPick, onFrame }: Options): ManifoldView | null {
+export async function mountManifold({ canvas, still, material, progress, onPick, onFrame }: Options): Promise<ManifoldView | null> {
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -88,21 +88,44 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
   renderer.toneMapping = THREE.NeutralToneMapping;
 
   const scene = new THREE.Scene();
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(studio(), 0.02, 0.1, 100, { size: 512 }).texture;
-  pmrem.dispose();
+  scene.environment = await studioEnvironment(renderer);
   const key = new THREE.DirectionalLight(0xfff2e2, 1.6);
   key.position.set(-300, 500, 400);
   scene.add(key);
 
   const camera = new THREE.PerspectiveCamera(FOV, 1, 10, 6000);
   const restCamera = camera.clone();
+  // The view draws only once the first model is ready.
+  let live = false;
 
-  const staged = new Map<Material, Staged>();
-  const warmup = new THREE.WebGLRenderTarget(1, 1);
-  const stage = (material: Material): Staged => {
-    const known = staged.get(material);
-    if (known) return known;
+  // Waits a frame at least, and until the GPU has done all the work so far.
+  const gl = renderer.getContext() as WebGL2RenderingContext;
+  const settled = async () => {
+    const fence = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)!;
+    gl.flush();
+    do await new Promise(requestAnimationFrame);
+    while (!gl.isContextLost() && gl.getSyncParameter(fence, gl.SYNC_STATUS) !== gl.SIGNALED);
+    gl.deleteSync(fence);
+  };
+
+  // The GPU finishes a new shader on its first draw. Many first draws in one frame stall the page, and so does a draw
+  // while the GPU still finishes the last one. So each new shader first draws one mesh alone, once the GPU is idle.
+  // It draws to the canvas, because a render target needs shaders of its own. The view draws again over it.
+  const probe = new THREE.Scene();
+  probe.environment = scene.environment;
+  probe.add(key.clone());
+  const drawAlone = (mesh: THREE.Mesh) => {
+    const copy = new THREE.Mesh(mesh.geometry, mesh.material);
+    copy.frustumCulled = false;
+    probe.add(copy);
+    renderer.render(probe, camera);
+    probe.remove(copy);
+    if (live) renderer.render(scene, camera);
+  };
+
+  const build = async (material: Material): Promise<Staged> => {
+    // The build is a long task, so it does not join the one before it.
+    await new Promise((resolve) => setTimeout(resolve));
     const model = BUILDERS[material]();
 
     const zones: Staged['zones'] = new Map();
@@ -126,22 +149,33 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
     const spread = new THREE.Box3().setFromObject(model.root);
 
     // A highlight fades the other parts, which needs other shader variants. Compile them now, not on the first hover.
-    // The second pass fades the part that the first pass kept solid.
-    scene.add(model.root);
+    // The second pass fades the part that the first pass kept solid. The last pass compiles the plain view.
+    // The GPU compiles them in the background, so the page keeps scrolling meanwhile.
+    const meshes = new Map<THREE.Material, THREE.Mesh>();
+    model.root.traverse((object) => {
+      if (object instanceof THREE.Mesh && !meshes.has(object.material)) meshes.set(object.material, object);
+    });
+    const firsts: { part: PartId | null; mesh: THREE.Mesh }[] = [];
     const [first, second] = new Set(model.pieces.map((piece) => piece.part));
-    for (const part of [first, second]) {
+    for (const part of [first, second, null]) {
       model.highlight(part);
-      renderer.compile(scene, camera);
+      for (const mesh of meshes.values()) {
+        const known = renderer.info.programs!.length;
+        renderer.compile(mesh, camera, scene);
+        if (renderer.info.programs!.length > known) firsts.push({ part, mesh });
+      }
+      await renderer.compileAsync(model.root, camera, scene);
+    }
+    for (const { part, mesh } of firsts) {
+      await settled();
+      model.highlight(part);
+      drawAlone(mesh);
     }
     model.highlight(null);
-    // Draw it once off screen, so its first frame on screen does not upload every buffer and texture.
-    renderer.setRenderTarget(warmup);
-    renderer.render(scene, camera);
-    renderer.setRenderTarget(null);
-    scene.remove(model.root);
+    await settled();
     model.ready.then(request);
 
-    const built = {
+    return {
       material,
       model,
       pieces: new Map(model.pieces.map((piece) => [piece.object, piece])),
@@ -150,13 +184,19 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
       size: spread.getSize(new THREE.Vector3()),
       corners: cornersOf(spread),
     };
-    staged.set(material, built);
-    return built;
   };
 
-  let shown = stage(material);
+  const staged = new Map<Material, Promise<Staged>>();
+  const stage = (material: Material) => {
+    let known = staged.get(material);
+    if (!known) staged.set(material, (known = build(material)));
+    return known;
+  };
+
+  let shown = await stage(material);
   scene.add(shown.model.root);
   let pending: Staged | null = null;
+  let wanted = material;
   let swing = 0;
   let fold: { start: number; p: number; swing: number } | null = null;
   let spread: { start: number } | null = null;
@@ -328,7 +368,7 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
   whenIdle(() => (Object.keys(BUILDERS) as Material[]).forEach(stage));
 
   function request() {
-    if (!raf) raf = requestAnimationFrame(frame);
+    if (live && !raf) raf = requestAnimationFrame(frame);
   }
 
   // Off the parts themselves, the pointer picks the nearest zone box on screen. Inside several boxes, the smallest wins.
@@ -401,6 +441,7 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
     request();
   }).observe(canvas);
   document.addEventListener('visibilitychange', () => running() && request());
+  live = true;
   resize();
 
   return {
@@ -421,15 +462,19 @@ export function mountManifold({ canvas, still, material, progress, onPick, onFra
       request();
     },
     show(material) {
-      const next = stage(material);
-      // Choosing the model on screen again before the parts fold together spreads them back.
-      pending = next === shown ? null : next;
-      if (still && pending) {
-        swap();
-        swing = 0;
-        refit();
-      }
-      request();
+      wanted = material;
+      stage(material).then((next) => {
+        // A later choice wins over a model that was still compiling.
+        if (material !== wanted) return;
+        // Choosing the model on screen again before the parts fold together spreads them back.
+        pending = next === shown ? null : next;
+        if (still && pending) {
+          swap();
+          swing = 0;
+          refit();
+        }
+        request();
+      });
     },
   };
 }

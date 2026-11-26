@@ -111,3 +111,24 @@ export function studio(): THREE.Scene {
 
   return scene;
 }
+
+// The studio, prefiltered for reflections. The generator draws with each shader right after it compiles it, so the
+// page waits for every compile. A dry run first compiles each shader instead of drawing, and the GPU compiles them in
+// the background. The real run then finds them ready.
+export async function studioEnvironment(renderer: THREE.WebGLRenderer): Promise<THREE.Texture> {
+  const scene = studio();
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const bake = () => pmrem.fromScene(scene, 0.02, 0.1, 100, { size: 512 });
+  const compiled: Promise<unknown>[] = [];
+  const render = renderer.render;
+  renderer.render = (object, camera) => void compiled.push(renderer.compileAsync(object, camera));
+  try {
+    bake().dispose();
+  } finally {
+    renderer.render = render;
+  }
+  await Promise.all(compiled);
+  const { texture } = bake();
+  pmrem.dispose();
+  return texture;
+}

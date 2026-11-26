@@ -100,6 +100,22 @@ full repaints. The grain is now a 38 KB WebP tile plus a 1 KB tone map (`scripts
 blend layers, so the lenses still paint nothing per frame. The loop stops when the box is off screen or
 the tab is hidden. `geometry.ts` holds the shared frame, so the box and the photo line up by construction.
 
+## Loading the 3D manifold
+
+The OEM section loads three.js when it comes within 800 px of the screen. On a first visit the GPU compiles about a
+dozen shaders, and each one takes 40–300 ms. The first version compiled them in a row and waited for each. It also
+drew once into a render target, which compiled a second set. On an M1 Pro this blocked the page for 2.5 s and froze the
+scroll for 1.5 s. Now `manifold-scene.ts` loads in small steps:
+
+- The shaders compile in parallel with `compileAsync`. The page does not wait for them.
+- `studioEnvironment()` in `manifold-shading.ts` makes a dry run of the PMREM generator. It compiles the generator's
+  shaders first, so the real run finds them ready.
+- The GPU also builds each shader on its first draw. Each new shader draws once alone, one per frame, after a fence
+  shows the GPU is idle. The canvas fades in only after this.
+
+The longest task is now about 65 ms on a first visit. To measure a first visit, change the shader source in each run,
+because Chrome and macOS keep compiled shaders between runs.
+
 ## Why static rendering
 
 Google and visitors get finished HTML on the first request. Astro renders every page at build time and ships almost

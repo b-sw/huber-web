@@ -271,7 +271,7 @@ const sentences = (text: string) => text.split(/(?<=[.!?])\s+(?=\p{Lu})/u);
     const start = async () => {
       const { mountManifold } = await import('./manifold-scene');
       const material = root.dataset.model as Material;
-      scene = mountManifold({ canvas, still, material, progress, onPick: select, onFrame: layout });
+      scene = await mountManifold({ canvas, still, material, progress, onPick: select, onFrame: layout });
       if (!scene) {
         sizing.disconnect();
         root.dataset.layout = 'list';
@@ -280,6 +280,8 @@ const sentences = (text: string) => text.split(/(?<=[.!?])\s+(?=\p{Lu})/u);
         return;
       }
       root.toggleAttribute('data-3d', true);
+      // The switch can change while the scene compiles.
+      if (root.dataset.model !== material) scene.show(root.dataset.model as Material);
       measure();
       // A label also changes size when the page fonts load. A still scene draws no new frame then.
       const relabel = new ResizeObserver(() => last && layout(last));
